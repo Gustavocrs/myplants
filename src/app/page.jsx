@@ -75,8 +75,8 @@ export default function Home() {
 
   if (!user) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-100">
-        <div className="bg-white p-8 rounded-lg shadow-md text-center">
+      <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-24 bg-gray-100">
+        <div className="bg-white p-6 sm:p-8 rounded-xl shadow-md text-center w-full max-w-sm">
           <h1 className="text-2xl font-bold mb-6 text-green-700">
             MyPlants 🌱
           </h1>
@@ -99,7 +99,9 @@ export default function Home() {
       <header className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-green-800">Minhas Plantas</h1>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600">Olá, {user.displayName}</span>
+          <span className="text-sm text-gray-600 hidden sm:block">
+            Olá, {user.displayName}
+          </span>
           <button
             onClick={logout}
             className="text-red-500 hover:text-red-700 text-sm font-semibold"
