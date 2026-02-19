@@ -24,7 +24,6 @@ export default function Home() {
   const [loadingPlants, setLoadingPlants] = useState(true);
   const [plantToEdit, setPlantToEdit] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPlantId, setSelectedPlantId] = useState(null);
 
   // Escuta as plantas do usuário em tempo real
   useEffect(() => {
@@ -61,10 +60,13 @@ export default function Home() {
     if (window.confirm("Tem certeza que deseja excluir esta planta?")) {
       try {
         await deleteDoc(doc(db, "plants", id));
+        return true; // Retorna sucesso
       } catch (error) {
         console.error("Erro ao excluir planta:", error);
+        return false;
       }
     }
+    return false; // Cancelado
   };
 
   const filteredPlants = plants.filter((plant) =>
@@ -149,14 +151,7 @@ export default function Home() {
               <PlantCard
                 key={plant.id}
                 plant={plant}
-                isSelected={selectedPlantId === plant.id}
-                onToggleSelect={() =>
-                  setSelectedPlantId(
-                    selectedPlantId === plant.id ? null : plant.id,
-                  )
-                }
-                onEdit={handleEditPlant}
-                onDelete={handleDeletePlant}
+                onClick={handleEditPlant}
               />
             ))}
           </div>
@@ -172,6 +167,13 @@ export default function Home() {
             setPlantToEdit(null);
           }}
           plantToEdit={plantToEdit}
+          onDelete={async (id) => {
+            const success = await handleDeletePlant(id);
+            if (success) {
+              setIsModalOpen(false);
+              setPlantToEdit(null);
+            }
+          }}
         />
       )}
     </main>

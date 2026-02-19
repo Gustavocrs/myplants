@@ -11,7 +11,7 @@ import {
 } from "firebase/firestore";
 import {useAuth} from "@/context/AuthContext";
 
-export default function AddPlantModal({onClose, plantToEdit}) {
+export default function AddPlantModal({onClose, plantToEdit, onDelete}) {
   const {user} = useAuth();
   const [name, setName] = useState("");
   const [image, setImage] = useState(null);
@@ -158,21 +158,35 @@ export default function AddPlantModal({onClose, plantToEdit}) {
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 mt-8">
-            <button
-              onClick={onClose}
-              disabled={loading}
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={loading || !name || !image}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
-            >
-              {loading ? "Salvando..." : plantToEdit ? "Atualizar" : "Salvar"}
-            </button>
+          <div className="flex justify-between items-center mt-8">
+            {/* Botão de Excluir (apenas na edição) */}
+            <div>
+              {plantToEdit && (
+                <button
+                  onClick={() => onDelete(plantToEdit.id)}
+                  className="text-red-500 hover:text-red-700 text-sm font-medium px-2 py-2 rounded hover:bg-red-50 transition-colors flex items-center gap-1"
+                >
+                  🗑️ Excluir
+                </button>
+              )}
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={onClose}
+                disabled={loading}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={loading || !name || !image}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
+              >
+                {loading ? "Salvando..." : plantToEdit ? "Atualizar" : "Salvar"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
