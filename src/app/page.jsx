@@ -5,6 +5,7 @@ import {useState, useEffect} from "react";
 import {useAuth} from "@/context/AuthContext";
 import FloatingMenu from "../components/FloatingMenu";
 import AddPlantModal from "../components/AddPlantModal";
+import PlantCard from "../components/PlantCard";
 import {db} from "../lib/firebase";
 import {
   collection,
@@ -12,6 +13,8 @@ import {
   where,
   onSnapshot,
   orderBy,
+  doc,
+  deleteDoc,
 } from "firebase/firestore";
 
 export default function Home() {
@@ -19,6 +22,7 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [plants, setPlants] = useState([]);
   const [loadingPlants, setLoadingPlants] = useState(true);
+  const [plantToEdit, setPlantToEdit] = useState(null);
 
   // Escuta as plantas do usuário em tempo real
   useEffect(() => {
@@ -43,6 +47,23 @@ export default function Home() {
 
     return () => unsubscribe();
   }, [user]);
+
+  // Função para abrir o modal de edição
+  const handleEditPlant = (plant) => {
+    setPlantToEdit(plant);
+    setIsModalOpen(true);
+  };
+
+  // Função para excluir planta
+  const handleDeletePlant = async (id) => {
+    if (window.confirm("Tem certeza que deseja excluir esta planta?")) {
+      try {
+        await deleteDoc(doc(db, "plants", id));
+      } catch (error) {
+        console.error("Erro ao excluir planta:", error);
+      }
+    }
+  };
 
   if (!user) {
     return (
@@ -99,23 +120,12 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {plants.map((plant) => (
-              <div
+              <PlantCard
                 key={plant.id}
-                className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow group"
-              >
-                <div className="aspect-square relative overflow-hidden bg-gray-100">
-                  <img
-                    src={plant.imageUrl}
-                    alt={plant.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <div className="p-3">
-                  <h3 className="font-medium text-gray-800 truncate">
-                    {plant.name}
-                  </h3>
-                </div>
-              </div>
+                plant={plant}
+                onEdit={handleEditPlant}
+                onDelete={handleDeletePlant}
+              />
             ))}
           </div>
         )}
@@ -123,7 +133,15 @@ export default function Home() {
 
       <FloatingMenu onAddPlant={() => setIsModalOpen(true)} />
 
-      {isModalOpen && <AddPlantModal onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && (
+        <AddPlantModal
+          onClose={() => {
+            setIsModalOpen(false);
+            setPlantToEdit(null);
+          }}
+          plantToEdit={plantToEdit}
+        />
+      )}
     </main>
   );
 }

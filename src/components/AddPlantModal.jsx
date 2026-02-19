@@ -1,17 +1,32 @@
 "use client";
 
-import {useState, useRef} from "react";
+import {useState, useRef, useEffect} from "react";
 import {db} from "../lib/firebase";
-import {collection, addDoc, serverTimestamp} from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  updateDoc,
+  doc,
+  serverTimestamp,
+} from "firebase/firestore";
 import {useAuth} from "@/context/AuthContext";
 
-export default function AddPlantModal({onClose}) {
+export default function AddPlantModal({onClose, plantToEdit}) {
   const {user} = useAuth();
   const [name, setName] = useState("");
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Preenche os dados se estiver editando
+  useEffect(() => {
+    if (plantToEdit) {
+      setName(plantToEdit.name);
+      setImage(plantToEdit.imageUrl);
+      setPreview(plantToEdit.imageUrl);
+    }
+  }, [plantToEdit]);
 
   // Gerencia a seleção da imagem e cria o preview
   const handleImageChange = (e) => {
@@ -64,13 +79,22 @@ export default function AddPlantModal({onClose}) {
     setLoading(true);
 
     try {
-      // Salvar os dados no Firestore (imagem vai como string direto no banco)
-      await addDoc(collection(db, "plants"), {
-        name,
-        imageUrl: image, // Aqui está a string Base64
-        userId: user.uid,
-        createdAt: serverTimestamp(),
-      });
+      if (plantToEdit) {
+        // Atualizar planta existente
+        const plantRef = doc(db, "plants", plantToEdit.id);
+        await updateDoc(plantRef, {
+          name,
+          imageUrl: image,
+        });
+      } else {
+        // Criar nova planta
+        await addDoc(collection(db, "plants"), {
+          name,
+          imageUrl: image,
+          userId: user.uid,
+          createdAt: serverTimestamp(),
+        });
+      }
 
       // Fecha o modal após sucesso
       onClose();
@@ -86,7 +110,9 @@ export default function AddPlantModal({onClose}) {
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
         <div className="p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Nova Planta</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">
+            {plantToEdit ? "Editar Planta" : "Nova Planta"}
+          </h2>
 
           <div className="space-y-4">
             {/* Área de Upload Clicável */}
@@ -145,7 +171,7 @@ export default function AddPlantModal({onClose}) {
               disabled={loading || !name || !image}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
             >
-              {loading ? "Salvando..." : "Salvar"}
+              {loading ? "Salvando..." : plantToEdit ? "Atualizar" : "Salvar"}
             </button>
           </div>
         </div>
