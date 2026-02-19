@@ -23,6 +23,8 @@ export default function Home() {
   const [plants, setPlants] = useState([]);
   const [loadingPlants, setLoadingPlants] = useState(true);
   const [plantToEdit, setPlantToEdit] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedPlantId, setSelectedPlantId] = useState(null);
 
   // Escuta as plantas do usuário em tempo real
   useEffect(() => {
@@ -65,6 +67,10 @@ export default function Home() {
     }
   };
 
+  const filteredPlants = plants.filter((plant) =>
+    plant.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
   if (!user) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-100">
@@ -101,6 +107,20 @@ export default function Home() {
         </div>
       </header>
 
+      {/* Barra de Busca */}
+      <div className="max-w-5xl mx-auto mb-6">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Buscar plantas..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition-all"
+          />
+          <span className="absolute right-4 top-3.5 text-gray-400">🔍</span>
+        </div>
+      </div>
+
       {/* Aqui virá a Grid de Plantas futuramente */}
       <div className="max-w-5xl mx-auto">
         {loadingPlants ? (
@@ -117,12 +137,24 @@ export default function Home() {
               Toque no botão + para adicionar sua primeira planta.
             </p>
           </div>
+        ) : filteredPlants.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">
+              Nenhuma planta encontrada para "{searchTerm}"
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {plants.map((plant) => (
+            {filteredPlants.map((plant) => (
               <PlantCard
                 key={plant.id}
                 plant={plant}
+                isSelected={selectedPlantId === plant.id}
+                onToggleSelect={() =>
+                  setSelectedPlantId(
+                    selectedPlantId === plant.id ? null : plant.id,
+                  )
+                }
                 onEdit={handleEditPlant}
                 onDelete={handleDeletePlant}
               />
