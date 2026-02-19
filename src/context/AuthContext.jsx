@@ -6,6 +6,8 @@ import {auth} from "../lib/firebase";
 import {
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
   onAuthStateChanged,
 } from "firebase/auth";
@@ -17,6 +19,11 @@ export function AuthProvider({children}) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Verifica se o usuário retornou de um login por redirecionamento (comum em mobile)
+    getRedirectResult(auth).catch((error) => {
+      console.error("Erro ao processar retorno do login:", error);
+    });
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
@@ -27,7 +34,14 @@ export function AuthProvider({children}) {
   const loginGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+
+      // Detecta se é dispositivo móvel
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      if (isMobile) {
+        await signInWithRedirect(auth, provider);
+      } else {
+        await signInWithPopup(auth, provider);
+      }
     } catch (error) {
       console.error("Erro ao logar:", error);
     }
