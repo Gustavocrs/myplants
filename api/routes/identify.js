@@ -6,7 +6,7 @@ const {GoogleGenerativeAI} = require("@google/generative-ai");
 // Configuração do Multer para salvar na memória (RAM) temporariamente
 const upload = multer({storage: multer.memoryStorage()});
 
-// Inicializa o Gemini
+// Inicializa o Gemini com a API Key do seu .env
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 router.post("/", upload.single("image"), async (req, res) => {
@@ -15,26 +15,18 @@ router.post("/", upload.single("image"), async (req, res) => {
       return res.status(400).json({error: "Nenhuma imagem enviada."});
     }
 
-    // Converte o buffer da imagem para o formato que o Gemini aceita
-    const imagePart = {
-      inlineData: {
-        data: req.file.buffer.toString("base64"),
-        mimeType: req.file.mimetype,
+    // Instancia uma versão atual e ativa do modelo Flash
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+      generationConfig: {
+        responseMimeType: "application/json",
       },
-    };
-
-    const model = genAI.getGenerativeModel(
-      {
-        model: "gemini-1.5-flash",
-        generationConfig: {responseMimeType: "application/json"},
-      },
-      {apiVersion: "v1beta"},
-    );
+    });
 
     const prompt = `
       Identifique esta planta.
       Analise a imagem para identificar possíveis problemas de saúde (folhas amareladas, manchas, murcha, pragas) e sugira melhorias.
-      Retorne APENAS um objeto JSON (sem markdown, sem crases) com a seguinte estrutura:
+      Retorne APENAS um objeto JSON com a seguinte estrutura:
       {
         "nome": "Nome popular da planta em PT-BR",
         "nomeCientifico": "Nome científico",
@@ -46,25 +38,33 @@ router.post("/", upload.single("image"), async (req, res) => {
       Se a imagem não for de uma planta, retorne um JSON com { "error": "Não é uma planta" }.
     `;
 
-    const result = await model.generateContent([prompt, imagePart]);
+    // Prepara os dados da imagem recebida via FormData
+    const imageData = {
+      inlineData: {
+        mimeType: req.file.mimetype,
+        data: req.file.buffer.toString("base64"),
+      },
+    };
+
+    // Gera o conteúdo com a IA
+    const result = await model.generateContent([prompt, imageData]);
     const response = await result.response;
     const text = response.text();
 
-    // Limpeza para garantir que venha apenas o JSON
-    const jsonString = text.replace(/```json|```/g, "").trim();
-
     try {
-      const plantData = JSON.parse(jsonString);
+      const plantData = JSON.parse(text);
 
       if (plantData.error) {
         return res.status(400).json({error: plantData.error});
       }
 
-      // Retorna os dados para o frontend preencher o formulário
+      // Retorna os dados estruturados para a sua interface
       res.json(plantData);
     } catch (parseError) {
       console.error("Erro ao fazer parse do JSON do Gemini:", text);
-      res.status(500).json({error: "Falha ao processar resposta da IA."});
+      res
+        .status(500)
+        .json({error: "Falha ao processar resposta estruturada da IA."});
     }
   } catch (error) {
     console.error("Erro na identificação:", error);
