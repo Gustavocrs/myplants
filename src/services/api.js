@@ -17,8 +17,11 @@ export const api = {
       body: JSON.stringify(plantData),
     });
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || "Erro ao criar planta");
+      const errorData = await response.json().catch(() => null);
+      throw new Error(
+        errorData?.error ||
+          `Erro HTTP ${response.status}: ${response.statusText}`,
+      );
     }
     return response.json();
   },
@@ -30,8 +33,11 @@ export const api = {
       body: JSON.stringify(plantData),
     });
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || "Erro ao atualizar planta");
+      const errorData = await response.json().catch(() => null);
+      throw new Error(
+        errorData?.error ||
+          `Erro HTTP ${response.status}: ${response.statusText}`,
+      );
     }
     return response.json();
   },
@@ -52,8 +58,11 @@ export const api = {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || "Erro ao identificar planta");
+      const errorData = await response.json().catch(() => null);
+      throw new Error(
+        errorData?.error ||
+          `Erro HTTP ${response.status}: ${response.statusText}`,
+      );
     }
     return response.json();
   },
