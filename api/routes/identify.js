@@ -5,7 +5,7 @@ const {GoogleGenerativeAI} = require("@google/generative-ai");
 const router = express.Router();
 const upload = multer({storage: multer.memoryStorage()});
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-1.5-flash";
 
 router.post("/", upload.single("image"), async (req, res) => {
