@@ -15,6 +15,7 @@ const PlantSchema = new mongoose.Schema({
   dataAquisicao: Date,
   imagemUrl: String,
   observacoes: String,
+  userId: {type: String, required: true},
   createdAt: {type: Date, default: Date.now},
 });
 

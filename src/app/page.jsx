@@ -24,7 +24,7 @@ export default function Home() {
     if (!user) return;
     try {
       setLoadingPlants(true);
-      const data = await api.getPlants();
+      const data = await api.getPlants(user.uid);
       // Mapeia _id (Mongo) para id (Frontend) e garante que usamos 'nome' ou 'name'
       const formatted = data.map((p) => ({
         ...p,

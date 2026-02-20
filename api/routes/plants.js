@@ -5,7 +5,9 @@ const Plant = require("../models/Plant");
 // GET - Listar todas as plantas
 router.get("/", async (req, res) => {
   try {
-    const plants = await Plant.find().sort({createdAt: -1});
+    const {userId} = req.query;
+    const filter = userId ? {userId} : {};
+    const plants = await Plant.find(filter).sort({createdAt: -1});
     res.json(plants);
   } catch (err) {
     res.status(500).json({error: err.message});

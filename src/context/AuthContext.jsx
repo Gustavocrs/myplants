@@ -39,7 +39,12 @@ export function AuthProvider({children}) {
 
   const loginGoogle = async () => {
     try {
-      if (!auth) return;
+      if (!auth) {
+        alert(
+          "Erro: Chaves do Firebase não configuradas. Verifique o arquivo .env",
+        );
+        return;
+      }
       const provider = new GoogleAuthProvider();
       // Tenta popup primeiro (já que funcionou no modo desktop)
       await signInWithPopup(auth, provider);

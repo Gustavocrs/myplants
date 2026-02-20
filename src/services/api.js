@@ -1,8 +1,11 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
 export const api = {
-  getPlants: async () => {
-    const response = await fetch(`${API_URL}/plants`);
+  getPlants: async (userId) => {
+    const url = userId
+      ? `${API_URL}/plants?userId=${userId}`
+      : `${API_URL}/plants`;
+    const response = await fetch(url);
     if (!response.ok) throw new Error("Erro ao buscar plantas");
     return response.json();
   },
