@@ -1,43 +1,40 @@
 const express = require("express");
+const multer = require("multer");
 const {GoogleGenerativeAI} = require("@google/generative-ai");
 
 const router = express.Router();
+const upload = multer({storage: multer.memoryStorage()});
 
-// 🔹 Inicializa Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-// 🔹 Modelo configurável
 const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-1.5-flash";
 
-router.post("/", async (req, res) => {
+router.post("/", upload.single("image"), async (req, res) => {
   try {
-    console.log("🤖 Inicializando modelo:", MODEL_NAME);
+    const {prompt} = req.body;
+    const file = req.file;
 
-    const model = genAI.getGenerativeModel({
-      model: MODEL_NAME,
-    });
-
-    const {prompt, imageBase64} = req.body;
-
-    if (!prompt && !imageBase64) {
+    if (!prompt && !file) {
       return res.status(400).json({
         success: false,
-        error: "Envie um prompt ou imagemBase64.",
+        error: "Envie um prompt ou uma imagem.",
       });
     }
 
-    // 🔹 Monta partes da requisição
+    const model = genAI.getGenerativeModel({model: MODEL_NAME});
+
     const parts = [];
 
     if (prompt) {
       parts.push({text: prompt});
     }
 
-    if (imageBase64) {
+    if (file) {
+      const base64Image = file.buffer.toString("base64");
+
       parts.push({
         inlineData: {
-          mimeType: "image/jpeg", // ajuste se for png
-          data: imageBase64,
+          mimeType: file.mimetype,
+          data: base64Image,
         },
       });
     }
@@ -52,14 +49,13 @@ router.post("/", async (req, res) => {
     });
 
     const response = await result.response;
-    const text = response.text();
 
     return res.json({
       success: true,
-      response: text,
+      response: response.text(),
     });
   } catch (error) {
-    console.error("❌ Erro ao consultar IA:", error);
+    console.error("Erro Gemini:", error);
 
     return res.status(500).json({
       success: false,

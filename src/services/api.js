@@ -51,6 +51,7 @@ export const api = {
   identifyPlant: async (imageFile) => {
     const formData = new FormData();
     formData.append("image", imageFile);
+    formData.append("prompt", "Identifique esta planta");
 
     const response = await fetch(`${API_URL}/identify`, {
       method: "POST",
