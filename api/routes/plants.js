@@ -7,7 +7,9 @@ router.get("/", async (req, res) => {
   try {
     const {userId} = req.query;
     const filter = userId ? {userId} : {};
-    const plants = await Plant.find(filter).sort({createdAt: -1});
+    const plants = await Plant.find(filter)
+      .collation({locale: "pt", strength: 1}) // Ordenação correta em PT-BR (ignora case)
+      .sort({nome: 1});
     res.json(plants);
   } catch (err) {
     res.status(500).json({error: err.message});

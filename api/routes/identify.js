@@ -27,6 +27,7 @@ router.post("/", upload.single("image"), async (req, res) => {
 
     const prompt = `
       Identifique esta planta.
+      Analise a imagem para identificar possíveis problemas de saúde (folhas amareladas, manchas, murcha, pragas) e sugira melhorias.
       Retorne APENAS um objeto JSON (sem markdown, sem crases) com a seguinte estrutura:
       {
         "nome": "Nome popular da planta em PT-BR",
@@ -34,7 +35,7 @@ router.post("/", upload.single("image"), async (req, res) => {
         "luz": "Escolha um: 'Sombra', 'Meia-sombra', 'Luz Difusa' ou 'Sol Pleno'",
         "intervaloRega": numero_de_dias_para_regar (apenas o número inteiro, ex: 7),
         "petFriendly": true ou false (se é segura para pets),
-        "observacoes": "Breve descrição e cuidados principais (max 200 caracteres)"
+        "observacoes": "Descrição, cuidados básicos e uma avaliação do estado de saúde da planta com dicas de melhoria se aplicável."
       }
       Se a imagem não for de uma planta, retorne um JSON com { "error": "Não é uma planta" }.
     `;

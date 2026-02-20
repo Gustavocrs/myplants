@@ -13,6 +13,13 @@ export default function AddPlantModal({
 }) {
   const {user} = useAuth();
   const [name, setName] = useState("");
+  const [scientificName, setScientificName] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [light, setLight] = useState("Meia-sombra");
+  const [wateringInterval, setWateringInterval] = useState(7);
+  const [petFriendly, setPetFriendly] = useState(false);
+  const [acquisitionDate, setAcquisitionDate] = useState("");
+  const [notes, setNotes] = useState("");
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,13 +28,28 @@ export default function AddPlantModal({
   // Preenche os dados se estiver editando
   useEffect(() => {
     if (plantToEdit) {
-      setName(plantToEdit.name);
-      setImage(plantToEdit.imageUrl);
-      setPreview(plantToEdit.imageUrl);
+      setName(plantToEdit.name || plantToEdit.nome);
+      setScientificName(plantToEdit.nomeCientifico || "");
+      setNickname(plantToEdit.apelido || "");
+      setLight(plantToEdit.luz || "Meia-sombra");
+      setWateringInterval(plantToEdit.intervaloRega || 7);
+      setPetFriendly(plantToEdit.petFriendly || false);
+      setNotes(plantToEdit.observacoes || "");
+      if (plantToEdit.dataAquisicao) {
+        const date = new Date(plantToEdit.dataAquisicao);
+        setAcquisitionDate(date.toISOString().split("T")[0]);
+      }
+      setImage(plantToEdit.imageUrl || plantToEdit.imagemUrl);
+      setPreview(plantToEdit.imageUrl || plantToEdit.imagemUrl);
     }
     // Preenche com dados da IA se houver
     else if (initialData) {
       setName(initialData.nome || "");
+      setScientificName(initialData.nomeCientifico || "");
+      setLight(initialData.luz || "Meia-sombra");
+      setWateringInterval(initialData.intervaloRega || 7);
+      setPetFriendly(!!initialData.petFriendly);
+      setNotes(initialData.observacoes || "");
       if (initialData.imageUrl) {
         setImage(initialData.imageUrl);
         setPreview(initialData.imageUrl);
@@ -81,6 +103,43 @@ export default function AddPlantModal({
     };
   };
 
+  // Converte Base64 para File para enviar para a API
+  const dataURLtoFile = (dataurl, filename) => {
+    const arr = dataurl.split(",");
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, {type: mime});
+  };
+
+  const handleAiFill = async () => {
+    if (!image) return;
+    setLoading(true);
+    try {
+      const file = dataURLtoFile(image, "plant-image.jpg");
+      const data = await api.identifyPlant(file);
+
+      // Preenche os campos com os dados da IA
+      if (data.nome) setName(data.nome);
+      if (data.nomeCientifico) setScientificName(data.nomeCientifico);
+      if (data.luz) setLight(data.luz);
+      if (data.intervaloRega) setWateringInterval(data.intervaloRega);
+      setPetFriendly(!!data.petFriendly);
+      // Adiciona as observações da IA (incluindo dicas de saúde)
+      if (data.observacoes) setNotes(data.observacoes);
+
+    } catch (error) {
+      console.error("Erro na IA:", error);
+      alert("Erro ao consultar IA: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!name || !image) return;
     setLoading(true);
@@ -88,9 +147,15 @@ export default function AddPlantModal({
     try {
       const plantData = {
         nome: name, // Backend espera 'nome', não 'name'
+        nomeCientifico: scientificName,
+        apelido: nickname,
+        luz: light,
+        intervaloRega: Number(wateringInterval),
+        petFriendly: petFriendly,
+        dataAquisicao: acquisitionDate ? new Date(acquisitionDate) : null,
+        observacoes: notes,
         imagemUrl: image, // Backend espera 'imagemUrl'
         userId: user.uid,
-        intervaloRega: 7, // Valor padrão temporário para cumprir o contrato
       };
 
       if (plantToEdit) {
@@ -112,7 +177,7 @@ export default function AddPlantModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">
             {plantToEdit ? "Editar Planta" : "Nova Planta"}
@@ -148,16 +213,122 @@ export default function AddPlantModal({
               />
             </div>
 
+            {/* Botão de IA para preenchimento */}
+            {image && (
+              <button
+                onClick={handleAiFill}
+                disabled={loading}
+                className="w-full py-2 bg-purple-50 text-purple-700 rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors flex items-center justify-center gap-2 font-medium text-sm"
+              >
+                {loading ? "Analisando..." : "✨ Preencher dados e avaliar saúde com IA"}
+              </button>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nome Popular *
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Ex: Samambaia"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nome Científico
+                </label>
+                <input
+                  type="text"
+                  value={scientificName}
+                  onChange={(e) => setScientificName(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Ex: Nephrolepis exaltata"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Apelido
+                </label>
+                <input
+                  type="text"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Ex: Filha verde"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Luminosidade
+                </label>
+                <select
+                  value={light}
+                  onChange={(e) => setLight(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                >
+                  <option value="Sombra">Sombra</option>
+                  <option value="Meia-sombra">Meia-sombra</option>
+                  <option value="Luz Difusa">Luz Difusa</option>
+                  <option value="Sol Pleno">Sol Pleno</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Intervalo de Rega (dias)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={wateringInterval}
+                  onChange={(e) => setWateringInterval(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Data de Aquisição
+                </label>
+                <input
+                  type="date"
+                  value={acquisitionDate}
+                  onChange={(e) => setAcquisitionDate(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="petFriendly"
+                checked={petFriendly}
+                onChange={(e) => setPetFriendly(e.target.checked)}
+                className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+              />
+              <label htmlFor="petFriendly" className="text-sm text-gray-700">
+                Pet Friendly (Segura para animais)
+              </label>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nome da Planta
+                Observações
               </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="Ex: Samambaia"
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows="3"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+                placeholder="Cuidados especiais, história da planta..."
               />
             </div>
           </div>
