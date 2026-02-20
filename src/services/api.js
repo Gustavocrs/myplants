@@ -16,7 +16,10 @@ export const api = {
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(plantData),
     });
-    if (!response.ok) throw new Error("Erro ao criar planta");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "Erro ao criar planta");
+    }
     return response.json();
   },
 
@@ -26,7 +29,10 @@ export const api = {
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(plantData),
     });
-    if (!response.ok) throw new Error("Erro ao atualizar planta");
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "Erro ao atualizar planta");
+    }
     return response.json();
   },
 
