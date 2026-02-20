@@ -28,11 +28,16 @@ echo "Limpando resíduos antigos..."
 docker container prune -f
 docker image prune -f
 
-# 4. Rodar docker compose up com build (Sem o down para evitar tempo de inatividade)
-echo "Construindo e atualizando a aplicação..."
-docker compose up -d --build
+# 4. Derrubar contêineres e DESTRUIR volumes anônimos cacheados (O -v é essencial aqui)
+echo "Derrubando serviços e limpando volumes em cache..."
+docker compose down -v
 
-# 5. Exibir os logs iniciais
+# 5. Rodar docker compose up com build limpo
+echo "Construindo e atualizando a aplicação do zero..."
+docker compose build --no-cache
+docker compose up -d
+
+# 6. Exibir os logs iniciais
 echo "Aguardando 5 segundos para a inicialização do Node.js..."
 sleep 5
 echo "--- Logs Recentes ---"
