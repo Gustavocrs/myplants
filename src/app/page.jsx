@@ -160,7 +160,10 @@ export default function Home() {
         )}
       </div>
 
-      <FloatingMenu onAddPlant={() => setIsModalOpen(true)} />
+      <FloatingMenu
+        onAddPlant={() => setIsModalOpen(true)}
+        onAddAI={() => alert("Funcionalidade de IA em breve!")}
+      />
 
       {isModalOpen && (
         <AddPlantModal

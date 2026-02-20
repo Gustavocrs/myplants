@@ -1,7 +1,7 @@
 "use client";
 import {useState} from "react";
 
-export default function FloatingMenu({onAddPlant}) {
+export default function FloatingMenu({onAddPlant, onAddAI}) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -22,7 +22,20 @@ export default function FloatingMenu({onAddPlant}) {
           className="flex items-center gap-3 bg-white text-gray-700 px-4 py-3 rounded-xl shadow-lg hover:bg-gray-50 transition-colors whitespace-nowrap"
         >
           <span className="font-medium">Adicionar Planta</span>
-          <div className="bg-green-100 p-2 rounded-full text-green-600">🌱</div>
+          <div className="bg-green-100 p-2 rounded-full text-green-600">📷</div>
+        </button>
+
+        <button
+          onClick={() => {
+            setIsOpen(false);
+            if (onAddAI) onAddAI();
+          }}
+          className="flex items-center gap-3 bg-white text-gray-700 px-4 py-3 rounded-xl shadow-lg hover:bg-gray-50 transition-colors whitespace-nowrap"
+        >
+          <span className="font-medium">Adicionar com IA</span>
+          <div className="bg-purple-100 p-2 rounded-full text-purple-600">
+            ✨
+          </div>
         </button>
       </div>
 
