@@ -35,7 +35,7 @@ docker compose up -d --build
 echo "Aguardando 5 segundos para a inicialização do Node.js..."
 sleep 5
 echo "--- Logs Recentes ---"
-docker compose logs --tail=50
+docker compose logs --tail=20 api
 
 echo "--- Status dos Containers ---"
 docker compose ps
