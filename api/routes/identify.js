@@ -13,7 +13,7 @@ if (!apiKey) {
 }
 
 const genAI = new GoogleGenerativeAI(apiKey || "");
-const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-1.5-pro";
 
 router.post("/", upload.single("image"), async (req, res) => {
   try {
