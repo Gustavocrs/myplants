@@ -23,7 +23,13 @@ router.post("/", upload.single("image"), async (req, res) => {
       },
     };
 
-    const model = genAI.getGenerativeModel({model: "gemini-1.5-flash"});
+    const model = genAI.getGenerativeModel(
+      {
+        model: "gemini-1.5-flash",
+        generationConfig: {responseMimeType: "application/json"},
+      },
+      {apiVersion: "v1beta"},
+    );
 
     const prompt = `
       Identifique esta planta.
