@@ -30,6 +30,7 @@ export default function Home() {
         ...p,
         id: p._id,
         name: p.nome || p.name,
+        imageUrl: p.imagemUrl || p.imageUrl, // Garante que a imagem apareça independente do nome do campo
       }));
       setPlants(formatted);
     } catch (error) {

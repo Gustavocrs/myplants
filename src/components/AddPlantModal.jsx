@@ -88,7 +88,7 @@ export default function AddPlantModal({
     try {
       const plantData = {
         nome: name, // Backend espera 'nome', não 'name'
-        imageUrl: image,
+        imagemUrl: image, // Backend espera 'imagemUrl'
         userId: user.uid,
         intervaloRega: 7, // Valor padrão temporário para cumprir o contrato
       };
