@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const {GoogleGenerativeAI} = require("@google/generative-ai");
+const {GoogleGenerativeAI} = require("@google/generative-ai"); // Garanta que o pacote seja @google/generative-ai
 
 // Configuração do Multer para salvar na memória (RAM) temporariamente
 const upload = multer({storage: multer.memoryStorage()});
@@ -15,10 +15,12 @@ router.post("/", upload.single("image"), async (req, res) => {
       return res.status(400).json({error: "Nenhuma imagem enviada."});
     }
 
-    // Instancia o modelo corretamente
+    // 1. Configura o modelo especificando o output como JSON
     const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
-      generationConfig: {responseMimeType: "application/json"},
+      generationConfig: {
+        responseMimeType: "application/json",
+      },
     });
 
     const prompt = `
@@ -36,6 +38,7 @@ router.post("/", upload.single("image"), async (req, res) => {
       Se a imagem não for de uma planta, retorne um JSON com { "error": "Não é uma planta" }.
     `;
 
+    // 2. Formata a requisição corretamente para a SDK
     const result = await model.generateContent([
       prompt,
       {
@@ -50,17 +53,20 @@ router.post("/", upload.single("image"), async (req, res) => {
     const text = response.text();
 
     try {
+      // Como configuramos responseMimeType, o Gemini já deve entregar o JSON limpo
       const plantData = JSON.parse(text);
 
       if (plantData.error) {
         return res.status(400).json({error: plantData.error});
       }
 
-      // Retorna os dados para o frontend preencher o formulário
+      // Retorna os dados para o frontend (NextJS/React) preencher o formulário
       res.json(plantData);
     } catch (parseError) {
       console.error("Erro ao fazer parse do JSON do Gemini:", text);
-      res.status(500).json({error: "Falha ao processar resposta da IA."});
+      res
+        .status(500)
+        .json({error: "Falha ao processar resposta estruturada da IA."});
     }
   } catch (error) {
     console.error("Erro na identificação:", error);
