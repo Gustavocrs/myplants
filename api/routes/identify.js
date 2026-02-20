@@ -1,35 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const {GoogleGenerativeAI} = require("@google/generative-ai");
+const {GoogleGenAI} = require("@google/genai");
 
 // Configuração do Multer para salvar na memória (RAM) temporariamente
 const upload = multer({storage: multer.memoryStorage()});
 
 // Inicializa o Gemini
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+const ai = new GoogleGenAI({apiKey: process.env.GOOGLE_API_KEY});
 
 router.post("/", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({error: "Nenhuma imagem enviada."});
     }
-
-    // Converte o buffer da imagem para o formato que o Gemini aceita
-    const imagePart = {
-      inlineData: {
-        data: req.file.buffer.toString("base64"),
-        mimeType: req.file.mimetype,
-      },
-    };
-
-    const model = genAI.getGenerativeModel(
-      {
-        model: "gemini-1.5-flash",
-        generationConfig: {responseMimeType: "application/json"},
-      },
-      {apiVersion: "v1beta"},
-    );
 
     const prompt = `
       Identifique esta planta.
@@ -46,10 +30,21 @@ router.post("/", upload.single("image"), async (req, res) => {
       Se a imagem não for de uma planta, retorne um JSON com { "error": "Não é uma planta" }.
     `;
 
-    const result = await model.generateContent([prompt, imagePart]);
-    const response = await result.response;
-    const text = response.text();
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: [
+        {text: prompt},
+        {
+          inlineData: {
+            mimeType: req.file.mimetype,
+            data: req.file.buffer.toString("base64"),
+          },
+        },
+      ],
+      config: {responseMimeType: "application/json"},
+    });
 
+    const text = response.text;
     // Limpeza para garantir que venha apenas o JSON
     const jsonString = text.replace(/```json|```/g, "").trim();
 
