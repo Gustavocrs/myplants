@@ -19,6 +19,12 @@ export function AuthProvider({children}) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Se o Firebase não inicializou (ex: erro de config ou build), paramos aqui
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
+
     // Verifica se o usuário retornou de um login por redirecionamento (comum em mobile)
     getRedirectResult(auth).catch((error) => {
       console.error("Erro ao processar retorno do login:", error);
@@ -33,6 +39,7 @@ export function AuthProvider({children}) {
 
   const loginGoogle = async () => {
     try {
+      if (!auth) return;
       const provider = new GoogleAuthProvider();
       // Tenta popup primeiro (já que funcionou no modo desktop)
       await signInWithPopup(auth, provider);
@@ -40,7 +47,7 @@ export function AuthProvider({children}) {
       console.error("Erro no popup, tentando redirect:", error);
       // Fallback: Se o popup falhar (bloqueador), tenta redirecionamento
       try {
-        await signInWithRedirect(auth, new GoogleAuthProvider());
+        if (auth) await signInWithRedirect(auth, new GoogleAuthProvider());
       } catch (redirectError) {
         console.error("Erro final no login:", redirectError);
       }
@@ -49,6 +56,7 @@ export function AuthProvider({children}) {
 
   const logout = async () => {
     try {
+      if (!auth) return;
       await signOut(auth);
     } catch (error) {
       console.error("Erro ao sair:", error);

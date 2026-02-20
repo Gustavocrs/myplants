@@ -14,8 +14,13 @@ const firebaseConfig = {
 
 // Garante que o app só seja inicializado uma vez
 const app =
-  getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+  getApps().length > 0
+    ? getApps()[0]
+    : firebaseConfig.apiKey
+      ? initializeApp(firebaseConfig)
+      : null;
 
-const auth = getAuth(app);
+// Se não houver app (por falta de chave no build), auth será null
+const auth = app ? getAuth(app) : null;
 
 export {auth};
