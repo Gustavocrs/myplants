@@ -34,16 +34,16 @@ export function AuthProvider({children}) {
   const loginGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider();
-
-      // Detecta se é dispositivo móvel
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-      if (isMobile) {
-        await signInWithRedirect(auth, provider);
-      } else {
-        await signInWithPopup(auth, provider);
-      }
+      // Tenta popup primeiro (já que funcionou no modo desktop)
+      await signInWithPopup(auth, provider);
     } catch (error) {
-      console.error("Erro ao logar:", error);
+      console.error("Erro no popup, tentando redirect:", error);
+      // Fallback: Se o popup falhar (bloqueador), tenta redirecionamento
+      try {
+        await signInWithRedirect(auth, new GoogleAuthProvider());
+      } catch (redirectError) {
+        console.error("Erro final no login:", redirectError);
+      }
     }
   };
 
