@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const {GoogleGenAI} = require("@google/genai");
+const {GoogleGenerativeAI} = require("@google/generative-ai");
 
 // Configuração do Multer para salvar na memória (RAM) temporariamente
 const upload = multer({storage: multer.memoryStorage()});
 
 // Inicializa o Gemini
-const ai = new GoogleGenAI({apiKey: process.env.GOOGLE_API_KEY});
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 router.post("/", upload.single("image"), async (req, res) => {
   try {
@@ -15,10 +15,16 @@ router.post("/", upload.single("image"), async (req, res) => {
       return res.status(400).json({error: "Nenhuma imagem enviada."});
     }
 
+    // Instancia o modelo corretamente
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      generationConfig: {responseMimeType: "application/json"},
+    });
+
     const prompt = `
       Identifique esta planta.
       Analise a imagem para identificar possíveis problemas de saúde (folhas amareladas, manchas, murcha, pragas) e sugira melhorias.
-      Retorne APENAS um objeto JSON (sem markdown, sem crases) com a seguinte estrutura:
+      Retorne APENAS um objeto JSON com a seguinte estrutura:
       {
         "nome": "Nome popular da planta em PT-BR",
         "nomeCientifico": "Nome científico",
@@ -30,30 +36,21 @@ router.post("/", upload.single("image"), async (req, res) => {
       Se a imagem não for de uma planta, retorne um JSON com { "error": "Não é uma planta" }.
     `;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash-001",
-      contents: [
-        {
-          parts: [
-            {text: prompt},
-            {
-              inlineData: {
-                mimeType: req.file.mimetype,
-                data: req.file.buffer.toString("base64"),
-              },
-            },
-          ],
+    const result = await model.generateContent([
+      prompt,
+      {
+        inlineData: {
+          mimeType: req.file.mimetype,
+          data: req.file.buffer.toString("base64"),
         },
-      ],
-      config: {responseMimeType: "application/json"},
-    });
+      },
+    ]);
 
-    const text = response.text;
-    // Limpeza para garantir que venha apenas o JSON
-    const jsonString = text.replace(/```json|```/g, "").trim();
+    const response = await result.response;
+    const text = response.text();
 
     try {
-      const plantData = JSON.parse(jsonString);
+      const plantData = JSON.parse(text);
 
       if (plantData.error) {
         return res.status(400).json({error: plantData.error});
