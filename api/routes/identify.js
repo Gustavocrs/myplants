@@ -15,11 +15,11 @@ router.post("/", upload.single("image"), async (req, res) => {
       return res.status(400).json({error: "Nenhuma imagem enviada."});
     }
 
-    console.log("🤖 Inicializando modelo Gemini 1.5 Pro...");
+    console.log("🤖 Inicializando modelo Gemini 1.5 Pro (Latest)...");
     // Instancia o modelo Pro, que é mais preciso para identificação
     const model = genAI.getGenerativeModel(
       {
-        model: "gemini-1.5-pro",
+        model: "gemini-1.5-pro-latest",
         generationConfig: {
           responseMimeType: "application/json",
         },
