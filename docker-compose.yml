@@ -11,7 +11,7 @@ services:
       - PORT=${PORT}
       - MONGO_URI=${MONGO_URI}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - GEMINI_MODEL=gemini-2.5-flash
+      - GEMINI_MODEL=${GEMINI_MODEL}
     volumes:
       - ./api:/app
       - /app/node_modules
@@ -22,6 +22,10 @@ services:
     container_name: myplants-mongodb
     ports:
       - "27017:27017"
+    environment:
+      # Repassando as variáveis do seu .env para dentro do contêiner do Mongo
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     volumes:
       - mongo_data:/data/db
 
