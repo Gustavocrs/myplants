@@ -31,14 +31,18 @@ router.post("/", upload.single("image"), async (req, res) => {
     `;
 
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-pro",
+      model: "gemini-3-flash-preview",
       contents: [
-        {text: prompt},
         {
-          inlineData: {
-            mimeType: req.file.mimetype,
-            data: req.file.buffer.toString("base64"),
-          },
+          parts: [
+            {text: prompt},
+            {
+              inlineData: {
+                mimeType: req.file.mimetype,
+                data: req.file.buffer.toString("base64"),
+              },
+            },
+          ],
         },
       ],
       config: {responseMimeType: "application/json"},
