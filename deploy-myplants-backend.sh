@@ -2,7 +2,7 @@
 
 # Define o diretório alvo
 DIR_PROJETO="/root/projetos/myplants"
-BRANCH="dev"
+BRANCH="master"
 
 echo "--- Iniciando Deploy Backend Profissional ---"
 
