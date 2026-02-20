@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Define o diretório alvo
-DIR_PROJETO="/root/projetos/advertencia-backend"
+DIR_PROJETO="/root/projetos/myplants"
+BRANCH="master"
 
 echo "--- Iniciando Deploy Backend Profissional ---"
 
@@ -15,10 +16,10 @@ else
 fi
 
 # 2. Limpar estado local e sincronizar com o repositório remoto
-echo "Sincronizando com a branch master remota..."
+echo "Sincronizando com a branch $BRANCH remota..."
 git fetch origin
-git checkout master
-git reset --hard origin/master
+git checkout $BRANCH
+git reset --hard origin/$BRANCH
 git clean -fd
 
 # 3. Limpeza de containers parados e imagens antigas (dangling) ANTES do build
