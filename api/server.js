@@ -9,14 +9,12 @@ const plantsRoutes = require("./routes/plants");
 const identifyRoutes = require("./routes/identify");
 
 // Middlewares
-// Configuração de CORS ajustada para permitir o localhost do NextJS
-// e preparar para o domínio de produção.
 app.use(
   cors({
     origin: [
       "http://localhost:3000",
       "https://myplants-guts.vercel.app",
-      "https://myplants-api.systechdev.com.br", // Lembre-se de alterar para o domínio real do seu frontend no Vercel/Netlify
+      "https://myplants-api.systechdev.com.br",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
@@ -26,14 +24,18 @@ app.use(
 app.use(express.json({limit: "50mb"}));
 app.use(express.urlencoded({limit: "50mb", extended: true}));
 
-// Conexão com MongoDB
+// Conexão com MongoDB Otimizada para o Docker
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URI, {
+      // Falha rápido após 3 segundos se não achar o banco,
+      // evitando que o front-end congele por 10s em tela de loading.
+      serverSelectionTimeoutMS: 3000,
+    });
     console.log("📦 MongoDB conectado com sucesso!");
   } catch (err) {
     console.error(
-      "Erro ao conectar no MongoDB. Tentando novamente em 5 segundos...",
+      "❌ Erro ao conectar no MongoDB. Tentando novamente em 5 segundos...",
       err.message,
     );
     setTimeout(connectDB, 5000);
