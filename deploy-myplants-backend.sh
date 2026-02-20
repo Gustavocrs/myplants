@@ -37,4 +37,7 @@ sleep 5
 echo "--- Logs Recentes ---"
 docker compose logs --tail=50
 
+echo "--- Status dos Containers ---"
+docker compose ps
+
 echo "--- Deploy Concluído ---"

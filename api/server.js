@@ -27,10 +27,21 @@ app.use(express.json({limit: "50mb"}));
 app.use(express.urlencoded({limit: "50mb", extended: true}));
 
 // Conexão com MongoDB
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("📦 MongoDB conectado com sucesso!"))
-  .catch((err) => console.error("Erro ao conectar no MongoDB:", err));
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("📦 MongoDB conectado com sucesso!");
+  } catch (err) {
+    console.error(
+      "Erro ao conectar no MongoDB. Tentando novamente em 5 segundos...",
+      err.message,
+    );
+    setTimeout(connectDB, 5000);
+  }
+};
+
+// Inicia a conexão
+connectDB();
 
 // Rotas
 app.use("/api/plants", plantsRoutes);
