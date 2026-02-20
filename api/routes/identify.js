@@ -1,24 +1,29 @@
 const express = require("express");
 const multer = require("multer");
-const {GoogleGenerativeAI} = require("@google/generative-ai");
+// 1. Importando o SDK novo
+const {GoogleGenAI} = require("@google/genai");
 
 const router = express.Router();
 const upload = multer({storage: multer.memoryStorage()});
 
-// Adicionando .trim() para evitar falhas por espaços em branco vindos do .env
-const apiKey = (process.env.GEMINI_API_KEY || "").trim();
+const apiKey = (
+  process.env.GEMINI_API_KEY ||
+  process.env.GOOGLE_API_KEY ||
+  ""
+).trim();
 if (!apiKey) {
   console.error(
     "❌ ERRO CRÍTICO: GEMINI_API_KEY não encontrada nas variáveis de ambiente!",
   );
 }
 
-const genAI = new GoogleGenerativeAI(apiKey);
+// 2. Inicializando com a nova classe
+const ai = new GoogleGenAI({apiKey});
 
-// Aplicando .trim() no nome do modelo e mantendo o fallback para o modelo flash
+// 3. Atualizando o fallback para o modelo mais recente suportado
 const MODEL_NAME = process.env.GEMINI_MODEL
   ? process.env.GEMINI_MODEL.trim()
-  : "gemini-1.5-flash";
+  : "gemini-2.5-flash";
 
 router.post("/", upload.single("image"), async (req, res) => {
   try {
@@ -33,18 +38,13 @@ router.post("/", upload.single("image"), async (req, res) => {
     }
 
     console.log(`🤖 Consultando IA com modelo: '${MODEL_NAME}'`);
-    const model = genAI.getGenerativeModel({model: MODEL_NAME});
 
-    const parts = [];
+    const contents = [];
 
-    if (prompt) {
-      parts.push({text: prompt});
-    }
-
+    // 4. O novo SDK aceita o objeto inlineData e a string de prompt no mesmo array
     if (file) {
       const base64Image = file.buffer.toString("base64");
-
-      parts.push({
+      contents.push({
         inlineData: {
           mimeType: file.mimetype,
           data: base64Image,
@@ -52,20 +52,20 @@ router.post("/", upload.single("image"), async (req, res) => {
       });
     }
 
-    const result = await model.generateContent({
-      contents: [
-        {
-          role: "user",
-          parts,
-        },
-      ],
-    });
+    if (prompt) {
+      contents.push(prompt);
+    }
 
-    const response = await result.response;
+    // 5. Chamada de geração de conteúdo atualizada
+    const response = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: contents,
+    });
 
     return res.json({
       success: true,
-      response: response.text(),
+      // 6. Extração do texto mudou para propriedade
+      response: response.text,
     });
   } catch (error) {
     console.error("Erro Gemini:", error);
