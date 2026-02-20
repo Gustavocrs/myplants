@@ -1,6 +1,5 @@
 const express = require("express");
 const multer = require("multer");
-// 1. Importando o SDK novo
 const {GoogleGenAI} = require("@google/genai");
 
 const router = express.Router();
@@ -17,10 +16,8 @@ if (!apiKey) {
   );
 }
 
-// 2. Inicializando com a nova classe
 const ai = new GoogleGenAI({apiKey});
 
-// 3. Atualizando o fallback para o modelo mais recente suportado
 const MODEL_NAME = process.env.GEMINI_MODEL
   ? process.env.GEMINI_MODEL.trim()
   : "gemini-2.5-flash";
@@ -41,7 +38,6 @@ router.post("/", upload.single("image"), async (req, res) => {
 
     const contents = [];
 
-    // 4. O novo SDK aceita o objeto inlineData e a string de prompt no mesmo array
     if (file) {
       const base64Image = file.buffer.toString("base64");
       contents.push({
@@ -56,7 +52,6 @@ router.post("/", upload.single("image"), async (req, res) => {
       contents.push(prompt);
     }
 
-    // 5. Chamada de geração de conteúdo atualizada
     const response = await ai.models.generateContent({
       model: MODEL_NAME,
       contents: contents,
@@ -64,7 +59,6 @@ router.post("/", upload.single("image"), async (req, res) => {
 
     return res.json({
       success: true,
-      // 6. Extração do texto mudou para propriedade
       response: response.text,
     });
   } catch (error) {
