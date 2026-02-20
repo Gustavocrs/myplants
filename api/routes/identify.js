@@ -1,78 +1,71 @@
 const express = require("express");
-const router = express.Router();
-const multer = require("multer");
 const {GoogleGenerativeAI} = require("@google/generative-ai");
 
-// Configuração do Multer para salvar na memória (RAM) temporariamente
-const upload = multer({storage: multer.memoryStorage()});
+const router = express.Router();
 
-// Inicializa o Gemini com a API Key do seu .env
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+// 🔹 Inicializa Gemini
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-router.post("/", upload.single("image"), async (req, res) => {
+// 🔹 Modelo configurável
+const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+
+router.post("/", async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({error: "Nenhuma imagem enviada."});
+    console.log("🤖 Inicializando modelo:", MODEL_NAME);
+
+    const model = genAI.getGenerativeModel({
+      model: MODEL_NAME,
+    });
+
+    const {prompt, imageBase64} = req.body;
+
+    if (!prompt && !imageBase64) {
+      return res.status(400).json({
+        success: false,
+        error: "Envie um prompt ou imagemBase64.",
+      });
     }
 
-    console.log("🤖 Inicializando modelo Gemini 1.5 Pro (Latest)...");
-    // Instancia o modelo Pro, que é mais preciso para identificação
-    const model = genAI.getGenerativeModel(
-      {
-        model: "gemini-1.5-pro-latest",
-        generationConfig: {
-          responseMimeType: "application/json",
+    // 🔹 Monta partes da requisição
+    const parts = [];
+
+    if (prompt) {
+      parts.push({text: prompt});
+    }
+
+    if (imageBase64) {
+      parts.push({
+        inlineData: {
+          mimeType: "image/jpeg", // ajuste se for png
+          data: imageBase64,
         },
-      },
-      {apiVersion: "v1beta"},
-    );
+      });
+    }
 
-    const prompt = `
-      Identifique esta planta.
-      Analise a imagem para identificar possíveis problemas de saúde (folhas amareladas, manchas, murcha, pragas) e sugira melhorias.
-      Retorne APENAS um objeto JSON com a seguinte estrutura:
-      {
-        "nome": "Nome popular da planta em PT-BR",
-        "nomeCientifico": "Nome científico",
-        "luz": "Escolha um: 'Sombra', 'Meia-sombra', 'Luz Difusa' ou 'Sol Pleno'",
-        "intervaloRega": numero_de_dias_para_regar (apenas o número inteiro, ex: 7),
-        "petFriendly": true ou false (se é segura para pets),
-        "observacoes": "Descrição, cuidados básicos e uma avaliação do estado de saúde da planta com dicas de melhoria se aplicável."
-      }
-      Se a imagem não for de uma planta, retorne um JSON com { "error": "Não é uma planta" }.
-    `;
+    const result = await model.generateContent({
+      contents: [
+        {
+          role: "user",
+          parts,
+        },
+      ],
+    });
 
-    // Prepara os dados da imagem recebida via FormData
-    const imageData = {
-      inlineData: {
-        mimeType: req.file.mimetype,
-        data: req.file.buffer.toString("base64"),
-      },
-    };
-
-    // Gera o conteúdo com a IA
-    const result = await model.generateContent([prompt, imageData]);
     const response = await result.response;
     const text = response.text();
 
-    try {
-      const plantData = JSON.parse(text);
-
-      if (plantData.error) {
-        return res.status(400).json({error: plantData.error});
-      }
-
-      // Retorna os dados estruturados para a sua interface
-      res.json(plantData);
-    } catch (parseError) {
-      console.error("Erro ao fazer parse do JSON do Gemini:", text);
-      res
-        .status(500)
-        .json({error: "Falha ao processar resposta estruturada da IA."});
-    }
+    return res.json({
+      success: true,
+      response: text,
+    });
   } catch (error) {
-    console.error("Erro na identificação:", error);
-    res.status(500).json({error: error.message});
+    console.error("❌ Erro ao consultar IA:", error);
+
+    return res.status(500).json({
+      success: false,
+      error: "Erro ao consultar IA",
+      details: error.message,
+    });
   }
 });
 
