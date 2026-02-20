@@ -31,7 +31,7 @@ router.post("/", upload.single("image"), async (req, res) => {
     `;
 
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash-001",
       contents: [
         {
           parts: [
