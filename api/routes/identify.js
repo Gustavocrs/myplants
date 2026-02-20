@@ -15,9 +15,10 @@ router.post("/", upload.single("image"), async (req, res) => {
       return res.status(400).json({error: "Nenhuma imagem enviada."});
     }
 
+    console.log("🤖 Inicializando modelo Gemini 1.5 Flash 001...");
     // Instancia uma versão atual e ativa do modelo Flash
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-1.5-flash-001",
       generationConfig: {
         responseMimeType: "application/json",
       },
