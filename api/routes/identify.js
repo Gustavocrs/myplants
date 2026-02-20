@@ -5,15 +5,20 @@ const {GoogleGenerativeAI} = require("@google/generative-ai");
 const router = express.Router();
 const upload = multer({storage: multer.memoryStorage()});
 
-const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+// Adicionando .trim() para evitar falhas por espaços em branco vindos do .env
+const apiKey = (process.env.GEMINI_API_KEY || "").trim();
 if (!apiKey) {
   console.error(
     "❌ ERRO CRÍTICO: GEMINI_API_KEY não encontrada nas variáveis de ambiente!",
   );
 }
 
-const genAI = new GoogleGenerativeAI(apiKey || "");
-const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-1.5-pro";
+const genAI = new GoogleGenerativeAI(apiKey);
+
+// Aplicando .trim() no nome do modelo e mantendo o fallback para o modelo flash
+const MODEL_NAME = process.env.GEMINI_MODEL
+  ? process.env.GEMINI_MODEL.trim()
+  : "gemini-1.5-flash";
 
 router.post("/", upload.single("image"), async (req, res) => {
   try {
@@ -27,7 +32,7 @@ router.post("/", upload.single("image"), async (req, res) => {
       });
     }
 
-    console.log(`🤖 Consultando IA com modelo: ${MODEL_NAME}`);
+    console.log(`🤖 Consultando IA com modelo: '${MODEL_NAME}'`);
     const model = genAI.getGenerativeModel({model: MODEL_NAME});
 
     const parts = [];
