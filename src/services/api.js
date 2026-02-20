@@ -60,10 +60,11 @@ export const api = {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
-      throw new Error(
+      const errorMessage =
         errorData?.error ||
-          `Erro HTTP ${response.status}: ${response.statusText}`,
-      );
+        `Erro HTTP ${response.status}: ${response.statusText}`;
+      const errorDetails = errorData?.details ? ` - ${errorData.details}` : "";
+      throw new Error(errorMessage + errorDetails);
     }
     return response.json();
   },
