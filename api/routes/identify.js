@@ -17,7 +17,7 @@ router.post("/", upload.single("image"), async (req, res) => {
 
     // Instancia uma versão atual e ativa do modelo Flash
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: "gemini-1.5-flash",
       generationConfig: {
         responseMimeType: "application/json",
       },
