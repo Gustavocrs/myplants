@@ -5,6 +5,7 @@ const cors = require("cors");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const plantsRoutes = require("./routes/plants");
 
 // Middlewares
 app.use(cors());
@@ -15,6 +16,9 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("📦 MongoDB conectado com sucesso!"))
   .catch((err) => console.error("Erro ao conectar no MongoDB:", err));
+
+// Rotas
+app.use("/api/plants", plantsRoutes);
 
 // Rota de Health Check
 app.get("/", (req, res) => {
