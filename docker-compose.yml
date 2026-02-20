@@ -7,21 +7,21 @@ services:
     volumes:
       - mongo_data:/data/db
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=secret
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
 
   api:
     build: ./api
     image: myplants-api
     container_name: myplants-api
     ports:
-      - "3001:3001" # Mantemos esta aberta para você acessar a API do seu PC
+      - "${PORT}:${PORT}" # Mantemos esta aberta para você acessar a API do seu PC
     depends_on:
       - mongodb
     environment:
-      - PORT=3001
-      - MONGO_URI=mongodb://admin:secret@myplants-mongodb:27017/myplants?authSource=admin
-      - GOOGLE_API_KEY=AIzaSyDR_qZvc4TEet7eh0nHgyScXlVktAgWTeM
+      - PORT=${PORT}
+      - MONGO_URI=${MONGO_URI}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
 
 volumes:
   mongo_data:
