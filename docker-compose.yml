@@ -2,8 +2,8 @@ services:
   mongodb:
     image: mongo:6
     container_name: myplants-mongodb
-    ports:
-      - "27017:27017"
+    # ports:                 <-- REMOVA OU COMENTE ESTAS DUAS LINHAS
+    #   - "27017:27017"      <-- PARA FECHAR O ACESSO EXTERNO
     volumes:
       - mongo_data:/data/db
     environment:
@@ -12,16 +12,15 @@ services:
 
   api:
     build: ./api
-    image: myplants-api # <--- Adicionei isso para a imagem ter o nome limpo
+    image: myplants-api
     container_name: myplants-api
     ports:
-      - "3001:3001"
+      - "3001:3001" # Mantemos esta aberta para você acessar a API do seu PC
     depends_on:
       - mongodb
     environment:
       - PORT=3001
-      # Ajustado para usar o nome do serviço 'mongodb' como host
-      - MONGO_URI=mongodb://admin:secret@mongodb:27017/myplants?authSource=admin
+      - MONGO_URI=mongodb://admin:secret@myplants-mongodb:27017/myplants?authSource=admin
 
 volumes:
   mongo_data:
