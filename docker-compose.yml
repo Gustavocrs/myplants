@@ -21,6 +21,7 @@ services:
     environment:
       - PORT=3001
       - MONGO_URI=mongodb://admin:secret@myplants-mongodb:27017/myplants?authSource=admin
+      - GOOGLE_API_KEY=AIzaSyDR_qZvc4TEet7eh0nHgyScXlVktAgWTeM
 
 volumes:
   mongo_data:
