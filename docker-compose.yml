@@ -12,6 +12,7 @@ services:
 
   api:
     build: ./api
+    image: myplants-api # <--- Adicionei isso para a imagem ter o nome limpo
     container_name: myplants-api
     ports:
       - "3001:3001"
@@ -19,6 +20,7 @@ services:
       - mongodb
     environment:
       - PORT=3001
+      # Ajustado para usar o nome do serviço 'mongodb' como host
       - MONGO_URI=mongodb://admin:secret@mongodb:27017/myplants?authSource=admin
 
 volumes:

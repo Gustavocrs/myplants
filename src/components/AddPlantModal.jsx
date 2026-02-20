@@ -1,17 +1,15 @@
 "use client";
 
 import {useState, useRef, useEffect} from "react";
-import {db} from "../lib/firebase";
-import {
-  collection,
-  addDoc,
-  updateDoc,
-  doc,
-  serverTimestamp,
-} from "firebase/firestore";
+import {api} from "../services/api";
 import {useAuth} from "@/context/AuthContext";
 
-export default function AddPlantModal({onClose, plantToEdit, onDelete}) {
+export default function AddPlantModal({
+  onClose,
+  onSuccess,
+  plantToEdit,
+  onDelete,
+}) {
   const {user} = useAuth();
   const [name, setName] = useState("");
   const [image, setImage] = useState(null);
@@ -79,25 +77,22 @@ export default function AddPlantModal({onClose, plantToEdit, onDelete}) {
     setLoading(true);
 
     try {
+      const plantData = {
+        nome: name, // Backend espera 'nome', não 'name'
+        imageUrl: image,
+        userId: user.uid,
+        intervaloRega: 7, // Valor padrão temporário para cumprir o contrato
+      };
+
       if (plantToEdit) {
-        // Atualizar planta existente
-        const plantRef = doc(db, "plants", plantToEdit.id);
-        await updateDoc(plantRef, {
-          name,
-          imageUrl: image,
-        });
+        await api.updatePlant(plantToEdit.id, plantData);
       } else {
-        // Criar nova planta
-        await addDoc(collection(db, "plants"), {
-          name,
-          imageUrl: image,
-          userId: user.uid,
-          createdAt: serverTimestamp(),
-        });
+        await api.createPlant(plantData);
       }
 
-      // Fecha o modal após sucesso
-      onClose();
+      // Avisa o pai que salvou com sucesso e fecha
+      if (onSuccess) onSuccess();
+      else onClose();
     } catch (error) {
       console.error("Erro ao salvar:", error);
       alert("Erro ao salvar a planta. Tente novamente.");

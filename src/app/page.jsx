@@ -6,16 +6,7 @@ import {useAuth} from "@/context/AuthContext";
 import FloatingMenu from "../components/FloatingMenu";
 import AddPlantModal from "../components/AddPlantModal";
 import PlantCard from "../components/PlantCard";
-import {db} from "../lib/firebase";
-import {
-  collection,
-  query,
-  where,
-  onSnapshot,
-  orderBy,
-  doc,
-  deleteDoc,
-} from "firebase/firestore";
+import {api} from "../services/api";
 
 export default function Home() {
   const {user, loginGoogle, logout} = useAuth();
@@ -25,28 +16,28 @@ export default function Home() {
   const [plantToEdit, setPlantToEdit] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Escuta as plantas do usuário em tempo real
-  useEffect(() => {
+  // Função para buscar plantas da API
+  const fetchPlants = async () => {
     if (!user) return;
-
-    // Cria a query: Plantas do usuário atual, ordenadas pela data de criação
-    const q = query(
-      collection(db, "plants"),
-      where("userId", "==", user.uid),
-      orderBy("createdAt", "desc"),
-    );
-
-    // onSnapshot cria uma conexão em tempo real
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const plantsData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
+    try {
+      setLoadingPlants(true);
+      const data = await api.getPlants();
+      // Mapeia _id (Mongo) para id (Frontend) e garante que usamos 'nome' ou 'name'
+      const formatted = data.map((p) => ({
+        ...p,
+        id: p._id,
+        name: p.nome || p.name,
       }));
-      setPlants(plantsData);
+      setPlants(formatted);
+    } catch (error) {
+      console.error("Erro ao buscar plantas:", error);
+    } finally {
       setLoadingPlants(false);
-    });
+    }
+  };
 
-    return () => unsubscribe();
+  useEffect(() => {
+    fetchPlants();
   }, [user]);
 
   // Função para abrir o modal de edição
@@ -59,7 +50,8 @@ export default function Home() {
   const handleDeletePlant = async (id) => {
     if (window.confirm("Tem certeza que deseja excluir esta planta?")) {
       try {
-        await deleteDoc(doc(db, "plants", id));
+        await api.deletePlant(id);
+        fetchPlants(); // Atualiza a lista após excluir
         return true; // Retorna sucesso
       } catch (error) {
         console.error("Erro ao excluir planta:", error);
@@ -172,6 +164,11 @@ export default function Home() {
             setPlantToEdit(null);
           }}
           plantToEdit={plantToEdit}
+          onSuccess={() => {
+            setIsModalOpen(false);
+            setPlantToEdit(null);
+            fetchPlants(); // Atualiza a lista após salvar
+          }}
           onDelete={async (id) => {
             const success = await handleDeletePlant(id);
             if (success) {
