@@ -6,7 +6,7 @@ const {GoogleGenerativeAI} = require("@google/generative-ai");
 // Configuração do Multer para salvar na memória (RAM) temporariamente
 const upload = multer({storage: multer.memoryStorage()});
 
-// Inicializa o Gemini com a versão correta da SDK
+// Inicializa o Gemini com a API Key do seu .env
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 router.post("/", upload.single("image"), async (req, res) => {
@@ -15,10 +15,9 @@ router.post("/", upload.single("image"), async (req, res) => {
       return res.status(400).json({error: "Nenhuma imagem enviada."});
     }
 
-    // 1. Instancia o modelo corretamente usando getGenerativeModel
-    // Usamos 'gemini-1.5-flash' que é o identificador estável atual
+    // Instancia uma versão atual e ativa do modelo Flash
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       generationConfig: {
         responseMimeType: "application/json",
       },
@@ -39,7 +38,7 @@ router.post("/", upload.single("image"), async (req, res) => {
       Se a imagem não for de uma planta, retorne um JSON com { "error": "Não é uma planta" }.
     `;
 
-    // 2. Prepara os dados da imagem para a SDK
+    // Prepara os dados da imagem recebida via FormData
     const imageData = {
       inlineData: {
         mimeType: req.file.mimetype,
@@ -47,7 +46,7 @@ router.post("/", upload.single("image"), async (req, res) => {
       },
     };
 
-    // 3. Gera o conteúdo
+    // Gera o conteúdo com a IA
     const result = await model.generateContent([prompt, imageData]);
     const response = await result.response;
     const text = response.text();
@@ -59,7 +58,7 @@ router.post("/", upload.single("image"), async (req, res) => {
         return res.status(400).json({error: plantData.error});
       }
 
-      // Retorna os dados para o seu AddPlantModal.jsx preencher o formulário
+      // Retorna os dados estruturados para a sua interface
       res.json(plantData);
     } catch (parseError) {
       console.error("Erro ao fazer parse do JSON do Gemini:", text);
@@ -69,7 +68,6 @@ router.post("/", upload.single("image"), async (req, res) => {
     }
   } catch (error) {
     console.error("Erro na identificação:", error);
-    // Retorna o erro detalhado para ajudar no debug do ambiente
     res.status(500).json({error: error.message});
   }
 });

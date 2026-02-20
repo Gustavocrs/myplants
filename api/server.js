@@ -9,7 +9,20 @@ const plantsRoutes = require("./routes/plants");
 const identifyRoutes = require("./routes/identify");
 
 // Middlewares
-app.use(cors());
+// Configuração de CORS ajustada para permitir o localhost do NextJS
+// e preparar para o domínio de produção.
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://myplants-guts.vercel.app",
+      "https://myplants-api.systechdev.com.br", // Lembre-se de alterar para o domínio real do seu frontend no Vercel/Netlify
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true,
+  }),
+);
+
 app.use(express.json({limit: "50mb"}));
 app.use(express.urlencoded({limit: "50mb", extended: true}));
 
