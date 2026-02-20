@@ -1,31 +1,17 @@
-services:
-  mongodb:
-    image: mongo:6
-    container_name: myplants-mongodb
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-
-  api:
-    build: ./api
-    image: myplants-api
-    container_name: myplants-api
-    ports:
-      - "${PORT}:${PORT}" # Mantemos esta aberta para você acessar a API do seu PC
-    depends_on:
-      - mongodb
-    environment:
-      - PORT=${PORT}
-      - MONGO_URI=${MONGO_URI}
-      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
-    volumes:
-      - ./api:/app
-      - /app/node_modules
-    command: npm run dev
-
-volumes:
-  mongo_data:
+api:
+  build: ./api
+  image: myplants-api
+  container_name: myplants-api
+  ports:
+    - "${PORT}:${PORT}"
+  depends_on:
+    - mongodb
+  environment:
+    - PORT=${PORT}
+    - MONGO_URI=${MONGO_URI}
+    - GEMINI_API_KEY=${GEMINI_API_KEY}
+    - GEMINI_MODEL=gemini-1.5-flash
+  volumes:
+    - ./api:/app
+    - /app/node_modules
+  command: npm run dev
