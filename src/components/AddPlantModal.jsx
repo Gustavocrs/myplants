@@ -8,6 +8,7 @@ export default function AddPlantModal({
   onClose,
   onSuccess,
   plantToEdit,
+  initialData,
   onDelete,
 }) {
   const {user} = useAuth();
@@ -24,7 +25,15 @@ export default function AddPlantModal({
       setImage(plantToEdit.imageUrl);
       setPreview(plantToEdit.imageUrl);
     }
-  }, [plantToEdit]);
+    // Preenche com dados da IA se houver
+    else if (initialData) {
+      setName(initialData.nome || "");
+      if (initialData.imageUrl) {
+        setImage(initialData.imageUrl);
+        setPreview(initialData.imageUrl);
+      }
+    }
+  }, [plantToEdit, initialData]);
 
   // Gerencia a seleção da imagem e cria o preview
   const handleImageChange = (e) => {

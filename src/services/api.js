@@ -32,4 +32,20 @@ export const api = {
     if (!response.ok) throw new Error("Erro ao excluir planta");
     return response.json();
   },
+
+  identifyPlant: async (imageFile) => {
+    const formData = new FormData();
+    formData.append("image", imageFile);
+
+    const response = await fetch(`${API_URL}/identify`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "Erro ao identificar planta");
+    }
+    return response.json();
+  },
 };

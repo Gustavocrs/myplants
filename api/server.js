@@ -6,6 +6,7 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3001;
 const plantsRoutes = require("./routes/plants");
+const identifyRoutes = require("./routes/identify");
 
 // Middlewares
 app.use(cors());
@@ -19,6 +20,7 @@ mongoose
 
 // Rotas
 app.use("/api/plants", plantsRoutes);
+app.use("/api/identify", identifyRoutes);
 
 // Rota de Health Check
 app.get("/", (req, res) => {

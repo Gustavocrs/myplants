@@ -1,7 +1,7 @@
 // app/page.js
 "use client";
 
-import {useState, useEffect} from "react";
+import {useState, useEffect, useRef} from "react";
 import {useAuth} from "@/context/AuthContext";
 import FloatingMenu from "../components/FloatingMenu";
 import AddPlantModal from "../components/AddPlantModal";
@@ -14,7 +14,10 @@ export default function Home() {
   const [plants, setPlants] = useState([]);
   const [loadingPlants, setLoadingPlants] = useState(true);
   const [plantToEdit, setPlantToEdit] = useState(null);
+  const [aiInitialData, setAiInitialData] = useState(null);
+  const [isAiLoading, setIsAiLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const aiInputRef = useRef(null);
 
   // Função para buscar plantas da API
   const fetchPlants = async () => {
@@ -59,6 +62,39 @@ export default function Home() {
       }
     }
     return false; // Cancelado
+  };
+
+  // Função chamada ao selecionar foto para IA
+  const handleAiImageSelect = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      setIsAiLoading(true);
+
+      // 1. Identifica a planta
+      const data = await api.identifyPlant(file);
+
+      // 2. Prepara o preview da imagem para o modal
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        // 3. Abre o modal com os dados preenchidos
+        setAiInitialData({
+          ...data,
+          imageUrl: reader.result, // Passa a imagem em base64 para o modal exibir
+        });
+        setIsModalOpen(true);
+        setIsAiLoading(false);
+      };
+    } catch (error) {
+      console.error("Erro na IA:", error);
+      alert(error.message || "Não foi possível identificar a planta.");
+      setIsAiLoading(false);
+    } finally {
+      // Limpa o input para permitir selecionar a mesma foto se quiser
+      e.target.value = "";
+    }
   };
 
   const filteredPlants = plants.filter((plant) =>
@@ -152,9 +188,28 @@ export default function Home() {
         )}
       </div>
 
+      {/* Loading Overlay para IA */}
+      {isAiLoading && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex flex-col items-center justify-center text-white backdrop-blur-sm">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-white mb-4"></div>
+          <p className="text-xl font-medium animate-pulse">
+            Consultando a IA...
+          </p>
+        </div>
+      )}
+
+      {/* Input oculto para IA */}
+      <input
+        type="file"
+        hidden
+        ref={aiInputRef}
+        accept="image/*"
+        onChange={handleAiImageSelect}
+      />
+
       <FloatingMenu
         onAddPlant={() => setIsModalOpen(true)}
-        onAddAI={() => alert("Funcionalidade de IA em breve!")}
+        onAddAI={() => aiInputRef.current?.click()}
       />
 
       {isModalOpen && (
@@ -162,11 +217,14 @@ export default function Home() {
           onClose={() => {
             setIsModalOpen(false);
             setPlantToEdit(null);
+            setAiInitialData(null);
           }}
           plantToEdit={plantToEdit}
+          initialData={aiInitialData}
           onSuccess={() => {
             setIsModalOpen(false);
             setPlantToEdit(null);
+            setAiInitialData(null);
             fetchPlants(); // Atualiza a lista após salvar
           }}
           onDelete={async (id) => {
