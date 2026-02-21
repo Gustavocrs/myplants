@@ -109,13 +109,11 @@ router.post("/", upload.single("image"), async (req, res) => {
     });
   } catch (error) {
     console.error("Erro Gemini:", error);
-    return res
-      .status(500)
-      .json({
-        success: false,
-        error: "Erro ao consultar IA",
-        details: error.message,
-      });
+    return res.status(500).json({
+      success: false,
+      error: "Erro ao consultar IA",
+      details: error.message,
+    });
   }
 });
 
