@@ -5,11 +5,7 @@ const {GoogleGenAI, Type, Schema} = require("@google/genai");
 const router = express.Router();
 const upload = multer({storage: multer.memoryStorage()});
 
-const apiKey = (
-  process.env.GEMINI_API_KEY ||
-  process.env.GOOGLE_API_KEY ||
-  ""
-).trim();
+const apiKey = process.env.GEMINI_API_KEY.trim();
 if (!apiKey) {
   console.error("❌ ERRO CRÍTICO: GEMINI_API_KEY não encontrada!");
 }
