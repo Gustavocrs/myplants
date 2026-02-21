@@ -2,7 +2,7 @@
 
 # Define o diretório alvo
 DIR_PROJETO="/root/projetos/myplants"
-BRANCH="dev"
+BRANCH="main"
 
 # Ignora o aviso de containers orfãos (já que separamos o mongo propositalmente)
 export COMPOSE_IGNORE_ORPHANS=True
@@ -19,11 +19,11 @@ else
 fi
 
 # 2. Limpar estado local e sincronizar com o repositório remoto
-# echo "Sincronizando com a branch $BRANCH remota..."
-# git fetch origin
-# git checkout $BRANCH
-# git reset --hard origin/$BRANCH
-# git clean -fd
+echo "Sincronizando com a branch $BRANCH remota..."
+git fetch origin
+git checkout $BRANCH
+git reset --hard origin/$BRANCH
+git clean -fd
 echo "⚠️  Usando versão local dos arquivos (Git sync desativado)"
 
 # 3. Limpeza de containers parados e imagens antigas (dangling) ANTES do build
