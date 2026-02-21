@@ -7,6 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const plantsRoutes = require("./routes/plants");
 const identifyRoutes = require("./routes/identify");
+const { startScheduler } = require("./services/notificationService");
 
 // Middlewares
 app.use(
@@ -42,6 +43,9 @@ const connectDB = async () => {
 
 // Inicia a conexão
 connectDB();
+
+// Inicia o agendador de notificações
+startScheduler();
 
 // Rotas
 app.use("/api/plants", plantsRoutes);

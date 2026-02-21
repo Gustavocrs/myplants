@@ -180,6 +180,7 @@ export default function AddPlantModal({
         observacoes: notes,
         imagemUrl: image, // Backend espera 'imagemUrl'
         userId: user.uid,
+        userEmail: user.email,
       };
 
       if (plantToEdit) {

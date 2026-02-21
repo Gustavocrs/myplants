@@ -16,6 +16,8 @@ const PlantSchema = new mongoose.Schema({
   imagemUrl: String,
   observacoes: String,
   userId: {type: String, required: true},
+  userEmail: {type: String}, // Email para notificações
+  notificationSent: {type: Boolean, default: false}, // Controle para não spammar
   createdAt: {type: Date, default: Date.now},
 });
 
