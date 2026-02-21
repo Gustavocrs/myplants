@@ -12,6 +12,7 @@ services:
       - GEMINI_MODEL=${GEMINI_MODEL}
       - EMAIL_USER=${EMAIL_USER}
       - EMAIL_PASS=${EMAIL_PASS}
+      - API_URL=${API_URL}
     volumes:
       - ./api:/app
       - /app/node_modules
