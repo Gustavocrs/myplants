@@ -19,12 +19,12 @@ else
 fi
 
 # 2. Limpar estado local e sincronizar com o repositório remoto
-# echo "Sincronizando com a branch $BRANCH remota..."
-# git fetch origin
-# git checkout $BRANCH
-# git reset --hard origin/$BRANCH
-# git clean -fd
-echo "⚠️  Usando versão local dos arquivos (Git sync desativado)"
+ echo "Sincronizando com a branch $BRANCH remota..."
+ git fetch origin
+ git checkout $BRANCH
+ git reset --hard origin/$BRANCH
+ git clean -fd
+ echo "⚠️  Usando versão local dos arquivos (Git sync desativado)"
 
 # 3. Limpeza de containers parados e imagens antigas (dangling) ANTES do build
 echo "Limpando resíduos antigos..."
