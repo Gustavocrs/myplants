@@ -7,6 +7,8 @@ export default function SettingsModal({onClose}) {
   const {user} = useAuth();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("general"); // general | email
+  const [showGeminiKey, setShowGeminiKey] = useState(false);
+  const [showSmtpPass, setShowSmtpPass] = useState(false);
 
   const [formData, setFormData] = useState({
     geminiApiKey: "",
@@ -34,12 +36,12 @@ export default function SettingsModal({onClose}) {
         setFormData({
           geminiApiKey: data.geminiApiKey || "",
           smtp: {
-            host: data.smtp?.host || "",
+            host: data.smtp?.host || "smtp.gmail.com",
             port: data.smtp?.port || 587,
-            user: data.smtp?.user || "",
+            user: data.smtp?.user || user.email || "",
             pass: data.smtp?.pass || "",
-            secure: data.smtp?.secure || false,
-            fromEmail: data.smtp?.fromEmail || "",
+            secure: data.smtp?.secure !== undefined ? data.smtp.secure : false,
+            fromEmail: data.smtp?.fromEmail || user.email || "",
           },
         });
       }
@@ -98,15 +100,25 @@ export default function SettingsModal({onClose}) {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Chave da API do Gemini (Google)
                 </label>
-                <input
-                  type="password"
-                  value={formData.geminiApiKey}
-                  onChange={(e) =>
-                    setFormData({...formData, geminiApiKey: e.target.value})
-                  }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 outline-none"
-                  placeholder="Ex: AIzaSy..."
-                />
+                <div className="relative">
+                  <input
+                    type={showGeminiKey ? "text" : "password"}
+                    value={formData.geminiApiKey}
+                    onChange={(e) =>
+                      setFormData({...formData, geminiApiKey: e.target.value})
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 outline-none pr-10"
+                    placeholder="Ex: AIzaSy..."
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowGeminiKey(!showGeminiKey)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    title={showGeminiKey ? "Ocultar chave" : "Exibir chave"}
+                  >
+                    {showGeminiKey ? "🙈" : "👁️"}
+                  </button>
+                </div>
                 <p className="text-xs text-gray-500 mt-1">
                   Deixe em branco para usar a chave padrão do sistema (se
                   disponível).
@@ -217,22 +229,41 @@ export default function SettingsModal({onClose}) {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Senha SMTP
                   </label>
-                  <input
-                    type="password"
-                    value={formData.smtp.pass}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        smtp: {...formData.smtp, pass: e.target.value},
-                      })
-                    }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 outline-none"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showSmtpPass ? "text" : "password"}
+                      value={formData.smtp.pass}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          smtp: {...formData.smtp, pass: e.target.value},
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 outline-none pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSmtpPass(!showSmtpPass)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      title={showSmtpPass ? "Ocultar senha" : "Exibir senha"}
+                    >
+                      {showSmtpPass ? "🙈" : "👁️"}
+                    </button>
+                  </div>
                 </div>
               </div>
               <p className="text-xs text-gray-500 bg-yellow-50 p-2 rounded border border-yellow-100">
-                ⚠️ Nota: Para Gmail, você precisará usar uma "Senha de App" se
-                tiver autenticação em duas etapas ativada.
+                ⚠️ Nota: Para Gmail, é necessário usar uma "Senha de App" para
+                garantir a segurança e o funcionamento correto.
+                <br />
+                <a
+                  href="https://myaccount.google.com/apppasswords"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-green-600 hover:underline font-medium"
+                >
+                  Gerar Senha de App aqui ↗
+                </a>
               </p>
             </div>
           )}
