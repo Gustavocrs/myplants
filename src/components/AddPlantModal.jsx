@@ -14,7 +14,6 @@ export default function AddPlantModal({
   const {user} = useAuth();
   const [name, setName] = useState("");
   const [scientificName, setScientificName] = useState("");
-  const [nickname, setNickname] = useState("");
   const [light, setLight] = useState("Meia-sombra");
   const [wateringInterval, setWateringInterval] = useState(7);
   const [petFriendly, setPetFriendly] = useState(false);
@@ -30,7 +29,6 @@ export default function AddPlantModal({
     if (plantToEdit) {
       setName(plantToEdit.name || plantToEdit.nome);
       setScientificName(plantToEdit.nomeCientifico || "");
-      setNickname(plantToEdit.apelido || "");
       setLight(plantToEdit.luz || "Meia-sombra");
       setWateringInterval(plantToEdit.intervaloRega || 7);
       setPetFriendly(plantToEdit.petFriendly || false);
@@ -131,13 +129,40 @@ export default function AddPlantModal({
       setPetFriendly(!!data.petFriendly);
       // Adiciona as observações da IA (incluindo dicas de saúde)
       if (data.observacoes) setNotes(data.observacoes);
-
     } catch (error) {
       console.error("Erro na IA:", error);
       alert("Erro ao consultar IA: " + error.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Verifica se houve alterações no formulário
+  const hasChanges = () => {
+    if (plantToEdit) {
+      return (
+        name !== (plantToEdit.name || plantToEdit.nome) ||
+        scientificName !== (plantToEdit.nomeCientifico || "") ||
+        light !== (plantToEdit.luz || "Meia-sombra") ||
+        String(wateringInterval) !== String(plantToEdit.intervaloRega || 7) ||
+        petFriendly !== (plantToEdit.petFriendly || false) ||
+        acquisitionDate !==
+          (plantToEdit.dataAquisicao
+            ? new Date(plantToEdit.dataAquisicao).toISOString().split("T")[0]
+            : "") ||
+        notes !== (plantToEdit.observacoes || "") ||
+        image !== (plantToEdit.imageUrl || plantToEdit.imagemUrl)
+      );
+    }
+    // Se for nova planta, qualquer campo preenchido conta como mudança (exceto defaults)
+    // Se veio initialData (IA), já consideramos que há dados para salvar
+    return (
+      name !== "" ||
+      scientificName !== "" ||
+      notes !== "" ||
+      image !== null ||
+      acquisitionDate !== ""
+    );
   };
 
   const handleSave = async () => {
@@ -148,7 +173,6 @@ export default function AddPlantModal({
       const plantData = {
         nome: name, // Backend espera 'nome', não 'name'
         nomeCientifico: scientificName,
-        apelido: nickname,
         luz: light,
         intervaloRega: Number(wateringInterval),
         petFriendly: petFriendly,
@@ -178,10 +202,18 @@ export default function AddPlantModal({
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">
-            {plantToEdit ? "Editar Planta" : "Nova Planta"}
-          </h2>
+        <div className="p-6 relative">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-800">
+              {plantToEdit ? "Editar Planta" : "Nova Planta"}
+            </h2>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 p-2"
+            >
+              ✕
+            </button>
+          </div>
 
           <div className="space-y-4">
             {/* Área de Upload Clicável */}
@@ -220,7 +252,9 @@ export default function AddPlantModal({
                 disabled={loading}
                 className="w-full py-2 bg-purple-50 text-purple-700 rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors flex items-center justify-center gap-2 font-medium text-sm"
               >
-                {loading ? "Analisando..." : "✨ Preencher dados e avaliar saúde com IA"}
+                {loading
+                  ? "Analisando..."
+                  : "✨ Preencher dados e avaliar saúde com IA"}
               </button>
             )}
 
@@ -248,19 +282,6 @@ export default function AddPlantModal({
                   onChange={(e) => setScientificName(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                   placeholder="Ex: Nephrolepis exaltata"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Apelido
-                </label>
-                <input
-                  type="text"
-                  value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Ex: Filha verde"
                 />
               </div>
 
@@ -321,7 +342,7 @@ export default function AddPlantModal({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Observações
+                Avaliação
               </label>
               <textarea
                 value={notes}
@@ -339,27 +360,39 @@ export default function AddPlantModal({
               {plantToEdit && (
                 <button
                   onClick={() => onDelete(plantToEdit.id)}
-                  className="text-red-500 hover:text-red-700 text-sm font-medium px-2 py-2 rounded hover:bg-red-50 transition-colors flex items-center gap-1"
+                  className="text-red-500 hover:text-red-700 text-sm font-medium px-3 py-2 rounded hover:bg-red-50 transition-colors flex items-center gap-1"
                 >
-                  🗑️ Excluir
+                  <span className="text-lg">🗑️</span>
+                  <span className="hidden md:inline">Excluir</span>
                 </button>
               )}
             </div>
 
             <div className="flex gap-3">
               <button
-                onClick={onClose}
-                disabled={loading}
-                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                onClick={hasChanges() ? handleSave : onClose}
+                disabled={loading || (hasChanges() && (!name || !image))}
+                className={`px-6 py-2 rounded-lg transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2 font-medium ${
+                  hasChanges()
+                    ? "bg-green-600 text-white hover:bg-green-700"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
               >
-                Cancelar
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={loading || !name || !image}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
-              >
-                {loading ? "Salvando..." : plantToEdit ? "Atualizar" : "Salvar"}
+                {loading ? (
+                  "Salvando..."
+                ) : hasChanges() ? (
+                  <>
+                    <span className="md:hidden text-lg">💾</span>
+                    <span className="hidden md:inline">
+                      {plantToEdit ? "Atualizar" : "Salvar"}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="md:hidden text-lg">✕</span>
+                    <span className="hidden md:inline">Fechar</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
