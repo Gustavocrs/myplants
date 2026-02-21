@@ -27,17 +27,15 @@ app.use(express.urlencoded({limit: "50mb", extended: true}));
 // Conexão com MongoDB Otimizada para o Docker
 const connectDB = async () => {
   try {
+    console.log(`⏳ Tentando conectar ao MongoDB em: ${process.env.MONGO_URI}`);
     await mongoose.connect(process.env.MONGO_URI, {
-      // Falha rápido após 3 segundos se não achar o banco,
-      // evitando que o front-end congele por 10s em tela de loading.
       serverSelectionTimeoutMS: 3000,
+      family: 4, // Pula a tentativa de IPv6 e conecta instantaneamente via IPv4 no Docker
     });
     console.log("📦 MongoDB conectado com sucesso!");
   } catch (err) {
-    console.error(
-      "❌ Erro ao conectar no MongoDB. Tentando novamente em 5 segundos...",
-      err.message,
-    );
+    console.error("❌ Erro crítico de conexão com o MongoDB:", err.message);
+    console.log("🔄 Tentando novamente em 5 segundos...");
     setTimeout(connectDB, 5000);
   }
 };
