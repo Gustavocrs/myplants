@@ -4,6 +4,9 @@
 DIR_PROJETO="/root/projetos/myplants"
 BRANCH="dev"
 
+# Ignora o aviso de containers orfãos (já que separamos o mongo propositalmente)
+export COMPOSE_IGNORE_ORPHANS=True
+
 echo "--- Iniciando Deploy Backend Profissional ---"
 
 # 1. Entrar no diretório
