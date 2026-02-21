@@ -119,7 +119,7 @@ export default function AddPlantModal({
     setLoading(true);
     try {
       const file = dataURLtoFile(image, "plant-image.jpg");
-      const data = await api.identifyPlant(file);
+      const data = await api.identifyPlant(file, user.uid);
 
       // Preenche os campos com os dados da IA
       if (data.nome) setName(data.nome);

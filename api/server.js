@@ -7,7 +7,8 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const plantsRoutes = require("./routes/plants");
 const identifyRoutes = require("./routes/identify");
-const { startScheduler } = require("./services/notificationService");
+const settingsRoutes = require("./routes/settings");
+const {startScheduler} = require("./services/notificationService");
 
 // Middlewares
 app.use(
@@ -50,6 +51,7 @@ startScheduler();
 // Rotas
 app.use("/api/plants", plantsRoutes);
 app.use("/api/identify", identifyRoutes);
+app.use("/api/settings", settingsRoutes);
 
 // Rota de Health Check
 app.get("/", (req, res) => {

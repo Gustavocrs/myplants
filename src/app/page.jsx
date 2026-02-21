@@ -76,7 +76,7 @@ export default function Home() {
       setIsAiLoading(true);
 
       // 1. Identifica a planta
-      const data = await api.identifyPlant(file);
+      const data = await api.identifyPlant(file, user.uid);
 
       // 2. Prepara o preview da imagem para o modal
       const reader = new FileReader();
@@ -129,7 +129,9 @@ export default function Home() {
     <main className="min-h-screen p-8 bg-gray-50 pb-24">
       <header className="flex justify-between items-center mb-8">
         <div className="flex gap-4 items-center">
-          <h1 className="text-3xl font-bold text-green-800">Minhas Plantas</h1>
+          <h1 className="text-xl md:text-3xl font-bold text-green-800">
+            Minhas Plantas
+          </h1>
           {!loadingPlants && plants && (
             <span className="bg-green-100 text-green-800 text-sm font-bold px-3 py-1 rounded-full">
               {plants.length}

@@ -2,23 +2,22 @@
 const cron = require("node-cron");
 const nodemailer = require("nodemailer");
 const Plant = require("../models/Plant");
+const Settings = require("../models/Settings");
 
-// Configuração do Transporter (Use variáveis de ambiente em produção)
-// Para testes rápidos, você pode usar o Ethereal Email ou seu próprio Gmail (com App Password)
-const transporter = nodemailer.createTransport({
-  service: "gmail", // Ou outro provedor SMTP
-  auth: {
-    user: process.env.EMAIL_USER, // Defina no .env
-    pass: process.env.EMAIL_PASS?.replace(/\s+/g, ""), // Remove espaços da senha (ex: blocos 4x4)
-  },
-});
+// Cache simples de transporters para não recriar a cada loop (opcional)
+const transporters = {};
 
 const checkPlantsAndNotify = async () => {
   console.log("⏰ Verificando plantas que precisam de rega...");
 
   try {
-    const plants = await Plant.find({});
+    // Busca todas as plantas que precisam de rega e ainda não foram notificadas
+    // Otimização: Filtra no banco em vez de trazer tudo
+    const plants = await Plant.find({notificationSent: false});
     const now = new Date();
+
+    // Agrupa plantas por usuário para enviar em lote ou configurar SMTP
+    const plantsByUser = {};
 
     for (const plant of plants) {
       if (!plant.ultimaRega || !plant.userEmail) continue;
@@ -27,13 +26,24 @@ const checkPlantsAndNotify = async () => {
       const nextWatering = new Date(plant.ultimaRega);
       nextWatering.setDate(nextWatering.getDate() + plant.intervaloRega);
 
-      // Se a data atual for maior que a data da próxima rega E ainda não notificamos
-      if (now >= nextWatering && !plant.notificationSent) {
-        console.log(`💧 Planta ${plant.nome} precisa de rega! Enviando email...`);
+      if (now >= nextWatering) {
+        if (!plantsByUser[plant.userId]) {
+          plantsByUser[plant.userId] = [];
+        }
+        plantsByUser[plant.userId].push(plant);
+      }
+    }
 
-        await sendReminderEmail(plant);
+    // Processa cada usuário
+    for (const userId in plantsByUser) {
+      const userPlants = plantsByUser[userId];
+      const transporter = await getTransporterForUser(userId);
 
-        // Marca como notificado para não enviar emails duplicados
+      for (const plant of userPlants) {
+        console.log(
+          `💧 Planta ${plant.nome} precisa de rega! Enviando email...`,
+        );
+        await sendReminderEmail(plant, transporter);
         plant.notificationSent = true;
         await plant.save();
       }
@@ -43,7 +53,34 @@ const checkPlantsAndNotify = async () => {
   }
 };
 
-const sendReminderEmail = async (plant) => {
+const getTransporterForUser = async (userId) => {
+  // Verifica se o usuário tem configurações de SMTP personalizadas
+  const settings = await Settings.findOne({userId});
+
+  if (settings && settings.smtp && settings.smtp.user && settings.smtp.pass) {
+    console.log(`📧 Usando SMTP personalizado para usuário ${userId}`);
+    return nodemailer.createTransport({
+      host: settings.smtp.host,
+      port: settings.smtp.port,
+      secure: settings.smtp.secure,
+      auth: {
+        user: settings.smtp.user,
+        pass: settings.smtp.pass,
+      },
+    });
+  }
+
+  // Fallback para o SMTP do sistema
+  return nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS?.replace(/\s+/g, ""),
+    },
+  });
+};
+
+const sendReminderEmail = async (plant, transporter) => {
   const confirmLink = `${process.env.API_URL || "http://localhost:3001/api"}/plants/${plant._id}/water`;
 
   const mailOptions = {
@@ -84,4 +121,4 @@ const startScheduler = () => {
   console.log("📅 Serviço de agendamento de rega iniciado.");
 };
 
-module.exports = { startScheduler };
+module.exports = {startScheduler};
