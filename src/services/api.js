@@ -70,4 +70,20 @@ export const api = {
     }
     return response.json();
   },
+
+  getSettings: async (userId) => {
+    const response = await fetch(`${API_URL}/settings/${userId}`);
+    if (!response.ok) return {}; // Retorna vazio se não existir ou der erro 404
+    return response.json();
+  },
+
+  saveSettings: async (userId, settings) => {
+    const response = await fetch(`${API_URL}/settings/${userId}`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(settings),
+    });
+    if (!response.ok) throw new Error("Erro ao salvar configurações");
+    return response.json();
+  },
 };

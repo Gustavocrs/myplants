@@ -7,6 +7,7 @@ import FloatingMenu from "../components/FloatingMenu";
 import AddPlantModal from "../components/AddPlantModal";
 import PlantCard from "../components/PlantCard";
 import PlantDetailsModal from "../components/PlantDetailsModal";
+import SettingsModal from "../components/SettingsModal";
 import {api} from "../services/api";
 
 export default function Home() {
@@ -19,6 +20,7 @@ export default function Home() {
   const [aiInitialData, setAiInitialData] = useState(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const aiInputRef = useRef(null);
 
   // Função para buscar plantas da API
@@ -104,6 +106,14 @@ export default function Home() {
     plant.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
+  // Cálculo aproximado do armazenamento usado (apenas para exibição visual)
+  const calculateStorageUsage = () => {
+    const jsonString = JSON.stringify(plants);
+    const bytes = new TextEncoder().encode(jsonString).length;
+    const mb = bytes / (1024 * 1024);
+    return mb;
+  };
+
   if (!user) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-24 bg-gray-100">
@@ -125,6 +135,10 @@ export default function Home() {
     );
   }
 
+  const storageUsed = calculateStorageUsage();
+  const storageLimit = 300; // 300MB
+  const storagePercent = Math.min((storageUsed / storageLimit) * 100, 100);
+
   return (
     <main className="min-h-screen p-8 bg-gray-50 pb-24">
       <header className="flex justify-between items-center mb-8">
@@ -143,6 +157,13 @@ export default function Home() {
             Olá, {user.displayName}
           </span>
           <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="text-gray-600 hover:text-green-600 p-2 rounded-full hover:bg-gray-100 transition-colors"
+            title="Configurações"
+          >
+            ⚙️
+          </button>
+          <button
             onClick={logout}
             className="text-red-500 hover:text-red-700 text-sm font-semibold"
           >
@@ -150,6 +171,17 @@ export default function Home() {
           </button>
         </div>
       </header>
+
+      {/* Barra de Armazenamento */}
+      <div className="max-w-5xl mx-auto mb-4 flex items-center gap-3 text-xs text-gray-500">
+        <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div 
+            className={`h-full rounded-full ${storagePercent > 90 ? 'bg-red-500' : 'bg-green-500'}`}
+            style={{ width: `${storagePercent}%` }}
+          />
+        </div>
+        <span>{storageUsed.toFixed(2)} MB / {storageLimit} MB</span>
+      </div>
 
       {/* Barra de Busca */}
       <div className="max-w-5xl mx-auto mb-6">
@@ -255,6 +287,10 @@ export default function Home() {
           plant={plantToView}
           onClose={() => setPlantToView(null)}
         />
+      )}
+
+      {isSettingsOpen && (
+        <SettingsModal onClose={() => setIsSettingsOpen(false)} />
       )}
     </main>
   );
