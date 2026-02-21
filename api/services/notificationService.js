@@ -9,7 +9,7 @@ const transporter = nodemailer.createTransport({
   service: "gmail", // Ou outro provedor SMTP
   auth: {
     user: process.env.EMAIL_USER, // Defina no .env
-    pass: process.env.EMAIL_PASS, // Defina no .env
+    pass: process.env.EMAIL_PASS?.replace(/\s+/g, ""), // Remove espaços da senha (ex: blocos 4x4)
   },
 });
 
@@ -29,9 +29,7 @@ const checkPlantsAndNotify = async () => {
 
       // Se a data atual for maior que a data da próxima rega E ainda não notificamos
       if (now >= nextWatering && !plant.notificationSent) {
-        console.log(
-          `💧 Planta ${plant.nome} precisa de rega! Enviando email...`,
-        );
+        console.log(`💧 Planta ${plant.nome} precisa de rega! Enviando email...`);
 
         await sendReminderEmail(plant);
 
@@ -68,7 +66,12 @@ const sendReminderEmail = async (plant) => {
     `,
   };
 
-  await transporter.sendMail(mailOptions);
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`📧 Email enviado para ${plant.userEmail}`);
+  } catch (error) {
+    console.error(`❌ Erro ao enviar email para ${plant.userEmail}:`, error);
+  }
 };
 
 // Inicia o Cron Job
@@ -81,4 +84,4 @@ const startScheduler = () => {
   console.log("📅 Serviço de agendamento de rega iniciado.");
 };
 
-module.exports = {startScheduler};
+module.exports = { startScheduler };

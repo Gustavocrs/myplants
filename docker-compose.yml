@@ -10,6 +10,8 @@ services:
       - MONGO_URI=${MONGO_URI}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - GEMINI_MODEL=${GEMINI_MODEL}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
     volumes:
       - ./api:/app
       - /app/node_modules
