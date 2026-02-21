@@ -6,6 +6,7 @@ import {useAuth} from "@/context/AuthContext";
 import FloatingMenu from "../components/FloatingMenu";
 import AddPlantModal from "../components/AddPlantModal";
 import PlantCard from "../components/PlantCard";
+import PlantDetailsModal from "../components/PlantDetailsModal";
 import {api} from "../services/api";
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
   const [plants, setPlants] = useState([]);
   const [loadingPlants, setLoadingPlants] = useState(true);
   const [plantToEdit, setPlantToEdit] = useState(null);
+  const [plantToView, setPlantToView] = useState(null);
   const [aiInitialData, setAiInitialData] = useState(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -191,7 +193,8 @@ export default function Home() {
               <PlantCard
                 key={plant.id}
                 plant={plant}
-                onClick={handleEditPlant}
+                onClick={(p) => setPlantToView(p)}
+                onEdit={handleEditPlant}
               />
             ))}
           </div>
@@ -244,6 +247,13 @@ export default function Home() {
               setPlantToEdit(null);
             }
           }}
+        />
+      )}
+
+      {plantToView && (
+        <PlantDetailsModal
+          plant={plantToView}
+          onClose={() => setPlantToView(null)}
         />
       )}
     </main>
