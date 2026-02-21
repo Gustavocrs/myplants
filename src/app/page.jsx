@@ -128,7 +128,14 @@ export default function Home() {
   return (
     <main className="min-h-screen p-8 bg-gray-50 pb-24">
       <header className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-green-800">Minhas Plantas</h1>
+        <div className="flex gap-4 items-center">
+          <h1 className="text-3xl font-bold text-green-800">Minhas Plantas</h1>
+          {!loadingPlants && plants && (
+            <span className="bg-green-100 text-green-800 text-sm font-bold px-3 py-1 rounded-full">
+              {plants.length}
+            </span>
+          )}
+        </div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-gray-600 hidden sm:block">
             Olá, {user.displayName}
@@ -141,15 +148,6 @@ export default function Home() {
           </button>
         </div>
       </header>
-
-      <div className="max-w-5xl mx-auto mt-8 mb-4 px-4 flex items-center gap-3">
-        <h1 className="text-3xl font-bold text-gray-800">Minhas Plantas</h1>
-        {!loadingPlants && plants && (
-          <span className="bg-green-100 text-green-800 text-sm font-bold px-3 py-1 rounded-full">
-            {plants.length}
-          </span>
-        )}
-      </div>
 
       {/* Barra de Busca */}
       <div className="max-w-5xl mx-auto mb-6">
