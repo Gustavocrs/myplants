@@ -157,6 +157,13 @@ export default function Home() {
   const storageLimit = 30; // 30MB
   const storagePercent = Math.min((storageUsed / storageLimit) * 100, 100);
 
+  const formatSize = (mb) => {
+    if (mb < 1) {
+      return `${(mb * 1024).toFixed(0)} KB`;
+    }
+    return `${mb.toFixed(2)} MB`;
+  };
+
   return (
     <main className="min-h-screen p-8 bg-gray-50 pb-24">
       <header className="flex justify-between items-center mb-8">
@@ -199,7 +206,7 @@ export default function Home() {
           />
         </div>
         <span>
-          {storageUsed.toFixed(2)} MB / {storageLimit} MB
+          {formatSize(storageUsed)} / {storageLimit} MB
         </span>
       </div>
 
