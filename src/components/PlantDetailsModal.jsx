@@ -1,6 +1,10 @@
 "use client";
 
-export default function PlantDetailsModal({plant, onClose}) {
+export default function PlantDetailsModal({
+  plant,
+  onClose,
+  isPublicView = false,
+}) {
   if (!plant) return null;
 
   return (
@@ -86,7 +90,7 @@ export default function PlantDetailsModal({plant, onClose}) {
             </div>
           </div>
 
-          {plant.observacoes && (
+          {plant.observacoes && !isPublicView && (
             <div className="bg-green-50 p-4 rounded-xl border border-green-100">
               <span className="block text-green-700 text-xs uppercase tracking-wider font-bold mb-2">
                 Observações & Cuidados

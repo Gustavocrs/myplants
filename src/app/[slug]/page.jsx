@@ -91,6 +91,7 @@ export default function PublicProfile({params}) {
         <PlantDetailsModal
           plant={plantToView}
           onClose={() => setPlantToView(null)}
+          isPublicView={true}
         />
       )}
 
