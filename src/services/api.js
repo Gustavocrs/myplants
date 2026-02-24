@@ -92,4 +92,10 @@ export const api = {
     if (!response.ok) throw new Error("Perfil não encontrado");
     return response.json();
   },
+
+  getStorageUsage: async (userId) => {
+    const response = await fetch(`${API_URL}/plants/storage?userId=${userId}`);
+    if (!response.ok) return {sizeMB: 0};
+    return response.json();
+  },
 };

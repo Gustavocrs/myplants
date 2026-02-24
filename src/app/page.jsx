@@ -15,6 +15,7 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [plants, setPlants] = useState([]);
   const [loadingPlants, setLoadingPlants] = useState(true);
+  const [storageUsed, setStorageUsed] = useState(0);
   const [plantToEdit, setPlantToEdit] = useState(null);
   const [plantToView, setPlantToView] = useState(null);
   const [aiInitialData, setAiInitialData] = useState(null);
@@ -38,6 +39,10 @@ export default function Home() {
         id: p._id,
       }));
       setPlants(formatted);
+
+      // Busca o uso real do armazenamento
+      const storageData = await api.getStorageUsage(user.uid);
+      setStorageUsed(storageData.sizeMB || 0);
     } catch (error) {
       console.error("Erro ao buscar plantas:", error);
     } finally {
@@ -124,14 +129,6 @@ export default function Home() {
     return matchesSearch && matchesLuz && matchesPet && matchesRega;
   });
 
-  // Cálculo aproximado do armazenamento usado (apenas para exibição visual)
-  const calculateStorageUsage = () => {
-    const jsonString = JSON.stringify(plants);
-    const bytes = new TextEncoder().encode(jsonString).length;
-    const mb = bytes / (1024 * 1024);
-    return mb;
-  };
-
   if (!user) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-24 bg-gray-100">
@@ -153,7 +150,6 @@ export default function Home() {
     );
   }
 
-  const storageUsed = calculateStorageUsage();
   const storageLimit = 30; // 30MB
   const storagePercent = Math.min((storageUsed / storageLimit) * 100, 100);
 

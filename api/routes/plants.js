@@ -6,6 +6,9 @@ const plantsController = require("../controllers/plantsController");
 // GET - Listar todas as plantas
 router.get("/", plantsController.getAllPlants);
 
+// GET - Consultar uso de armazenamento (Antes de /:id)
+router.get("/storage", plantsController.getStorageUsage);
+
 // POST - Criar nova planta
 router.post("/", plantsController.createPlant);
 

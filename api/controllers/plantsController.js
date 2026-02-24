@@ -141,3 +141,26 @@ exports.confirmWatering = async (req, res) => {
   // Recomendo mover a lógica do router.get("/:id/water") para cá.
   // Por hora, vou manter a lógica inline no router ou você pode copiar do original.
 };
+
+exports.getStorageUsage = async (req, res) => {
+  try {
+    const {userId} = req.query;
+    if (!userId) return res.status(400).json({error: "UserId obrigatório"});
+
+    const stats = await Plant.aggregate([
+      {$match: {userId: userId}},
+      {
+        $group: {
+          _id: null,
+          totalSize: {$sum: {$bsonSize: "$$ROOT"}},
+        },
+      },
+    ]);
+
+    const totalSize = stats.length > 0 ? stats[0].totalSize : 0;
+    // Retorna em MB
+    res.json({sizeMB: totalSize / (1024 * 1024)});
+  } catch (err) {
+    res.status(500).json({error: err.message});
+  }
+};
