@@ -1,13 +1,13 @@
 "use client";
 
-import {useState, useEffect} from "react";
+import {useState, useEffect, use} from "react";
 import {api} from "../../services/api";
 import PlantCard from "../../components/PlantCard";
 import PlantDetailsModal from "../../components/PlantDetailsModal";
 import Link from "next/link";
 
 export default function PublicProfile({params}) {
-  const {slug} = params;
+  const {slug} = use(params);
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
