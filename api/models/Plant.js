@@ -14,6 +14,7 @@ const PlantSchema = new mongoose.Schema({
   ultimaRega: Date,
   dataAquisicao: Date,
   imagemUrl: String,
+  lembretesAtivos: {type: Boolean, default: true},
   observacoes: String,
   userId: {type: String, required: true},
   userEmail: {type: String}, // Email para notificações
