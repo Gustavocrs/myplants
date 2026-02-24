@@ -86,4 +86,10 @@ export const api = {
     if (!response.ok) throw new Error("Erro ao salvar configurações");
     return response.json();
   },
+
+  getPublicProfile: async (slug) => {
+    const response = await fetch(`${API_URL}/public/${slug}`);
+    if (!response.ok) throw new Error("Perfil não encontrado");
+    return response.json();
+  },
 };

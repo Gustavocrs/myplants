@@ -6,11 +6,14 @@ import {useAuth} from "@/context/AuthContext";
 export default function SettingsModal({onClose}) {
   const {user} = useAuth();
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("general"); // general | email
+  const [activeTab, setActiveTab] = useState("general"); // general | email | profile
   const [showGeminiKey, setShowGeminiKey] = useState(false);
   const [showSmtpPass, setShowSmtpPass] = useState(false);
 
   const [formData, setFormData] = useState({
+    slug: "",
+    isPublic: false,
+    displayName: "",
     geminiApiKey: "",
     smtp: {
       host: "",
@@ -34,6 +37,9 @@ export default function SettingsModal({onClose}) {
       const data = await api.getSettings(user.uid);
       if (data) {
         setFormData({
+          slug: data.slug || "",
+          isPublic: !!data.isPublic,
+          displayName: data.displayName || user.displayName || "",
           geminiApiKey: data.geminiApiKey || "",
           smtp: {
             host: data.smtp?.host || "smtp.gmail.com",
@@ -90,6 +96,12 @@ export default function SettingsModal({onClose}) {
             onClick={() => setActiveTab("email")}
           >
             📧 Notificações (Email)
+          </button>
+          <button
+            className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "profile" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
+            onClick={() => setActiveTab("profile")}
+          >
+            🌍 Perfil Público
           </button>
         </div>
 
@@ -265,6 +277,97 @@ export default function SettingsModal({onClose}) {
                   Gerar Senha de App aqui ↗
                 </a>
               </p>
+            </div>
+          )}
+
+          {activeTab === "profile" && (
+            <div className="space-y-6">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 text-sm text-blue-800">
+                <p>
+                  Compartilhe sua coleção de plantas com amigos! Ao ativar o
+                  perfil público, qualquer pessoa com o link poderá ver suas
+                  plantas (apenas leitura).
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-gray-700 font-medium">
+                  Ativar Perfil Público
+                </span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isPublic}
+                    onChange={(e) =>
+                      setFormData({...formData, isPublic: e.target.checked})
+                    }
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                </label>
+              </div>
+
+              {formData.isPublic && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nome de Exibição
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.displayName}
+                      onChange={(e) =>
+                        setFormData({...formData, displayName: e.target.value})
+                      }
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 outline-none"
+                      placeholder="Ex: Jardim do Gustavo"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Link do Perfil (Slug)
+                    </label>
+                    <div className="flex items-center">
+                      <span className="bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg px-3 py-2 text-gray-500 text-sm">
+                        {typeof window !== "undefined"
+                          ? window.location.host
+                          : ""}
+                        /
+                      </span>
+                      <input
+                        type="text"
+                        value={formData.slug}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            slug: e.target.value
+                              .toLowerCase()
+                              .replace(/[^a-z0-9-]/g, ""),
+                          })
+                        }
+                        className="w-full border border-gray-300 rounded-r-lg px-3 py-2 focus:ring-2 focus:ring-green-500 outline-none"
+                        placeholder="meu-jardim"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Apenas letras minúsculas, números e hífens.
+                    </p>
+                  </div>
+
+                  {formData.slug && (
+                    <div className="pt-2">
+                      <a
+                        href={`/${formData.slug}`}
+                        target="_blank"
+                        className="text-green-600 hover:underline text-sm flex items-center gap-1"
+                      >
+                        🔗 Visualizar meu perfil público
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
