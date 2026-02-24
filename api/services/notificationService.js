@@ -14,7 +14,10 @@ const checkPlantsAndNotify = async () => {
   try {
     // Busca todas as plantas que precisam de rega e ainda não foram notificadas
     // Otimização: Filtra no banco em vez de trazer tudo
-    const plants = await Plant.find({notificationSent: false});
+    const plants = await Plant.find({
+      notificationSent: false,
+      lembretesAtivos: {$ne: false}, // Garante que notifica se for true ou undefined (legado)
+    });
     const now = new Date();
 
     // Agrupa plantas por usuário para enviar em lote ou configurar SMTP

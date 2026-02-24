@@ -18,6 +18,10 @@ export default function AddPlantModal({
   const [intervaloRega, setIntervaloRega] = useState(7);
   const [petFriendly, setPetFriendly] = useState(false);
   const [dataAquisicao, setDataAquisicao] = useState("");
+  const [ultimaRega, setUltimaRega] = useState(
+    new Date().toISOString().split("T")[0],
+  );
+  const [lembretesAtivos, setLembretesAtivos] = useState(true);
   const [observacoes, setObservacoes] = useState("");
   const [imagemUrl, setImagemUrl] = useState(null);
   const [preview, setPreview] = useState("");
@@ -37,6 +41,11 @@ export default function AddPlantModal({
         const date = new Date(plantToEdit.dataAquisicao);
         setDataAquisicao(date.toISOString().split("T")[0]);
       }
+      if (plantToEdit.ultimaRega) {
+        const date = new Date(plantToEdit.ultimaRega);
+        setUltimaRega(date.toISOString().split("T")[0]);
+      }
+      setLembretesAtivos(plantToEdit.lembretesAtivos !== false);
       setImagemUrl(plantToEdit.imagemUrl);
       setPreview(plantToEdit.imagemUrl);
     }
@@ -146,6 +155,11 @@ export default function AddPlantModal({
         luz !== (plantToEdit.luz || "Meia-sombra") ||
         String(intervaloRega) !== String(plantToEdit.intervaloRega || 7) ||
         petFriendly !== (plantToEdit.petFriendly || false) ||
+        lembretesAtivos !== (plantToEdit.lembretesAtivos !== false) ||
+        ultimaRega !==
+          (plantToEdit.ultimaRega
+            ? new Date(plantToEdit.ultimaRega).toISOString().split("T")[0]
+            : "") ||
         dataAquisicao !==
           (plantToEdit.dataAquisicao
             ? new Date(plantToEdit.dataAquisicao).toISOString().split("T")[0]
@@ -176,7 +190,10 @@ export default function AddPlantModal({
         luz,
         intervaloRega: Number(intervaloRega),
         petFriendly: petFriendly,
+        lembretesAtivos,
         dataAquisicao: dataAquisicao ? new Date(dataAquisicao) : null,
+        ultimaRega: ultimaRega ? new Date(ultimaRega) : null,
+        notificationSent: false, // Reseta notificação ao editar para garantir novos alertas
         observacoes,
         imagemUrl,
         userId: user.uid,
@@ -198,6 +215,15 @@ export default function AddPlantModal({
     } finally {
       setLoading(false);
     }
+  };
+
+  // Calcula a próxima rega para exibir ao usuário
+  const getProximaRega = () => {
+    if (!ultimaRega || !intervaloRega) return null;
+    const last = new Date(ultimaRega);
+    // Adiciona dias
+    last.setDate(last.getDate() + Number(intervaloRega));
+    return last.toLocaleDateString("pt-BR");
   };
 
   return (
@@ -317,6 +343,23 @@ export default function AddPlantModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Última Rega
+                </label>
+                <input
+                  type="date"
+                  value={ultimaRega}
+                  onChange={(e) => setUltimaRega(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+                {getProximaRega() && (
+                  <p className="text-xs text-green-600 mt-1 font-medium">
+                    Próximo lembrete: {getProximaRega()}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Data de Aquisição
                 </label>
                 <input
@@ -328,17 +371,35 @@ export default function AddPlantModal({
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="petFriendly"
-                checked={petFriendly}
-                onChange={(e) => setPetFriendly(e.target.checked)}
-                className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
-              />
-              <label htmlFor="petFriendly" className="text-sm text-gray-700">
-                Pet Friendly (Segura para animais)
-              </label>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="lembretesAtivos"
+                  checked={lembretesAtivos}
+                  onChange={(e) => setLembretesAtivos(e.target.checked)}
+                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                />
+                <label
+                  htmlFor="lembretesAtivos"
+                  className="text-sm text-gray-700 font-medium"
+                >
+                  🔔 Receber lembretes de rega
+                </label>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="petFriendly"
+                  checked={petFriendly}
+                  onChange={(e) => setPetFriendly(e.target.checked)}
+                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                />
+                <label htmlFor="petFriendly" className="text-sm text-gray-700">
+                  Pet Friendly (Segura para animais)
+                </label>
+              </div>
             </div>
 
             <div>
