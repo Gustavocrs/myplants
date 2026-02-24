@@ -20,6 +20,9 @@ export default function Home() {
   const [aiInitialData, setAiInitialData] = useState(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterLuz, setFilterLuz] = useState("");
+  const [filterRega, setFilterRega] = useState("");
+  const [filterPet, setFilterPet] = useState("");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const aiInputRef = useRef(null);
 
@@ -100,9 +103,26 @@ export default function Home() {
     }
   };
 
-  const filteredPlants = plants.filter((plant) =>
-    plant.nome.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const filteredPlants = plants.filter((plant) => {
+    const matchesSearch = plant.nome
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesLuz = filterLuz ? plant.luz === filterLuz : true;
+    const matchesPet =
+      filterPet === "sim"
+        ? plant.petFriendly
+        : filterPet === "nao"
+          ? !plant.petFriendly
+          : true;
+
+    let matchesRega = true;
+    if (filterRega === "alta") matchesRega = plant.intervaloRega <= 3;
+    else if (filterRega === "media")
+      matchesRega = plant.intervaloRega > 3 && plant.intervaloRega <= 7;
+    else if (filterRega === "baixa") matchesRega = plant.intervaloRega > 7;
+
+    return matchesSearch && matchesLuz && matchesPet && matchesRega;
+  });
 
   // Cálculo aproximado do armazenamento usado (apenas para exibição visual)
   const calculateStorageUsage = () => {
@@ -184,7 +204,7 @@ export default function Home() {
       </div>
 
       {/* Barra de Busca */}
-      <div className="max-w-5xl mx-auto mb-6">
+      <div className="max-w-5xl mx-auto mb-6 space-y-4">
         <div className="relative">
           <input
             type="text"
@@ -194,6 +214,55 @@ export default function Home() {
             className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition-all"
           />
           <span className="absolute right-4 top-3.5 text-gray-400">🔍</span>
+        </div>
+
+        {/* Filtros */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <select
+            value={filterLuz}
+            onChange={(e) => setFilterLuz(e.target.value)}
+            className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option value="">☀️ Todas as Luminosidades</option>
+            <option value="Sombra">Sombra</option>
+            <option value="Meia-sombra">Meia-sombra</option>
+            <option value="Luz Difusa">Luz Difusa</option>
+            <option value="Sol Pleno">Sol Pleno</option>
+          </select>
+
+          <select
+            value={filterRega}
+            onChange={(e) => setFilterRega(e.target.value)}
+            className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option value="">💧 Todas as Regas</option>
+            <option value="alta">Alta Frequência (1-3 dias)</option>
+            <option value="media">Média Frequência (4-7 dias)</option>
+            <option value="baixa">Baixa Frequência (7+ dias)</option>
+          </select>
+
+          <select
+            value={filterPet}
+            onChange={(e) => setFilterPet(e.target.value)}
+            className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            <option value="">🐶 Pet Friendly (Todos)</option>
+            <option value="sim">Sim (Seguro)</option>
+            <option value="nao">Não (Tóxico/Cuidado)</option>
+          </select>
+
+          {(filterLuz || filterRega || filterPet) && (
+            <button
+              onClick={() => {
+                setFilterLuz("");
+                setFilterRega("");
+                setFilterPet("");
+              }}
+              className="px-4 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+            >
+              Limpar Filtros
+            </button>
+          )}
         </div>
       </div>
 
@@ -216,7 +285,7 @@ export default function Home() {
         ) : filteredPlants.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">
-              Nenhuma planta encontrada para "{searchTerm}"
+              Nenhuma planta encontrada com esses filtros.
             </p>
           </div>
         ) : (
