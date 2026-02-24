@@ -157,6 +157,8 @@ exports.getStorageUsage = async (req, res) => {
       },
     ]);
 
+    console.log("DEBUG - Storage Stats:", stats);
+
     const totalSize = stats.length > 0 ? stats[0].totalSize : 0;
     // Retorna em MB
     res.json({sizeMB: totalSize / (1024 * 1024)});

@@ -42,6 +42,7 @@ export default function Home() {
 
       // Busca o uso real do armazenamento
       const storageData = await api.getStorageUsage(user.uid);
+      console.log("DEBUG - Storage Data:", storageData);
       setStorageUsed(storageData.sizeMB || 0);
     } catch (error) {
       console.error("Erro ao buscar plantas:", error);
