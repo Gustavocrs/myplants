@@ -147,6 +147,15 @@ exports.getStorageUsage = async (req, res) => {
     const {userId} = req.query;
     if (!userId) return res.status(400).json({error: "UserId obrigatório"});
 
+    console.log(`🔍 Debug Storage: Buscando dados para userId [${userId}]`);
+
+    // 1. Verifica se existem plantas para este usuário (Count simples)
+    const count = await Plant.countDocuments({userId});
+    console.log(
+      `📊 Debug Storage: Encontradas ${count} plantas via countDocuments`,
+    );
+
+    // 2. Executa a agregação
     const stats = await Plant.aggregate([
       {$match: {userId: userId}},
       {
@@ -157,27 +166,22 @@ exports.getStorageUsage = async (req, res) => {
       },
     ]);
 
-    console.log("DEBUG - Storage Stats:", stats);
-
-    // Debug: Verificar quais plantas estão ocupando mais espaço
-    const heavyPlants = await Plant.aggregate([
-      {$match: {userId: userId}},
-      {
-        $project: {
-          nome: 1,
-          size: {$bsonSize: "$$ROOT"}, // Tamanho em bytes
-          isBase64: {$regexMatch: {input: "$imagemUrl", regex: /^data:image/}}, // Verifica se é Base64
-        },
-      },
-      {$sort: {size: -1}}, // Ordena do maior para o menor
-      {$limit: 5},
-    ]);
-    console.log("DEBUG - Top 5 Plantas mais pesadas:", heavyPlants);
+    console.log(
+      "📉 Debug Storage: Resultado do Aggregate:",
+      JSON.stringify(stats),
+    );
 
     const totalSize = stats.length > 0 ? stats[0].totalSize : 0;
+    const sizeMB = totalSize / (1024 * 1024);
+
+    console.log(
+      `💾 Debug Storage: Tamanho Total: ${totalSize} bytes (${sizeMB.toFixed(6)} MB)`,
+    );
+
     // Retorna em MB
-    res.json({sizeMB: totalSize / (1024 * 1024)});
+    res.json({sizeMB});
   } catch (err) {
+    console.error("❌ Debug Storage Error:", err);
     res.status(500).json({error: err.message});
   }
 };
