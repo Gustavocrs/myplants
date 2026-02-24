@@ -5,8 +5,14 @@ const {sendTestEmail} = require("../services/notificationService");
 exports.getSettings = async (req, res) => {
   try {
     const {userId} = req.params;
-    const settings = await Settings.findOne({userId});
-    // Não retornamos a senha do email por segurança, ou retornamos mascarada se necessário
+    const settings = await Settings.findOne({userId}).lean();
+
+    // Não retornamos segredos para o frontend para evitar re-criptografia acidental
+    if (settings) {
+      if (settings.smtp) delete settings.smtp.pass;
+      if (settings.geminiApiKey) delete settings.geminiApiKey;
+    }
+
     res.json(settings || {});
   } catch (err) {
     res.status(500).json({error: err.message});
@@ -18,14 +24,6 @@ exports.updateSettings = async (req, res) => {
     const {userId} = req.params;
     const {geminiApiKey, smtp, slug, isPublic, displayName} = req.body;
 
-    // Criptografa dados sensíveis antes de salvar
-    const encryptedApiKey = geminiApiKey ? encrypt(geminiApiKey) : undefined;
-    const encryptedSmtpPass =
-      smtp && smtp.pass ? encrypt(smtp.pass) : undefined;
-
-    // Prepara objeto de atualização mantendo outros campos do SMTP se necessário
-    // Nota: Para simplificar, assumimos que o frontend envia o objeto smtp completo ou tratamos aqui
-
     // Validação simples do slug
     if (slug && /[^a-z0-9-]/.test(slug)) {
       return res.status(400).json({
@@ -33,27 +31,45 @@ exports.updateSettings = async (req, res) => {
       });
     }
 
-    const updateData = {
-      userId,
-      slug,
-      isPublic,
-      displayName,
+    const updateOps = {
+      $set: {
+        userId,
+        slug,
+        isPublic,
+        displayName,
+      },
     };
-    if (encryptedApiKey) updateData.geminiApiKey = encryptedApiKey;
+
+    // Só atualiza a chave se o usuário digitou algo novo (não vazia)
+    if (geminiApiKey && geminiApiKey.trim() !== "") {
+      updateOps.$set.geminiApiKey = encrypt(geminiApiKey);
+    }
+
     if (smtp) {
-      updateData.smtp = {...smtp};
-      if (encryptedSmtpPass) {
-        updateData.smtp.pass = encryptedSmtpPass;
+      updateOps.$set["smtp.host"] = smtp.host;
+      updateOps.$set["smtp.port"] = smtp.port;
+      updateOps.$set["smtp.user"] = smtp.user;
+      updateOps.$set["smtp.secure"] = smtp.secure;
+      updateOps.$set["smtp.fromEmail"] = smtp.fromEmail;
+
+      // Só atualiza a senha se o usuário digitou algo novo
+      if (smtp.pass && smtp.pass.trim() !== "") {
+        updateOps.$set["smtp.pass"] = encrypt(smtp.pass);
       }
     }
 
     const settings = await Settings.findOneAndUpdate(
       {userId},
-      updateData,
+      updateOps,
       {new: true, upsert: true, runValidators: true}, // Cria se não existir
     );
 
-    res.json(settings);
+    // Retorna o objeto atualizado sem os segredos
+    const responseData = settings.toObject();
+    if (responseData.smtp) delete responseData.smtp.pass;
+    if (responseData.geminiApiKey) delete responseData.geminiApiKey;
+
+    res.json(responseData);
   } catch (err) {
     if (err.code === 11000) {
       return res
