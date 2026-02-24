@@ -14,8 +14,8 @@ export default function PlantDetailsModal({plant, onClose}) {
       >
         <div className="relative h-64 shrink-0 bg-gray-100">
           <img
-            src={plant.imageUrl}
-            alt={plant.name}
+            src={plant.imagemUrl}
+            alt={plant.nome}
             className="w-full h-full object-cover"
           />
           <button
@@ -41,7 +41,7 @@ export default function PlantDetailsModal({plant, onClose}) {
 
         <div className="p-6 space-y-5 overflow-y-auto">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">{plant.name}</h2>
+            <h2 className="text-2xl font-bold text-gray-800">{plant.nome}</h2>
             {plant.nomeCientifico && (
               <p className="text-gray-500 italic font-medium">
                 {plant.nomeCientifico}

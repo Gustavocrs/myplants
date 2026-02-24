@@ -29,12 +29,10 @@ export default function Home() {
     try {
       setLoadingPlants(true);
       const data = await api.getPlants(user.uid);
-      // Mapeia _id (Mongo) para id (Frontend) e garante que usamos 'nome' ou 'name'
+      // Normaliza apenas o ID, mantendo as chaves originais do banco (nome, imagemUrl, etc)
       const formatted = data.map((p) => ({
         ...p,
         id: p._id,
-        name: p.nome || p.name,
-        imageUrl: p.imagemUrl || p.imageUrl, // Garante que a imagem apareça independente do nome do campo
       }));
       setPlants(formatted);
     } catch (error) {
@@ -87,7 +85,7 @@ export default function Home() {
         // 3. Abre o modal com os dados preenchidos
         setAiInitialData({
           ...data,
-          imageUrl: reader.result, // Passa a imagem em base64 para o modal exibir
+          imagemUrl: reader.result, // Passa a imagem em base64 para o modal exibir
         });
         setIsModalOpen(true);
         setIsAiLoading(false);
@@ -103,7 +101,7 @@ export default function Home() {
   };
 
   const filteredPlants = plants.filter((plant) =>
-    plant.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    plant.nome.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // Cálculo aproximado do armazenamento usado (apenas para exibição visual)
@@ -175,12 +173,14 @@ export default function Home() {
       {/* Barra de Armazenamento */}
       <div className="max-w-5xl mx-auto mb-4 flex items-center gap-3 text-xs text-gray-500">
         <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-          <div 
-            className={`h-full rounded-full ${storagePercent > 90 ? 'bg-red-500' : 'bg-green-500'}`}
-            style={{ width: `${storagePercent}%` }}
+          <div
+            className={`h-full rounded-full ${storagePercent > 90 ? "bg-red-500" : "bg-green-500"}`}
+            style={{width: `${storagePercent}%`}}
           />
         </div>
-        <span>{storageUsed.toFixed(2)} MB / {storageLimit} MB</span>
+        <span>
+          {storageUsed.toFixed(2)} MB / {storageLimit} MB
+        </span>
       </div>
 
       {/* Barra de Busca */}

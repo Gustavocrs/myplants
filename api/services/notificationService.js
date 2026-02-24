@@ -3,6 +3,7 @@ const cron = require("node-cron");
 const nodemailer = require("nodemailer");
 const Plant = require("../models/Plant");
 const Settings = require("../models/Settings");
+const {decrypt} = require("../utils/crypto");
 
 // Cache simples de transporters para não recriar a cada loop (opcional)
 const transporters = {};
@@ -65,7 +66,7 @@ const getTransporterForUser = async (userId) => {
       secure: settings.smtp.secure,
       auth: {
         user: settings.smtp.user,
-        pass: settings.smtp.pass,
+        pass: decrypt(settings.smtp.pass),
       },
     });
   }

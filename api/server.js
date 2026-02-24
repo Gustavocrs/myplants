@@ -2,6 +2,8 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
+const fs = require("fs");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -26,6 +28,14 @@ app.use(
 
 app.use(express.json({limit: "50mb"}));
 app.use(express.urlencoded({limit: "50mb", extended: true}));
+
+// Configuração de Arquivos Estáticos (Uploads)
+const uploadsDir = path.join(__dirname, "public", "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, {recursive: true});
+}
+// Serve a pasta public/uploads na rota /uploads
+app.use("/uploads", express.static(uploadsDir));
 
 // Conexão com MongoDB Otimizada para o Docker
 const connectDB = async () => {

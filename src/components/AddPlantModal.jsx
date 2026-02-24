@@ -12,14 +12,14 @@ export default function AddPlantModal({
   onDelete,
 }) {
   const {user} = useAuth();
-  const [name, setName] = useState("");
-  const [scientificName, setScientificName] = useState("");
-  const [light, setLight] = useState("Meia-sombra");
-  const [wateringInterval, setWateringInterval] = useState(7);
+  const [nome, setNome] = useState("");
+  const [nomeCientifico, setNomeCientifico] = useState("");
+  const [luz, setLuz] = useState("Meia-sombra");
+  const [intervaloRega, setIntervaloRega] = useState(7);
   const [petFriendly, setPetFriendly] = useState(false);
-  const [acquisitionDate, setAcquisitionDate] = useState("");
-  const [notes, setNotes] = useState("");
-  const [image, setImage] = useState(null);
+  const [dataAquisicao, setDataAquisicao] = useState("");
+  const [observacoes, setObservacoes] = useState("");
+  const [imagemUrl, setImagemUrl] = useState(null);
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
@@ -27,30 +27,30 @@ export default function AddPlantModal({
   // Preenche os dados se estiver editando
   useEffect(() => {
     if (plantToEdit) {
-      setName(plantToEdit.name || plantToEdit.nome);
-      setScientificName(plantToEdit.nomeCientifico || "");
-      setLight(plantToEdit.luz || "Meia-sombra");
-      setWateringInterval(plantToEdit.intervaloRega || 7);
+      setNome(plantToEdit.nome);
+      setNomeCientifico(plantToEdit.nomeCientifico || "");
+      setLuz(plantToEdit.luz || "Meia-sombra");
+      setIntervaloRega(plantToEdit.intervaloRega || 7);
       setPetFriendly(plantToEdit.petFriendly || false);
-      setNotes(plantToEdit.observacoes || "");
+      setObservacoes(plantToEdit.observacoes || "");
       if (plantToEdit.dataAquisicao) {
         const date = new Date(plantToEdit.dataAquisicao);
-        setAcquisitionDate(date.toISOString().split("T")[0]);
+        setDataAquisicao(date.toISOString().split("T")[0]);
       }
-      setImage(plantToEdit.imageUrl || plantToEdit.imagemUrl);
-      setPreview(plantToEdit.imageUrl || plantToEdit.imagemUrl);
+      setImagemUrl(plantToEdit.imagemUrl);
+      setPreview(plantToEdit.imagemUrl);
     }
     // Preenche com dados da IA se houver
     else if (initialData) {
-      setName(initialData.nome || "");
-      setScientificName(initialData.nomeCientifico || "");
-      setLight(initialData.luz || "Meia-sombra");
-      setWateringInterval(initialData.intervaloRega || 7);
+      setNome(initialData.nome || "");
+      setNomeCientifico(initialData.nomeCientifico || "");
+      setLuz(initialData.luz || "Meia-sombra");
+      setIntervaloRega(initialData.intervaloRega || 7);
       setPetFriendly(!!initialData.petFriendly);
-      setNotes(initialData.observacoes || "");
-      if (initialData.imageUrl) {
-        setImage(initialData.imageUrl);
-        setPreview(initialData.imageUrl);
+      setObservacoes(initialData.observacoes || "");
+      if (initialData.imagemUrl) {
+        setImagemUrl(initialData.imagemUrl);
+        setPreview(initialData.imagemUrl);
       }
     }
   }, [plantToEdit, initialData]);
@@ -95,7 +95,7 @@ export default function AddPlantModal({
 
         // Converte para JPEG com 70% de qualidade (reduz muito o tamanho)
         const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
-        setImage(dataUrl);
+        setImagemUrl(dataUrl);
         setPreview(dataUrl);
       };
     };
@@ -115,20 +115,20 @@ export default function AddPlantModal({
   };
 
   const handleAiFill = async () => {
-    if (!image) return;
+    if (!imagemUrl) return;
     setLoading(true);
     try {
-      const file = dataURLtoFile(image, "plant-image.jpg");
+      const file = dataURLtoFile(imagemUrl, "plant-image.jpg");
       const data = await api.identifyPlant(file, user.uid);
 
       // Preenche os campos com os dados da IA
-      if (data.nome) setName(data.nome);
-      if (data.nomeCientifico) setScientificName(data.nomeCientifico);
-      if (data.luz) setLight(data.luz);
-      if (data.intervaloRega) setWateringInterval(data.intervaloRega);
+      if (data.nome) setNome(data.nome);
+      if (data.nomeCientifico) setNomeCientifico(data.nomeCientifico);
+      if (data.luz) setLuz(data.luz);
+      if (data.intervaloRega) setIntervaloRega(data.intervaloRega);
       setPetFriendly(!!data.petFriendly);
       // Adiciona as observações da IA (incluindo dicas de saúde)
-      if (data.observacoes) setNotes(data.observacoes);
+      if (data.observacoes) setObservacoes(data.observacoes);
     } catch (error) {
       console.error("Erro na IA:", error);
       alert("Erro ao consultar IA: " + error.message);
@@ -141,44 +141,44 @@ export default function AddPlantModal({
   const hasChanges = () => {
     if (plantToEdit) {
       return (
-        name !== (plantToEdit.name || plantToEdit.nome) ||
-        scientificName !== (plantToEdit.nomeCientifico || "") ||
-        light !== (plantToEdit.luz || "Meia-sombra") ||
-        String(wateringInterval) !== String(plantToEdit.intervaloRega || 7) ||
+        nome !== plantToEdit.nome ||
+        nomeCientifico !== (plantToEdit.nomeCientifico || "") ||
+        luz !== (plantToEdit.luz || "Meia-sombra") ||
+        String(intervaloRega) !== String(plantToEdit.intervaloRega || 7) ||
         petFriendly !== (plantToEdit.petFriendly || false) ||
-        acquisitionDate !==
+        dataAquisicao !==
           (plantToEdit.dataAquisicao
             ? new Date(plantToEdit.dataAquisicao).toISOString().split("T")[0]
             : "") ||
-        notes !== (plantToEdit.observacoes || "") ||
-        image !== (plantToEdit.imageUrl || plantToEdit.imagemUrl)
+        observacoes !== (plantToEdit.observacoes || "") ||
+        imagemUrl !== plantToEdit.imagemUrl
       );
     }
     // Se for nova planta, qualquer campo preenchido conta como mudança (exceto defaults)
     // Se veio initialData (IA), já consideramos que há dados para salvar
     return (
-      name !== "" ||
-      scientificName !== "" ||
-      notes !== "" ||
-      image !== null ||
-      acquisitionDate !== ""
+      nome !== "" ||
+      nomeCientifico !== "" ||
+      observacoes !== "" ||
+      imagemUrl !== null ||
+      dataAquisicao !== ""
     );
   };
 
   const handleSave = async () => {
-    if (!name || !image) return;
+    if (!nome || !imagemUrl) return;
     setLoading(true);
 
     try {
       const plantData = {
-        nome: name, // Backend espera 'nome', não 'name'
-        nomeCientifico: scientificName,
-        luz: light,
-        intervaloRega: Number(wateringInterval),
+        nome,
+        nomeCientifico,
+        luz,
+        intervaloRega: Number(intervaloRega),
         petFriendly: petFriendly,
-        dataAquisicao: acquisitionDate ? new Date(acquisitionDate) : null,
-        observacoes: notes,
-        imagemUrl: image, // Backend espera 'imagemUrl'
+        dataAquisicao: dataAquisicao ? new Date(dataAquisicao) : null,
+        observacoes,
+        imagemUrl,
         userId: user.uid,
         userEmail: user.email,
       };
@@ -247,7 +247,7 @@ export default function AddPlantModal({
             </div>
 
             {/* Botão de IA para preenchimento */}
-            {image && (
+            {imagemUrl && (
               <button
                 onClick={handleAiFill}
                 disabled={loading}
@@ -266,8 +266,8 @@ export default function AddPlantModal({
                 </label>
                 <input
                   type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                   placeholder="Ex: Samambaia"
                 />
@@ -279,8 +279,8 @@ export default function AddPlantModal({
                 </label>
                 <input
                   type="text"
-                  value={scientificName}
-                  onChange={(e) => setScientificName(e.target.value)}
+                  value={nomeCientifico}
+                  onChange={(e) => setNomeCientifico(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                   placeholder="Ex: Nephrolepis exaltata"
                 />
@@ -291,8 +291,8 @@ export default function AddPlantModal({
                   Luminosidade
                 </label>
                 <select
-                  value={light}
-                  onChange={(e) => setLight(e.target.value)}
+                  value={luz}
+                  onChange={(e) => setLuz(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
                 >
                   <option value="Sombra">Sombra</option>
@@ -309,8 +309,8 @@ export default function AddPlantModal({
                 <input
                   type="number"
                   min="1"
-                  value={wateringInterval}
-                  onChange={(e) => setWateringInterval(e.target.value)}
+                  value={intervaloRega}
+                  onChange={(e) => setIntervaloRega(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
@@ -321,8 +321,8 @@ export default function AddPlantModal({
                 </label>
                 <input
                   type="date"
-                  value={acquisitionDate}
-                  onChange={(e) => setAcquisitionDate(e.target.value)}
+                  value={dataAquisicao}
+                  onChange={(e) => setDataAquisicao(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
@@ -346,8 +346,8 @@ export default function AddPlantModal({
                 Avaliação
               </label>
               <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                value={observacoes}
+                onChange={(e) => setObservacoes(e.target.value)}
                 rows="3"
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
                 placeholder="Cuidados especiais, história da planta..."
@@ -372,7 +372,7 @@ export default function AddPlantModal({
             <div className="flex gap-3">
               <button
                 onClick={hasChanges() ? handleSave : onClose}
-                disabled={loading || (hasChanges() && (!name || !image))}
+                disabled={loading || (hasChanges() && (!nome || !imagemUrl))}
                 className={`px-6 py-2 rounded-lg transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2 font-medium ${
                   hasChanges()
                     ? "bg-green-600 text-white hover:bg-green-700"

@@ -1,4 +1,0 @@
-#!/bin/bash
-
-echo "🔌 Conectando ao servidor VPS..."
-ssh root@systech.vps-kinghost.net

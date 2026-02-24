@@ -1,5 +1,6 @@
 const {GoogleGenAI, Type} = require("@google/genai");
 const Settings = require("../models/Settings");
+const {decrypt} = require("../utils/crypto");
 
 const MODEL_NAME = process.env.GEMINI_MODEL
   ? process.env.GEMINI_MODEL.trim()
@@ -43,7 +44,7 @@ exports.identifyPlant = async (req, res) => {
     if (userId) {
       const userSettings = await Settings.findOne({userId});
       if (userSettings && userSettings.geminiApiKey) {
-        apiKey = userSettings.geminiApiKey;
+        apiKey = decrypt(userSettings.geminiApiKey);
         console.log(`🔑 Usando chave personalizada do usuário ${userId}`);
       }
     }
