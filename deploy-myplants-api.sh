@@ -2,7 +2,7 @@
 
 # Define o diretório alvo
 DIR_PROJETO="/root/projetos/myplants"
-BRANCH="dev"
+BRANCH="main"
 
 # Ignora o aviso de containers orfãos (já que separamos o mongo propositalmente)
 export COMPOSE_IGNORE_ORPHANS=True
