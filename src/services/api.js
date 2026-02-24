@@ -98,4 +98,17 @@ export const api = {
     if (!response.ok) return {sizeMB: 0};
     return response.json();
   },
+
+  testNotification: async (userId, email) => {
+    const response = await fetch(`${API_URL}/settings/${userId}/test`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({targetEmail: email}),
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || "Erro ao enviar teste");
+    }
+    return response.json();
+  },
 };

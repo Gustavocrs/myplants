@@ -1,5 +1,6 @@
 const Settings = require("../models/Settings");
 const {encrypt} = require("../utils/crypto");
+const {sendTestEmail} = require("../services/notificationService");
 
 exports.getSettings = async (req, res) => {
   try {
@@ -60,5 +61,16 @@ exports.updateSettings = async (req, res) => {
         .json({error: "Este link já está em uso. Por favor, escolha outro."});
     }
     res.status(400).json({error: err.message});
+  }
+};
+
+exports.testNotification = async (req, res) => {
+  try {
+    const {userId} = req.params;
+    const {targetEmail} = req.body;
+    await sendTestEmail(userId, targetEmail);
+    res.json({success: true, message: "E-mail enviado com sucesso!"});
+  } catch (err) {
+    res.status(500).json({error: "Erro ao enviar e-mail: " + err.message});
   }
 };

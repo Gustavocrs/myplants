@@ -9,6 +9,7 @@ export default function SettingsModal({onClose}) {
   const [activeTab, setActiveTab] = useState("general"); // general | email | profile
   const [showGeminiKey, setShowGeminiKey] = useState(false);
   const [showSmtpPass, setShowSmtpPass] = useState(false);
+  const [testingEmail, setTestingEmail] = useState(false);
 
   const [formData, setFormData] = useState({
     slug: "",
@@ -68,6 +69,20 @@ export default function SettingsModal({onClose}) {
       alert("Erro ao salvar: " + error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleTestEmail = async () => {
+    try {
+      setTestingEmail(true);
+      // Salva antes de testar para garantir que o backend use os dados mais recentes
+      await api.saveSettings(user.uid, formData);
+      await api.testNotification(user.uid, user.email);
+      alert(`E-mail de teste enviado para ${user.email}! Verifique sua caixa de entrada (e spam).`);
+    } catch (error) {
+      alert("Erro no teste: " + error.message);
+    } finally {
+      setTestingEmail(false);
     }
   };
 
@@ -277,6 +292,16 @@ export default function SettingsModal({onClose}) {
                   Gerar Senha de App aqui ↗
                 </a>
               </p>
+
+              <div className="pt-2 border-t border-gray-100">
+                <button
+                  onClick={handleTestEmail}
+                  disabled={testingEmail || loading}
+                  className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2 disabled:opacity-50"
+                >
+                  {testingEmail ? "Enviando..." : "📨 Enviar e-mail de teste para mim"}
+                </button>
+              </div>
             </div>
           )}
 

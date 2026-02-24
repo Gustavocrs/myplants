@@ -120,6 +120,25 @@ const sendReminderEmail = async (plant, transporter) => {
   }
 };
 
+const sendTestEmail = async (userId, targetEmail) => {
+  const settings = await Settings.findOne({userId});
+  const transporter = await getTransporterForUser(userId, settings);
+
+  const mailOptions = {
+    from: settings?.smtp?.fromEmail || '"MyPlants 🌱" <noreply@myplants.com>',
+    to: targetEmail,
+    subject: "Teste de Notificação - MyPlants 🧪",
+    html: `
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <h2>Teste de Configuração</h2>
+        <p>Se você recebeu este e-mail, o sistema de notificações do MyPlants está configurado corretamente! 🎉</p>
+      </div>
+    `,
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
 // Inicia o Cron Job
 const startScheduler = () => {
   // Roda a cada hora: "0 * * * *"
@@ -130,4 +149,4 @@ const startScheduler = () => {
   console.log("📅 Serviço de agendamento de rega iniciado.");
 };
 
-module.exports = {startScheduler};
+module.exports = {startScheduler, sendTestEmail};
