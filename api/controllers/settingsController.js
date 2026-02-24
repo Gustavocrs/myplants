@@ -32,7 +32,12 @@ exports.updateSettings = async (req, res) => {
       });
     }
 
-    const updateData = {userId, slug, isPublic, displayName};
+    const updateData = {
+      userId,
+      slug,
+      isPublic,
+      displayName,
+    };
     if (encryptedApiKey) updateData.geminiApiKey = encryptedApiKey;
     if (smtp) {
       updateData.smtp = {...smtp};

@@ -38,12 +38,18 @@ const checkPlantsAndNotify = async () => {
     // Processa cada usuário
     for (const userId in plantsByUser) {
       const userPlants = plantsByUser[userId];
-      const transporter = await getTransporterForUser(userId);
+
+      // Busca configurações uma vez por usuário
+      const settings = await Settings.findOne({userId});
+
+      // Configura transporter de email
+      const transporter = await getTransporterForUser(userId, settings);
 
       for (const plant of userPlants) {
         console.log(
           `💧 Planta ${plant.nome} precisa de rega! Enviando email...`,
         );
+
         await sendReminderEmail(plant, transporter);
         plant.notificationSent = true;
         await plant.save();
@@ -54,9 +60,11 @@ const checkPlantsAndNotify = async () => {
   }
 };
 
-const getTransporterForUser = async (userId) => {
-  // Verifica se o usuário tem configurações de SMTP personalizadas
-  const settings = await Settings.findOne({userId});
+const getTransporterForUser = async (userId, settings = null) => {
+  // Se settings não foi passado, busca no banco
+  if (!settings) {
+    settings = await Settings.findOne({userId});
+  }
 
   if (settings && settings.smtp && settings.smtp.user && settings.smtp.pass) {
     console.log(`📧 Usando SMTP personalizado para usuário ${userId}`);
