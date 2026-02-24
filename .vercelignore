@@ -1,0 +1,8 @@
+# Ignorar o backend (hospedado em VPS) para não contar como Serverless Functions
+api
+
+# Ignorar arquivos de infraestrutura e scripts locais
+docker-compose*.yml
+Dockerfile
+*.sh
+.connectSSHServer
