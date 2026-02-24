@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 const fs = require("fs");
 const path = require("path");
 
-// Limite de 30MB em bytes
-const MAX_STORAGE_BYTES = 30 * 1024 * 1024;
+// Limite de 10MB em bytes
+const MAX_STORAGE_BYTES = 10 * 1024 * 1024;
 
 // Função auxiliar para verificar uso de armazenamento
 const checkStorageLimit = async (userId, newDocumentSize = 0) => {

@@ -150,7 +150,7 @@ export default function Home() {
     );
   }
 
-  const storageLimit = 30; // 30MB
+  const storageLimit = 10; // 10MB
   const storagePercent = Math.min((storageUsed / storageLimit) * 100, 100);
 
   const formatSize = (mb) => {
