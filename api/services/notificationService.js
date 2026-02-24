@@ -9,7 +9,7 @@ const {decrypt} = require("../utils/crypto");
 const transporters = {};
 
 const checkPlantsAndNotify = async () => {
-  console.log("⏰ Verificando plantas que precisam de rega...");
+  console.log("⏰ Verificando notificações de rega...");
 
   try {
     // Busca todas as plantas que precisam de rega e ainda não foram notificadas

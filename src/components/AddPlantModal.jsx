@@ -21,6 +21,7 @@ export default function AddPlantModal({
   const [ultimaRega, setUltimaRega] = useState(
     new Date().toISOString().split("T")[0],
   );
+  const [proximaRega, setProximaRega] = useState("");
   const [lembretesAtivos, setLembretesAtivos] = useState(true);
   const [observacoes, setObservacoes] = useState("");
   const [imagemUrl, setImagemUrl] = useState(null);
@@ -63,6 +64,31 @@ export default function AddPlantModal({
       }
     }
   }, [plantToEdit, initialData]);
+
+  // Sincroniza a próxima rega baseada na última rega + intervalo
+  useEffect(() => {
+    if (ultimaRega && intervaloRega) {
+      const last = new Date(ultimaRega);
+      // Adiciona os dias do intervalo para calcular a próxima
+      const next = new Date(
+        last.getTime() + Number(intervaloRega) * 24 * 60 * 60 * 1000,
+      );
+      setProximaRega(next.toISOString().split("T")[0]);
+    }
+  }, [ultimaRega, intervaloRega]);
+
+  // Atualiza a última rega se o usuário mudar a próxima rega manualmente
+  const handleProximaRegaChange = (e) => {
+    const newNextDate = e.target.value;
+    setProximaRega(newNextDate);
+    if (newNextDate && intervaloRega) {
+      const next = new Date(newNextDate);
+      const last = new Date(
+        next.getTime() - Number(intervaloRega) * 24 * 60 * 60 * 1000,
+      );
+      setUltimaRega(last.toISOString().split("T")[0]);
+    }
+  };
 
   // Gerencia a seleção da imagem e cria o preview
   const handleImageChange = (e) => {
@@ -217,15 +243,6 @@ export default function AddPlantModal({
     }
   };
 
-  // Calcula a próxima rega para exibir ao usuário
-  const getProximaRega = () => {
-    if (!ultimaRega || !intervaloRega) return null;
-    const last = new Date(ultimaRega);
-    // Adiciona dias
-    last.setDate(last.getDate() + Number(intervaloRega));
-    return last.toLocaleDateString("pt-BR");
-  };
-
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
@@ -351,11 +368,21 @@ export default function AddPlantModal({
                   onChange={(e) => setUltimaRega(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
-                {getProximaRega() && (
-                  <p className="text-xs text-green-600 mt-1 font-medium">
-                    Próximo lembrete: {getProximaRega()}
-                  </p>
-                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Próxima Rega (Previsão)
+                </label>
+                <input
+                  type="date"
+                  value={proximaRega}
+                  onChange={handleProximaRegaChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 bg-green-50"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Define quando você será notificado novamente.
+                </p>
               </div>
 
               <div>
