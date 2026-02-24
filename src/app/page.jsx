@@ -154,7 +154,7 @@ export default function Home() {
   }
 
   const storageUsed = calculateStorageUsage();
-  const storageLimit = 300; // 300MB
+  const storageLimit = 30; // 30MB
   const storagePercent = Math.min((storageUsed / storageLimit) * 100, 100);
 
   return (
