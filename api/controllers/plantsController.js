@@ -159,6 +159,21 @@ exports.getStorageUsage = async (req, res) => {
 
     console.log("DEBUG - Storage Stats:", stats);
 
+    // Debug: Verificar quais plantas estão ocupando mais espaço
+    const heavyPlants = await Plant.aggregate([
+      {$match: {userId: userId}},
+      {
+        $project: {
+          nome: 1,
+          size: {$bsonSize: "$$ROOT"}, // Tamanho em bytes
+          isBase64: {$regexMatch: {input: "$imagemUrl", regex: /^data:image/}}, // Verifica se é Base64
+        },
+      },
+      {$sort: {size: -1}}, // Ordena do maior para o menor
+      {$limit: 5},
+    ]);
+    console.log("DEBUG - Top 5 Plantas mais pesadas:", heavyPlants);
+
     const totalSize = stats.length > 0 ? stats[0].totalSize : 0;
     // Retorna em MB
     res.json({sizeMB: totalSize / (1024 * 1024)});
