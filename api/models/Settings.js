@@ -14,6 +14,16 @@ const SettingsSchema = new mongoose.Schema({
     secure: {type: Boolean, default: false},
     fromEmail: String, // Email que aparecerá no remetente
   },
+  savedViews: [
+    {
+      name: {type: String, required: true},
+      filters: {
+        luz: String,
+        rega: String,
+        pet: String,
+      },
+    },
+  ],
 });
 
 module.exports = mongoose.model("Settings", SettingsSchema);

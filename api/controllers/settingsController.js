@@ -22,7 +22,8 @@ exports.getSettings = async (req, res) => {
 exports.updateSettings = async (req, res) => {
   try {
     const {userId} = req.params;
-    const {geminiApiKey, smtp, slug, isPublic, displayName} = req.body;
+    const {geminiApiKey, smtp, slug, isPublic, displayName, savedViews} =
+      req.body;
 
     // Validação simples do slug
     if (slug && /[^a-z0-9-]/.test(slug)) {
@@ -39,6 +40,10 @@ exports.updateSettings = async (req, res) => {
         displayName,
       },
     };
+
+    if (savedViews) {
+      updateOps.$set.savedViews = savedViews;
+    }
 
     // Só atualiza a chave se o usuário digitou algo novo (não vazia)
     if (geminiApiKey && geminiApiKey.trim() !== "") {

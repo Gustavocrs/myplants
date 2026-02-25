@@ -25,6 +25,7 @@ export default function Home() {
   const [filterRega, setFilterRega] = useState("");
   const [filterPet, setFilterPet] = useState("");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [savedViews, setSavedViews] = useState([]);
   const aiInputRef = useRef(null);
 
   // Função para buscar plantas da API
@@ -50,8 +51,22 @@ export default function Home() {
     }
   };
 
+  // Busca configurações para obter visualizações salvas
+  const fetchSettings = async () => {
+    if (!user) return;
+    try {
+      const settings = await api.getSettings(user.uid);
+      if (settings && settings.savedViews) {
+        setSavedViews(settings.savedViews);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar configurações:", error);
+    }
+  };
+
   useEffect(() => {
     fetchPlants();
+    fetchSettings();
   }, [user]);
 
   // Função para abrir o modal de edição
@@ -105,6 +120,47 @@ export default function Home() {
     } finally {
       // Limpa o input para permitir selecionar a mesma foto se quiser
       e.target.value = "";
+    }
+  };
+
+  const handleSaveView = async () => {
+    const name = prompt("Dê um nome para este modo de visualização:");
+    if (!name) return;
+
+    const newView = {
+      name,
+      filters: {
+        luz: filterLuz,
+        rega: filterRega,
+        pet: filterPet,
+      },
+    };
+
+    try {
+      // Busca settings atuais primeiro
+      const currentSettings = await api.getSettings(user.uid);
+      const updatedViews = [...(currentSettings.savedViews || []), newView];
+
+      await api.saveSettings(user.uid, {
+        ...currentSettings,
+        savedViews: updatedViews,
+      });
+
+      setSavedViews(updatedViews);
+      alert("Modo de visualização salvo!");
+    } catch (error) {
+      console.error("Erro ao salvar visualização:", error);
+      alert("Erro ao salvar visualização.");
+    }
+  };
+
+  const applyView = (viewName) => {
+    if (!viewName) return;
+    const view = savedViews.find((v) => v.name === viewName);
+    if (view) {
+      setFilterLuz(view.filters.luz || "");
+      setFilterRega(view.filters.rega || "");
+      setFilterPet(view.filters.pet || "");
     }
   };
 
@@ -207,7 +263,27 @@ export default function Home() {
       </div>
 
       {/* Barra de Busca */}
-      <div className="max-w-5xl mx-auto mb-6 space-y-4">
+      <div className="max-w-5xl mx-auto mb-6 space-y-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+        {/* Seletor de Modos de Visualização */}
+        {savedViews.length > 0 && (
+          <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-100">
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Modos Salvos:
+            </span>
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {savedViews.map((view) => (
+                <button
+                  key={view.name}
+                  onClick={() => applyView(view.name)}
+                  className="px-3 py-1 bg-green-50 text-green-700 text-xs rounded-full hover:bg-green-100 transition-colors whitespace-nowrap border border-green-100"
+                >
+                  {view.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="relative">
           <input
             type="text"
@@ -264,6 +340,15 @@ export default function Home() {
               className="px-4 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors"
             >
               Limpar Filtros
+            </button>
+          )}
+
+          {(filterLuz || filterRega || filterPet) && (
+            <button
+              onClick={handleSaveView}
+              className="px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-blue-100 ml-auto"
+            >
+              💾 Salvar Filtros
             </button>
           )}
         </div>
@@ -362,7 +447,12 @@ export default function Home() {
       )}
 
       {isSettingsOpen && (
-        <SettingsModal onClose={() => setIsSettingsOpen(false)} />
+        <SettingsModal
+          onClose={() => {
+            setIsSettingsOpen(false);
+            fetchSettings(); // Recarrega settings ao fechar modal para atualizar views se foram deletadas
+          }}
+        />
       )}
     </main>
   );

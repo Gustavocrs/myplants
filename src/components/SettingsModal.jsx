@@ -10,6 +10,7 @@ export default function SettingsModal({onClose}) {
   const [showGeminiKey, setShowGeminiKey] = useState(false);
   const [showSmtpPass, setShowSmtpPass] = useState(false);
   const [testingEmail, setTestingEmail] = useState(false);
+  const [massUpdateLoading, setMassUpdateLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     slug: "",
@@ -24,6 +25,7 @@ export default function SettingsModal({onClose}) {
       secure: false,
       fromEmail: "",
     },
+    savedViews: [],
   });
 
   useEffect(() => {
@@ -50,6 +52,7 @@ export default function SettingsModal({onClose}) {
             secure: data.smtp?.secure !== undefined ? data.smtp.secure : false,
             fromEmail: data.smtp?.fromEmail || user.email || "",
           },
+          savedViews: data.savedViews || [],
         });
       }
     } catch (error) {
@@ -78,11 +81,44 @@ export default function SettingsModal({onClose}) {
       // Salva antes de testar para garantir que o backend use os dados mais recentes
       await api.saveSettings(user.uid, formData);
       await api.testNotification(user.uid, user.email);
-      alert(`E-mail de teste enviado para ${user.email}! Verifique sua caixa de entrada (e spam).`);
+      alert(
+        `E-mail de teste enviado para ${user.email}! Verifique sua caixa de entrada (e spam).`,
+      );
     } catch (error) {
       alert("Erro no teste: " + error.message);
     } finally {
       setTestingEmail(false);
+    }
+  };
+
+  const handleMassUpdate = async (field, value) => {
+    if (!confirm("Tem certeza? Isso afetará TODAS as suas plantas.")) return;
+
+    try {
+      setMassUpdateLoading(true);
+      const token = await user.getIdToken(); // Se precisar de auth header, mas aqui estamos usando body userId por simplicidade na API atual
+
+      // Usando fetch direto pois api.js não tem o método batchUpdate exposto explicitamente no contexto
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"}/plants/batch`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: user.uid,
+            updates: {[field]: value},
+          }),
+        },
+      );
+
+      if (!response.ok) throw new Error("Falha na atualização em massa");
+      alert("Plantas atualizadas com sucesso!");
+    } catch (error) {
+      alert("Erro: " + error.message);
+    } finally {
+      setMassUpdateLoading(false);
     }
   };
 
@@ -117,6 +153,18 @@ export default function SettingsModal({onClose}) {
             onClick={() => setActiveTab("profile")}
           >
             🌍 Perfil Público
+          </button>
+          <button
+            className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "plants" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
+            onClick={() => setActiveTab("plants")}
+          >
+            🌿 Plantas
+          </button>
+          <button
+            className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "views" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
+            onClick={() => setActiveTab("views")}
+          >
+            👁️ Visualização
           </button>
         </div>
 
@@ -299,7 +347,9 @@ export default function SettingsModal({onClose}) {
                   disabled={testingEmail || loading}
                   className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2 disabled:opacity-50"
                 >
-                  {testingEmail ? "Enviando..." : "📨 Enviar e-mail de teste para mim"}
+                  {testingEmail
+                    ? "Enviando..."
+                    : "📨 Enviar e-mail de teste para mim"}
                 </button>
               </div>
             </div>
@@ -391,6 +441,104 @@ export default function SettingsModal({onClose}) {
                       </a>
                     </div>
                   )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "plants" && (
+            <div className="space-y-6">
+              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100 text-sm text-yellow-800">
+                <p>
+                  ⚠️ <strong>Atenção:</strong> As ações abaixo aplicam
+                  configurações para <strong>todas</strong> as suas plantas de
+                  uma vez. Esta ação não pode ser desfeita facilmente.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="font-medium text-gray-800">Notificações</h3>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => handleMassUpdate("lembretesAtivos", true)}
+                    disabled={massUpdateLoading}
+                    className="flex-1 bg-green-100 text-green-700 py-2 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium"
+                  >
+                    🔔 Ativar para todas
+                  </button>
+                  <button
+                    onClick={() => handleMassUpdate("lembretesAtivos", false)}
+                    disabled={massUpdateLoading}
+                    className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+                  >
+                    🔕 Desativar para todas
+                  </button>
+                </div>
+
+                <h3 className="font-medium text-gray-800 pt-4">
+                  Outras Configurações
+                </h3>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => handleMassUpdate("petFriendly", true)}
+                    disabled={massUpdateLoading}
+                    className="flex-1 bg-blue-50 text-blue-700 py-2 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
+                  >
+                    🐶 Marcar todas como Pet Friendly
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "views" && (
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">
+                Gerencie seus modos de visualização salvos. Você pode criar
+                novos modos na tela inicial aplicando filtros e clicando em
+                "Salvar Filtros".
+              </p>
+
+              {formData.savedViews.length === 0 ? (
+                <div className="text-center py-8 text-gray-400 italic bg-gray-50 rounded-lg">
+                  Nenhum modo de visualização salvo.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {formData.savedViews.map((view, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200"
+                    >
+                      <div>
+                        <span className="font-medium text-gray-800">
+                          {view.name}
+                        </span>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {[
+                            view.filters.luz,
+                            view.filters.rega,
+                            view.filters.pet,
+                          ]
+                            .filter(Boolean)
+                            .join(" • ") || "Sem filtros"}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            savedViews: prev.savedViews.filter(
+                              (_, i) => i !== index,
+                            ),
+                          }))
+                        }
+                        className="text-red-500 hover:text-red-700 text-sm px-2"
+                      >
+                        Excluir
+                      </button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

@@ -12,6 +12,9 @@ router.get("/storage", plantsController.getStorageUsage);
 // POST - Criar nova planta
 router.post("/", plantsController.createPlant);
 
+// PUT - Atualização em massa (Antes de /:id)
+router.put("/batch", plantsController.batchUpdate);
+
 // PUT - Atualizar planta
 router.put("/:id", plantsController.updatePlant);
 

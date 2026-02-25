@@ -126,6 +126,34 @@ exports.updatePlant = async (req, res) => {
   }
 };
 
+exports.batchUpdate = async (req, res) => {
+  try {
+    const {userId, updates} = req.body;
+    if (!userId || !updates) {
+      return res.status(400).json({error: "UserId e updates são obrigatórios"});
+    }
+
+    // Filtra apenas campos permitidos para atualização em massa
+    const allowedUpdates = [
+      "lembretesAtivos",
+      "petFriendly",
+      "luz",
+      "intervaloRega",
+    ];
+    const filteredUpdates = {};
+    Object.keys(updates).forEach((key) => {
+      if (allowedUpdates.includes(key)) {
+        filteredUpdates[key] = updates[key];
+      }
+    });
+
+    await Plant.updateMany({userId}, {$set: filteredUpdates});
+    res.json({success: true, message: "Plantas atualizadas com sucesso."});
+  } catch (err) {
+    res.status(500).json({error: err.message});
+  }
+};
+
 exports.deletePlant = async (req, res) => {
   try {
     await Plant.findByIdAndDelete(req.params.id);
