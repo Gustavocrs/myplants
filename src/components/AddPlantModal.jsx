@@ -245,7 +245,7 @@ export default function AddPlantModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
         <div className="p-6 relative">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800">
@@ -331,7 +331,7 @@ export default function AddPlantModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Luminosidade
+                  Luz
                 </label>
                 <select
                   value={luz}

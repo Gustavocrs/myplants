@@ -124,7 +124,7 @@ export default function SettingsModal({onClose}) {
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh]">
         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
           <h2 className="text-2xl font-bold text-gray-800">Configurações</h2>
           <button
@@ -139,32 +139,42 @@ export default function SettingsModal({onClose}) {
           <button
             className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "general" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
             onClick={() => setActiveTab("general")}
+            title="Inteligência Artificial"
           >
-            🤖 Inteligência Artificial
+            <span className="text-xl">🤖</span>{" "}
+            <span className="hidden md:inline ml-1">IA</span>
           </button>
           <button
             className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "email" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
             onClick={() => setActiveTab("email")}
+            title="Notificações"
           >
-            📧 Notificações (Email)
+            <span className="text-xl">📧</span>{" "}
+            <span className="hidden md:inline ml-1">Email</span>
           </button>
           <button
             className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "profile" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
             onClick={() => setActiveTab("profile")}
+            title="Perfil Público"
           >
-            🌍 Perfil Público
+            <span className="text-xl">🌍</span>{" "}
+            <span className="hidden md:inline ml-1">Perfil</span>
           </button>
           <button
             className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "plants" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
             onClick={() => setActiveTab("plants")}
+            title="Gerenciar Plantas"
           >
-            🌿 Plantas
+            <span className="text-xl">🌿</span>{" "}
+            <span className="hidden md:inline ml-1">Plantas</span>
           </button>
           <button
             className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "views" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
             onClick={() => setActiveTab("views")}
+            title="Modos de Visualização"
           >
-            👁️ Visualização
+            <span className="text-xl">👁️</span>{" "}
+            <span className="hidden md:inline ml-1">Vistas</span>
           </button>
         </div>
 

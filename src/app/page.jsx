@@ -9,6 +9,7 @@ import PlantCard from "../components/PlantCard";
 import PlantDetailsModal from "../components/PlantDetailsModal";
 import SettingsModal from "../components/SettingsModal";
 import {api} from "../services/api";
+import {FiLayout} from "react-icons/fi";
 
 export default function Home() {
   const {user, loginGoogle, logout} = useAuth();
@@ -26,6 +27,7 @@ export default function Home() {
   const [filterPet, setFilterPet] = useState("");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [savedViews, setSavedViews] = useState([]);
+  const [viewMode, setViewMode] = useState(null); // null | 'luz' | 'rega' | 'pet'
   const aiInputRef = useRef(null);
 
   // Função para buscar plantas da API
@@ -123,37 +125,6 @@ export default function Home() {
     }
   };
 
-  const handleSaveView = async () => {
-    const name = prompt("Dê um nome para este modo de visualização:");
-    if (!name) return;
-
-    const newView = {
-      name,
-      filters: {
-        luz: filterLuz,
-        rega: filterRega,
-        pet: filterPet,
-      },
-    };
-
-    try {
-      // Busca settings atuais primeiro
-      const currentSettings = await api.getSettings(user.uid);
-      const updatedViews = [...(currentSettings.savedViews || []), newView];
-
-      await api.saveSettings(user.uid, {
-        ...currentSettings,
-        savedViews: updatedViews,
-      });
-
-      setSavedViews(updatedViews);
-      alert("Modo de visualização salvo!");
-    } catch (error) {
-      console.error("Erro ao salvar visualização:", error);
-      alert("Erro ao salvar visualização.");
-    }
-  };
-
   const applyView = (viewName) => {
     if (!viewName) return;
     const view = savedViews.find((v) => v.name === viewName);
@@ -177,13 +148,52 @@ export default function Home() {
           : true;
 
     let matchesRega = true;
-    if (filterRega === "alta") matchesRega = plant.intervaloRega <= 3;
-    else if (filterRega === "media")
-      matchesRega = plant.intervaloRega > 3 && plant.intervaloRega <= 7;
-    else if (filterRega === "baixa") matchesRega = plant.intervaloRega > 7;
+    if (filterRega === "cacto") matchesRega = plant.intervaloRega > 7;
+    else if (filterRega === "1gota")
+      matchesRega = plant.intervaloRega > 4 && plant.intervaloRega <= 7;
+    else if (filterRega === "2gotas")
+      matchesRega = plant.intervaloRega > 2 && plant.intervaloRega <= 4;
+    else if (filterRega === "3gotas") matchesRega = plant.intervaloRega <= 2;
 
     return matchesSearch && matchesLuz && matchesPet && matchesRega;
   });
+
+  // Helpers para o Modo de Exibição
+  const getViewGroups = (mode) => {
+    if (mode === "luz")
+      return ["Sombra", "Meia-sombra", "Luz Difusa", "Sol Pleno"];
+    if (mode === "rega") return ["cacto", "1gota", "2gotas", "3gotas"];
+    if (mode === "pet") return ["sim", "nao"];
+    return [];
+  };
+
+  const getGroupLabel = (mode, value) => {
+    if (mode === "luz") return value;
+    if (mode === "pet")
+      return value === "sim" ? "Pet Friendly 🐶" : "Tóxica 🚫";
+    if (mode === "rega") {
+      if (value === "cacto") return "Espaçada (> 7 dias) 🌵";
+      if (value === "1gota") return "Moderada (5-7 dias) 💧";
+      if (value === "2gotas") return "Frequente (3-4 dias) 💧💧";
+      if (value === "3gotas") return "Intensa (1-2 dias) 💧💧💧";
+    }
+    return value;
+  };
+
+  const checkPlantGroup = (plant, mode, value) => {
+    if (mode === "luz") return plant.luz === value;
+    if (mode === "pet")
+      return value === "sim" ? plant.petFriendly : !plant.petFriendly;
+    if (mode === "rega") {
+      if (value === "cacto") return plant.intervaloRega > 7;
+      if (value === "1gota")
+        return plant.intervaloRega > 4 && plant.intervaloRega <= 7;
+      if (value === "2gotas")
+        return plant.intervaloRega > 2 && plant.intervaloRega <= 4;
+      if (value === "3gotas") return plant.intervaloRega <= 2;
+    }
+    return false;
+  };
 
   if (!user) {
     return (
@@ -220,8 +230,9 @@ export default function Home() {
     <main className="min-h-screen p-8 bg-gray-50 pb-24">
       <header className="flex justify-between items-center mb-8">
         <div className="flex gap-4 items-center">
-          <h1 className="text-xl md:text-3xl font-bold text-green-800">
-            Minhas Plantas
+          <h1 className="text-2xl md:text-3xl font-bold text-green-800 flex items-center gap-2">
+            <span className="text-3xl">🌱</span>
+            <span className="hidden md:inline">Minhas Plantas</span>
           </h1>
           {!loadingPlants && plants && (
             <span className="bg-green-100 text-green-800 text-sm font-bold px-3 py-1 rounded-full">
@@ -230,22 +241,9 @@ export default function Home() {
           )}
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600 hidden sm:block">
+          <span className="text-sm text-gray-600 hidden md:block">
             Olá, {user.displayName}
           </span>
-          <button
-            onClick={() => setIsSettingsOpen(true)}
-            className="text-gray-600 hover:text-green-600 p-2 rounded-full hover:bg-gray-100 transition-colors"
-            title="Configurações"
-          >
-            ⚙️
-          </button>
-          <button
-            onClick={logout}
-            className="text-red-500 hover:text-red-700 text-sm font-semibold"
-          >
-            Sair
-          </button>
         </div>
       </header>
 
@@ -284,73 +282,58 @@ export default function Home() {
           </div>
         )}
 
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Buscar plantas..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm transition-all"
-          />
-          <span className="absolute right-4 top-3.5 text-gray-400">🔍</span>
-        </div>
+        {/* Indicador de Filtros Ativos (Já que os controles estão no menu) */}
+        {(filterLuz || filterRega || filterPet || viewMode) && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {filterLuz && (
+              <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full border border-yellow-200 flex items-center gap-1">
+                ☀️ {filterLuz}
+              </span>
+            )}
+            {filterRega && (
+              <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full border border-blue-200 flex items-center gap-1">
+                💧{" "}
+                {filterRega === "cacto"
+                  ? "Espaçada"
+                  : filterRega === "1gota"
+                    ? "Moderada"
+                    : filterRega === "2gotas"
+                      ? "Frequente"
+                      : "Intensa"}
+              </span>
+            )}
+            {filterPet && (
+              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full border border-green-200 flex items-center gap-1">
+                🐶 {filterPet === "sim" ? "Pet Friendly" : "Tóxica"}
+              </span>
+            )}
+            {viewMode && (
+              <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full border border-purple-200 flex items-center gap-1">
+                👁️{" "}
+                {viewMode === "luz"
+                  ? "Luz"
+                  : viewMode === "rega"
+                    ? "Rega"
+                    : "Pet"}
+              </span>
+            )}
 
-        {/* Filtros */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <select
-            value={filterLuz}
-            onChange={(e) => setFilterLuz(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          >
-            <option value="">☀️ Todas as Luminosidades</option>
-            <option value="Sombra">Sombra</option>
-            <option value="Meia-sombra">Meia-sombra</option>
-            <option value="Luz Difusa">Luz Difusa</option>
-            <option value="Sol Pleno">Sol Pleno</option>
-          </select>
-
-          <select
-            value={filterRega}
-            onChange={(e) => setFilterRega(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          >
-            <option value="">💧 Todas as Regas</option>
-            <option value="alta">Alta Frequência (1-3 dias)</option>
-            <option value="media">Média Frequência (4-7 dias)</option>
-            <option value="baixa">Baixa Frequência (7+ dias)</option>
-          </select>
-
-          <select
-            value={filterPet}
-            onChange={(e) => setFilterPet(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-600 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-          >
-            <option value="">🐶 Pet Friendly (Todos)</option>
-            <option value="sim">Sim (Seguro)</option>
-            <option value="nao">Não (Tóxico/Cuidado)</option>
-          </select>
-
-          {(filterLuz || filterRega || filterPet) && (
             <button
               onClick={() => {
                 setFilterLuz("");
                 setFilterRega("");
                 setFilterPet("");
+                setViewMode(null);
               }}
-              className="px-4 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+              className="text-xs text-red-500 hover:underline ml-auto"
             >
-              Limpar Filtros
+              Limpar todos
             </button>
-          )}
+          </div>
+        )}
 
-          {(filterLuz || filterRega || filterPet) && (
-            <button
-              onClick={handleSaveView}
-              className="px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-blue-100 ml-auto"
-            >
-              💾 Salvar Filtros
-            </button>
-          )}
+        <div className="flex flex-col gap-2">
+          {/* Filtros removidos daqui e movidos para o FloatingMenu */}
         </div>
       </div>
 
@@ -370,22 +353,74 @@ export default function Home() {
               Toque no botão + para adicionar sua primeira planta.
             </p>
           </div>
-        ) : filteredPlants.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">
-              Nenhuma planta encontrada com esses filtros.
-            </p>
-          </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {filteredPlants.map((plant) => (
-              <PlantCard
-                key={plant.id}
-                plant={plant}
-                onClick={(p) => setPlantToView(p)}
-                onEdit={handleEditPlant}
-              />
-            ))}
+          <div className="space-y-8">
+            {/* Modo de Exibição Agrupado */}
+            {viewMode ? (
+              <div className="space-y-4">
+                {getViewGroups(viewMode).map((groupValue) => {
+                  const groupPlants = filteredPlants.filter((p) =>
+                    checkPlantGroup(p, viewMode, groupValue),
+                  );
+
+                  if (groupPlants.length === 0) return null;
+
+                  return (
+                    <details
+                      key={groupValue}
+                      open
+                      className="group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+                    >
+                      <summary className="flex items-center justify-between p-4 cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors list-none select-none">
+                        <h3 className="font-bold text-gray-700 flex items-center gap-2">
+                          {getGroupLabel(viewMode, groupValue)}
+                          <span className="bg-gray-200 text-gray-600 text-xs px-2 py-0.5 rounded-full">
+                            {groupPlants.length}
+                          </span>
+                        </h3>
+                        <span className="text-gray-400 transform group-open:rotate-180 transition-transform">
+                          ▼
+                        </span>
+                      </summary>
+                      <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 border-t border-gray-100">
+                        {groupPlants.map((plant) => (
+                          <PlantCard
+                            key={plant.id}
+                            plant={plant}
+                            onClick={(p) => setPlantToView(p)}
+                            onEdit={handleEditPlant}
+                          />
+                        ))}
+                      </div>
+                    </details>
+                  );
+                })}
+                {filteredPlants.length === 0 && (
+                  <div className="text-center py-12">
+                    <p className="text-gray-500 text-lg">
+                      Nenhuma planta encontrada com esses filtros.
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : filteredPlants.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500 text-lg">
+                  Nenhuma planta encontrada com esses filtros.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                {filteredPlants.map((plant) => (
+                  <PlantCard
+                    key={plant.id}
+                    plant={plant}
+                    onClick={(p) => setPlantToView(p)}
+                    onEdit={handleEditPlant}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -412,6 +447,16 @@ export default function Home() {
       <FloatingMenu
         onAddPlant={() => setIsModalOpen(true)}
         onAddAI={() => aiInputRef.current?.click()}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+        onLogout={logout}
+        filterLuz={filterLuz}
+        setFilterLuz={setFilterLuz}
+        filterRega={filterRega}
+        setFilterRega={setFilterRega}
+        filterPet={filterPet}
+        setFilterPet={setFilterPet}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
       />
 
       {isModalOpen && (

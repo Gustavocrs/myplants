@@ -54,38 +54,53 @@ export default function PlantDetailsModal({
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
-              <span className="block text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1">
-                Luminosidade
+            <div className="bg-yellow-50 p-4 rounded-2xl border border-yellow-100 flex flex-col items-center justify-center text-center gap-1">
+              <span className="text-3xl mb-1">
+                {plant.luz === "Sol Pleno"
+                  ? "☀️"
+                  : plant.luz === "Sombra"
+                    ? "☁️"
+                    : plant.luz === "Luz Difusa"
+                      ? "🌤️"
+                      : "⛅"}
               </span>
-              <span className="font-medium text-gray-700 flex items-center gap-2">
-                ☀️ {plant.luz || "Não informado"}
-              </span>
-            </div>
-            <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
-              <span className="block text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1">
-                Rega
-              </span>
-              <span className="font-medium text-gray-700 flex items-center gap-2">
-                💧 A cada {plant.intervaloRega} dias
+              <span className="font-medium text-yellow-900 text-sm">
+                {plant.luz || "Luz"}
               </span>
             </div>
+
+            <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100 flex flex-col items-center justify-center text-center gap-1">
+              <span className="text-3xl mb-1">
+                {plant.intervaloRega <= 3
+                  ? "💧"
+                  : plant.intervaloRega <= 7
+                    ? "💧💧"
+                    : "🌵"}
+              </span>
+              <span className="font-medium text-blue-900 text-sm">
+                {plant.intervaloRega} dias
+              </span>
+            </div>
+
             {plant.dataAquisicao && (
-              <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                <span className="block text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1">
-                  Adquirida em
-                </span>
-                <span className="font-medium text-gray-700 flex items-center gap-2">
-                  📅 {new Date(plant.dataAquisicao).toLocaleDateString("pt-BR")}
+              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex flex-col items-center justify-center text-center gap-1">
+                <span className="text-3xl mb-1">📅</span>
+                <span className="font-medium text-gray-700 text-sm">
+                  {new Date(plant.dataAquisicao).toLocaleDateString("pt-BR")}
                 </span>
               </div>
             )}
-            <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
-              <span className="block text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1">
-                Pet Friendly
+
+            <div
+              className={`p-4 rounded-2xl border flex flex-col items-center justify-center text-center gap-1 ${plant.petFriendly ? "bg-green-50 border-green-100" : "bg-red-50 border-red-100"}`}
+            >
+              <span className="text-3xl mb-1">
+                {plant.petFriendly ? "🐶" : "🚫"}
               </span>
-              <span className="font-medium text-gray-700 flex items-center gap-2">
-                {plant.petFriendly ? "🐶 Sim" : "⚠️ Não"}
+              <span
+                className={`font-medium text-sm ${plant.petFriendly ? "text-green-900" : "text-red-900"}`}
+              >
+                {plant.petFriendly ? "Pet Friendly" : "Tóxica"}
               </span>
             </div>
           </div>

@@ -63,9 +63,31 @@ export default function PlantCard({plant, onClick, onEdit}) {
         )}
       </div>
       <div className="p-3">
-        <h3 className="font-medium text-gray-800 truncate" title={plant.nome}>
+        <h3
+          className="font-medium text-gray-800 truncate mb-1"
+          title={plant.nome}
+        >
           {plant.nome}
         </h3>
+        <div className="flex gap-3 text-sm text-gray-500">
+          <span title={plant.luz}>
+            {plant.luz === "Sol Pleno"
+              ? "☀️"
+              : plant.luz === "Sombra"
+                ? "☁️"
+                : plant.luz === "Luz Difusa"
+                  ? "🌤️"
+                  : "⛅"}
+          </span>
+          <span title={`Rega a cada ${plant.intervaloRega} dias`}>
+            {plant.intervaloRega <= 3
+              ? "💧"
+              : plant.intervaloRega <= 7
+                ? "💧💧"
+                : "🌵"}
+          </span>
+          {plant.petFriendly && <span title="Pet Friendly">🐶</span>}
+        </div>
       </div>
     </div>
   );
