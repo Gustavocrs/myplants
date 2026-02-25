@@ -9,11 +9,11 @@ export default function PlantDetailsModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+      className="fixed inset-0 bg-white z-50 overflow-y-auto animate-in slide-in-from-bottom-10 duration-300"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]"
+        className="w-full max-w-lg mx-auto min-h-screen bg-white shadow-none flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative h-64 shrink-0 bg-gray-100">

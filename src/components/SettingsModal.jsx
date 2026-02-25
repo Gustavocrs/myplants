@@ -123,8 +123,8 @@ export default function SettingsModal({onClose}) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 bg-white z-50 flex flex-col animate-in slide-in-from-bottom-10 duration-300">
+      <div className="w-full max-w-3xl mx-auto h-full flex flex-col bg-white">
         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
           <h2 className="text-2xl font-bold text-gray-800">Configurações</h2>
           <button

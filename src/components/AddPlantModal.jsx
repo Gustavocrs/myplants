@@ -244,9 +244,9 @@ export default function AddPlantModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto">
-        <div className="p-6 relative">
+    <div className="fixed inset-0 bg-white z-50 overflow-y-auto animate-in slide-in-from-bottom-10 duration-300">
+      <div className="w-full max-w-3xl mx-auto min-h-screen bg-white">
+        <div className="p-6 md:p-8 relative pb-24">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800">
               {plantToEdit ? "Editar Planta" : "Nova Planta"}
