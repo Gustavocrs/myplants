@@ -302,12 +302,12 @@ export default function Home() {
               </span>
             )}
             {filterPet && (
-              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full border border-green-200 flex items-center gap-1">
+              <span className="bg-green-100 text-green-800 text-xs font-bold px-3 py-1.5 rounded-full border border-green-200 flex items-center gap-1 shadow-sm">
                 🐶 {filterPet === "sim" ? "Pet Friendly" : "Tóxica"}
               </span>
             )}
             {viewMode && (
-              <span className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full border border-purple-200 flex items-center gap-1">
+              <span className="bg-purple-100 text-purple-800 text-xs font-bold px-3 py-1.5 rounded-full border border-purple-200 flex items-center gap-1 shadow-sm">
                 👁️{" "}
                 {viewMode === "luz"
                   ? "Luz"
@@ -337,18 +337,18 @@ export default function Home() {
       </div>
 
       {/* Aqui virá a Grid de Plantas futuramente */}
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         {loadingPlants ? (
           <div className="flex justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
           </div>
         ) : plants.length === 0 ? (
-          <div className="text-center py-20 border-2 border-dashed border-gray-300 rounded-lg">
-            <div className="text-6xl mb-4">🌵</div>
-            <h3 className="text-xl font-medium text-gray-600 mb-2">
+          <div className="text-center py-24 border-2 border-dashed border-gray-200 rounded-3xl bg-white/50">
+            <div className="text-7xl mb-6 opacity-50">🌵</div>
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">
               Nenhuma planta ainda
             </h3>
-            <p className="text-gray-400">
+            <p className="text-gray-500 max-w-xs mx-auto">
               Toque no botão + para adicionar sua primeira planta.
             </p>
           </div>
@@ -368,12 +368,12 @@ export default function Home() {
                     <details
                       key={groupValue}
                       open
-                      className="group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+                      className="group bg-white/60 backdrop-blur-sm rounded-3xl shadow-sm border border-white overflow-hidden"
                     >
                       <summary className="flex items-center justify-between p-4 cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors list-none select-none">
                         <h3 className="font-bold text-gray-700 flex items-center gap-2">
                           {getGroupLabel(viewMode, groupValue)}
-                          <span className="bg-gray-200 text-gray-600 text-xs px-2 py-0.5 rounded-full">
+                          <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">
                             {groupPlants.length}
                           </span>
                         </h3>
@@ -381,7 +381,7 @@ export default function Home() {
                           ▼
                         </span>
                       </summary>
-                      <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 border-t border-gray-100">
+                      <div className="p-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 border-t border-gray-100">
                         {groupPlants.map((plant) => (
                           <PlantCard
                             key={plant.id}
@@ -409,7 +409,7 @@ export default function Home() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {filteredPlants.map((plant) => (
                   <PlantCard
                     key={plant.id}

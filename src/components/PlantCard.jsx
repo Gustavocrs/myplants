@@ -10,7 +10,7 @@ export default function PlantCard({plant, onClick, onEdit}) {
     // Verde: Totalmente preenchida (considerando os campos opcionais principais)
     if (hasScientific && hasNotes && hasDate) return "bg-green-500";
     // Vermelho: Apenas o básico (foto e nome são obrigatórios, então checamos a falta do resto)
-    if (!hasScientific && !hasNotes && !hasDate) return "bg-red-500";
+    if (!hasScientific && !hasNotes && !hasDate) return "bg-orange-400";
     // Amarelo: Parcial
     return "bg-yellow-500";
   };
@@ -18,21 +18,21 @@ export default function PlantCard({plant, onClick, onEdit}) {
   return (
     <div
       onClick={() => onClick(plant)}
-      className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-200 group flex flex-col cursor-pointer active:scale-95 relative"
+      className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] overflow-hidden transition-all duration-300 group flex flex-col cursor-pointer hover:-translate-y-1 active:scale-95 relative border border-gray-100"
     >
-      <div className="aspect-square relative overflow-hidden bg-gray-100">
+      <div className="aspect-[4/5] relative overflow-hidden bg-gray-100">
         <img
           src={plant.imagemUrl}
           alt={plant.nome}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
         />
         {/* Overlay sutil no hover para indicar clique */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
 
         {/* Bolinha de Status - Movida para a esquerda */}
         <div
-          className={`absolute top-2 left-2 w-3 h-3 rounded-full shadow-sm border border-white ${getStatusColor()}`}
-          title="Status do preenchimento"
+          className={`absolute top-3 left-3 w-2.5 h-2.5 rounded-full shadow-lg ring-2 ring-white/50 ${getStatusColor()}`}
+          title="Nível de detalhes da planta"
         />
 
         {/* Botão de Editar - Aparece no Hover (Desktop) ou Sempre (Mobile) */}
@@ -42,7 +42,7 @@ export default function PlantCard({plant, onClick, onEdit}) {
               e.stopPropagation();
               onEdit(plant);
             }}
-            className="absolute top-2 right-2 bg-white text-gray-700 p-2 rounded-full shadow-md hover:bg-gray-50 transition-all duration-200 opacity-100 md:opacity-0 md:group-hover:opacity-100 z-10"
+            className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-gray-700 p-2 rounded-full shadow-sm hover:bg-white transition-all duration-200 opacity-0 group-hover:opacity-100 z-10 translate-y-2 group-hover:translate-y-0"
             title="Editar"
           >
             <svg
@@ -61,16 +61,27 @@ export default function PlantCard({plant, onClick, onEdit}) {
             </svg>
           </button>
         )}
+
+        {/* Informações sobrepostas na imagem (Estilo Moderno) */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 text-white translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+          <h3
+            className="font-bold text-lg leading-tight shadow-black drop-shadow-md truncate"
+            title={plant.nome}
+          >
+            {plant.nome}
+          </h3>
+          <p className="text-xs text-white/90 font-medium mt-0.5 truncate opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-75">
+            {plant.nomeCientifico || "Espécie não identificada"}
+          </p>
+        </div>
       </div>
-      <div className="p-3">
-        <h3
-          className="font-medium text-gray-800 truncate mb-1"
-          title={plant.nome}
-        >
-          {plant.nome}
-        </h3>
-        <div className="flex gap-3 text-sm text-gray-500">
-          <span title={plant.luz}>
+
+      <div className="px-4 py-3 bg-white flex justify-between items-center border-t border-gray-50">
+        <div className="flex gap-3 text-sm text-gray-500 w-full justify-around">
+          <span
+            title={plant.luz}
+            className="flex flex-col items-center gap-1 text-xs"
+          >
             {plant.luz === "Sol Pleno"
               ? "☀️"
               : plant.luz === "Sombra"
@@ -79,14 +90,22 @@ export default function PlantCard({plant, onClick, onEdit}) {
                   ? "🌤️"
                   : "⛅"}
           </span>
-          <span title={`Rega a cada ${plant.intervaloRega} dias`}>
+          <span
+            title={`Rega a cada ${plant.intervaloRega} dias`}
+            className="flex flex-col items-center gap-1 text-xs font-medium text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full"
+          >
             {plant.intervaloRega <= 3
-              ? "💧"
+              ? "Frequente"
               : plant.intervaloRega <= 7
-                ? "💧💧"
-                : "🌵"}
+                ? "Moderada"
+                : "Espaçada"}
           </span>
-          {plant.petFriendly && <span title="Pet Friendly">🐶</span>}
+          <span
+            title={plant.petFriendly ? "Pet Friendly" : "Tóxica"}
+            className="flex flex-col items-center gap-1 text-xs"
+          >
+            {plant.petFriendly ? "🐶" : "🚫"}
+          </span>
         </div>
       </div>
     </div>

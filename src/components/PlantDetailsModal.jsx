@@ -13,18 +13,19 @@ export default function PlantDetailsModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg mx-auto min-h-screen bg-white shadow-none flex flex-col"
+        className="w-full max-w-lg mx-auto min-h-screen bg-white shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative h-64 shrink-0 bg-gray-100">
+        <div className="relative h-80 shrink-0 bg-gray-100">
           <img
             src={plant.imagemUrl}
             alt={plant.nome}
             className="w-full h-full object-cover"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 bg-black/30 hover:bg-black/50 text-white rounded-full p-2 backdrop-blur-md transition-colors"
+            className="absolute top-6 right-6 bg-white/20 hover:bg-white/30 text-white rounded-full p-2 backdrop-blur-md transition-colors border border-white/20"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -41,18 +42,19 @@ export default function PlantDetailsModal({
               />
             </svg>
           </button>
-        </div>
-
-        <div className="p-6 space-y-5 overflow-y-auto">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800">{plant.nome}</h2>
+          <div className="absolute bottom-6 left-6 right-6 text-white">
+            <h2 className="text-4xl font-bold leading-tight shadow-black drop-shadow-lg">
+              {plant.nome}
+            </h2>
             {plant.nomeCientifico && (
-              <p className="text-gray-500 italic font-medium">
+              <p className="text-white/90 italic font-medium text-lg mt-1 opacity-90">
                 {plant.nomeCientifico}
               </p>
             )}
           </div>
+        </div>
 
+        <div className="p-8 space-y-8 overflow-y-auto -mt-6 bg-white rounded-t-3xl relative z-10 flex-1">
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-yellow-50 p-4 rounded-2xl border border-yellow-100 flex flex-col items-center justify-center text-center gap-1">
               <span className="text-3xl mb-1">

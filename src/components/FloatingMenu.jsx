@@ -1,5 +1,5 @@
 "use client";
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import {
   FiCamera,
   FiCpu,
@@ -7,6 +7,9 @@ import {
   FiLogOut,
   FiPlus,
   FiX,
+  FiFilter,
+  FiHome,
+  FiEdit3,
   FiLayout,
 } from "react-icons/fi";
 
@@ -109,14 +112,14 @@ export default function FloatingMenu({
       id: "add",
       label: "Nova Planta",
       icon: <FiCamera size={20} />,
-      color: "text-green-600 bg-green-100",
+      color: "text-white bg-green-500 shadow-green-200",
       action: onAddPlant,
     },
     {
       id: "ai",
       label: "Identificar IA",
       icon: <FiCpu size={20} />,
-      color: "text-purple-600 bg-purple-100",
+      color: "text-white bg-purple-500 shadow-purple-200",
       action: onAddAI,
     },
     {
@@ -187,7 +190,7 @@ export default function FloatingMenu({
       {/* Menu Full Screen Overlay */}
       <div
         className={`
-          fixed inset-0 bg-white/95 backdrop-blur-sm z-40 
+          fixed inset-0 bg-white/80 backdrop-blur-xl z-40 
           flex flex-col justify-center items-center
           transition-all duration-300
           ${isOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"}
@@ -214,12 +217,12 @@ export default function FloatingMenu({
                 }}
                 className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all border ${
                   item.isFilter && expandedFilter === item.id
-                    ? "bg-gray-50 border-gray-200 shadow-inner"
-                    : "bg-white border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5"
+                    ? "bg-gray-50 border-gray-200 shadow-inner scale-[0.98]"
+                    : "bg-white border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1"
                 }`}
               >
                 <div
-                  className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 text-xl ${item.color}`}
+                  className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-xl shadow-lg ${item.color}`}
                 >
                   {item.icon}
                 </div>
@@ -246,10 +249,10 @@ export default function FloatingMenu({
         {/* FAB Button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className={`w-16 h-16 rounded-full shadow-xl flex items-center justify-center text-white text-3xl transition-all duration-300 ${
+          className={`w-16 h-16 rounded-2xl shadow-2xl shadow-green-300 flex items-center justify-center text-white text-3xl transition-all duration-300 hover:scale-110 active:scale-95 ${
             isOpen
-              ? "bg-gray-600 rotate-90"
-              : "bg-green-600 hover:bg-green-700 hover:scale-105"
+              ? "bg-gray-800 rotate-90 rounded-full"
+              : "bg-gradient-to-br from-green-500 to-emerald-600"
           }`}
         >
           {isOpen ? <FiX /> : <FiPlus />}
