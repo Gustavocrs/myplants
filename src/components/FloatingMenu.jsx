@@ -1,16 +1,18 @@
 "use client";
 import {useState, useEffect} from "react";
 import {
-  FiCamera,
+  FiMenu,
+  FiX,
+  FiPlus,
   FiCpu,
   FiSettings,
   FiLogOut,
-  FiPlus,
-  FiX,
-  FiFilter,
-  FiHome,
   FiEdit3,
-  FiLayout,
+  FiTrash2,
+  FiSun,
+  FiDroplet,
+  FiEye,
+  FiSmile,
 } from "react-icons/fi";
 
 export default function FloatingMenu({
@@ -28,235 +30,259 @@ export default function FloatingMenu({
   setViewMode,
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [expandedFilter, setExpandedFilter] = useState(null);
 
-  // Helper para renderizar opções de filtro
-  const renderFilterOptions = (type) => {
-    const options = {
-      luz: [
-        {value: "Sombra", icon: "☁️", label: "Sombra"},
-        {value: "Meia-sombra", icon: "⛅", label: "Meia"},
-        {value: "Luz Difusa", icon: "🌤️", label: "Difusa"},
-        {value: "Sol Pleno", icon: "☀️", label: "Sol"},
-      ],
-      rega: [
-        {value: "cacto", icon: "🌵", label: "Espaçada"},
-        {value: "1gota", icon: "💧", label: "Moderada"},
-        {value: "2gotas", icon: "💧💧", label: "Frequente"},
-        {value: "3gotas", icon: "💧💧💧", label: "Intensa"},
-      ],
-      pet: [
-        {value: "sim", icon: "🐶", label: "Amigo"},
-        {value: "nao", icon: "🚫", label: "Tóxica"},
-      ],
-      view: [
-        {value: "luz", icon: "💡", label: "Luz"},
-        {value: "rega", icon: "💧", label: "Rega"},
-        {value: "pet", icon: "🐶", label: "Pet"},
-      ],
+  // Bloqueia o scroll da página quando o menu está aberto
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
     };
+  }, [isOpen]);
 
-    const currentOptions = options[type] || [];
-    const currentValue =
-      type === "luz"
-        ? filterLuz
-        : type === "rega"
-          ? filterRega
-          : type === "pet"
-            ? filterPet
-            : viewMode;
-    const setValue =
-      type === "luz"
-        ? setFilterLuz
-        : type === "rega"
-          ? setFilterRega
-          : type === "pet"
-            ? setFilterPet
-            : setViewMode;
+  const hasFilters = filterLuz || filterRega || filterPet || viewMode;
 
-    return (
-      <div className="grid grid-cols-4 gap-2 mt-2 px-2 animate-in slide-in-from-top-2 fade-in duration-200">
-        {currentOptions.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={(e) => {
-              e.stopPropagation();
-              setValue(
-                currentValue === opt.value
-                  ? type === "view"
-                    ? null
-                    : ""
-                  : opt.value,
-              );
-            }}
-            className={`flex flex-col items-center justify-center p-1.5 rounded-lg border transition-all aspect-square ${
-              currentValue === opt.value
-                ? "bg-green-50 border-green-200 text-green-700 shadow-sm"
-                : "bg-white border-gray-100 text-gray-500 hover:bg-gray-50"
-            }`}
-            title={opt.label}
-          >
-            <span className="text-lg leading-none mb-1">{opt.icon}</span>
-            <span className="text-[9px] font-bold uppercase leading-none text-center">
-              {opt.label}
-            </span>
-          </button>
-        ))}
-      </div>
-    );
+  const clearFilters = () => {
+    setFilterLuz("");
+    setFilterRega("");
+    setFilterPet("");
+    setViewMode(null);
   };
 
-  // Lista de itens do menu
-  const menuItems = [
-    {
-      id: "add",
-      label: "Nova Planta",
-      icon: <FiCamera size={20} />,
-      color: "text-white bg-green-500 shadow-green-200",
-      action: onAddPlant,
-    },
-    {
-      id: "ai",
-      label: "Identificar IA",
-      icon: <FiCpu size={20} />,
-      color: "text-white bg-purple-500 shadow-purple-200",
-      action: onAddAI,
-    },
-    {
-      id: "luz",
-      label: filterLuz || "Luz",
-      icon: <span className="text-lg">☀️</span>,
-      color: filterLuz
-        ? "text-yellow-700 bg-yellow-100"
-        : "text-gray-600 bg-gray-100",
-      isFilter: true,
-    },
-    {
-      id: "rega",
-      label: filterRega
-        ? filterRega === "cacto"
-          ? "Espaçada"
-          : filterRega === "1gota"
-            ? "Moderada"
-            : "Frequente"
-        : "Rega",
-      icon: <span className="text-lg">💧</span>,
-      color: filterRega
-        ? "text-blue-700 bg-blue-100"
-        : "text-gray-600 bg-gray-100",
-      isFilter: true,
-    },
-    {
-      id: "pet",
-      label:
-        filterPet === "sim"
-          ? "Pet Friendly"
-          : filterPet === "nao"
-            ? "Tóxica"
-            : "Pet",
-      icon: <span className="text-lg">🐶</span>,
-      color: filterPet
-        ? "text-green-700 bg-green-100"
-        : "text-gray-600 bg-gray-100",
-      isFilter: true,
-    },
-    {
-      id: "view",
-      label: viewMode ? "Exibindo" : "Visualização",
-      icon: <FiLayout size={20} />,
-      color: viewMode
-        ? "text-purple-700 bg-purple-100"
-        : "text-gray-600 bg-gray-100",
-      isFilter: true,
-    },
-    {
-      id: "settings",
-      label: "Configurações",
-      icon: <FiSettings size={20} />,
-      color: "text-gray-600 bg-gray-100",
-      action: onOpenSettings,
-    },
-    {
-      id: "logout",
-      label: "Sair",
-      icon: <FiLogOut size={20} />,
-      color: "text-red-600 bg-red-100",
-      action: onLogout,
-    },
-  ];
+  // Componente auxiliar para Chips de Filtro
+  const FilterChip = ({
+    active,
+    onClick,
+    icon,
+    label,
+    colorClass = "bg-green-100 text-green-800 border-green-200",
+  }) => (
+    <button
+      onClick={onClick}
+      className={`
+        flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all border
+        ${
+          active
+            ? `${colorClass} shadow-sm`
+            : "bg-gray-50 text-gray-600 border-gray-100 hover:bg-gray-100"
+        }
+      `}
+    >
+      <span className="text-lg">{icon}</span>
+      <span>{label}</span>
+    </button>
+  );
+
+  // Componente auxiliar para Seções
+  const SectionTitle = ({icon: Icon, title}) => (
+    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2 mt-6 first:mt-0">
+      <Icon size={14} /> {title}
+    </h3>
+  );
 
   return (
     <>
-      {/* Menu Full Screen Overlay */}
+      {/* Backdrop (Fundo Escuro) */}
       <div
         className={`
-          fixed inset-0 bg-white/80 backdrop-blur-xl z-40 
-          flex flex-col justify-center items-center
-          transition-all duration-300
-          ${isOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"}
+          fixed inset-0 bg-black/30 backdrop-blur-sm z-40 transition-opacity duration-300
+          ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}
         `}
         onClick={() => setIsOpen(false)}
-      >
-        <div
-          className="w-full max-w-md px-6 flex flex-col gap-3 max-h-screen overflow-y-auto py-20"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {menuItems.map((item) => (
-            <div key={item.id} className="w-full">
-              <button
-                onClick={(e) => {
-                  if (item.isFilter) {
-                    e.stopPropagation();
-                    setExpandedFilter(
-                      expandedFilter === item.id ? null : item.id,
-                    );
-                  } else {
-                    setIsOpen(false);
-                    item.action();
-                  }
-                }}
-                className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all border ${
-                  item.isFilter && expandedFilter === item.id
-                    ? "bg-gray-50 border-gray-200 shadow-inner scale-[0.98]"
-                    : "bg-white border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-1"
-                }`}
-              >
-                <div
-                  className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-xl shadow-lg ${item.color}`}
-                >
-                  {item.icon}
-                </div>
-                <span className="font-bold text-gray-700 flex-1 text-left text-lg">
-                  {item.label}
-                </span>
-                {item.isFilter && (
-                  <span className="text-gray-400 text-xs">
-                    {expandedFilter === item.id ? "▲" : "▼"}
-                  </span>
-                )}
-              </button>
+      />
 
-              {item.isFilter && expandedFilter === item.id && (
-                <div className="pb-2">{renderFilterOptions(item.id)}</div>
+      {/* Sidebar (Drawer) */}
+      <div
+        className={`
+          fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl z-50 
+          transform transition-transform duration-300 ease-out flex flex-col
+          ${isOpen ? "translate-x-0" : "translate-x-full"}
+        `}
+      >
+        {/* Header do Menu */}
+        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+          <h2 className="text-xl font-bold text-gray-800">Menu</h2>
+          <button
+            onClick={() => setIsOpen(false)}
+            className="p-2 hover:bg-gray-100 rounded-full text-gray-500 transition-colors"
+          >
+            <FiX size={24} />
+          </button>
+        </div>
+
+        {/* Conteúdo Scrollável */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {/* Ações Principais */}
+          <SectionTitle icon={FiPlus} title="Adicionar" />
+          <div className="grid grid-cols-2 gap-3 mb-8">
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                onAddAI();
+              }}
+              className="flex flex-col items-center justify-center p-4 bg-purple-50 border border-purple-100 rounded-2xl hover:bg-purple-100 transition-colors group"
+            >
+              <div className="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                <FiCpu size={20} />
+              </div>
+              <span className="text-sm font-bold text-purple-900">IA Scan</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                onAddPlant();
+              }}
+              className="flex flex-col items-center justify-center p-4 bg-green-50 border border-green-100 rounded-2xl hover:bg-green-100 transition-colors group"
+            >
+              <div className="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                <FiEdit3 size={20} />
+              </div>
+              <span className="text-sm font-bold text-green-900">Manual</span>
+            </button>
+          </div>
+
+          {/* Filtros */}
+          <div className="flex justify-between items-center mb-3">
+            <SectionTitle icon={FiSun} title="Filtrar Plantas" />
+            {hasFilters && (
+              <button
+                onClick={clearFilters}
+                className="text-xs text-red-500 flex items-center gap-1 hover:underline"
+              >
+                <FiTrash2 /> Limpar
+              </button>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              {["Sombra", "Meia-sombra", "Luz Difusa", "Sol Pleno"].map(
+                (luz) => (
+                  <FilterChip
+                    key={luz}
+                    label={luz}
+                    icon={luz === "Sol Pleno" ? "☀️" : "☁️"}
+                    active={filterLuz === luz}
+                    onClick={() => setFilterLuz(filterLuz === luz ? "" : luz)}
+                    colorClass="bg-yellow-100 text-yellow-800 border-yellow-200"
+                  />
+                ),
               )}
             </div>
-          ))}
+
+            <div className="flex flex-wrap gap-2">
+              <FilterChip
+                label="Espaçada"
+                icon="🌵"
+                active={filterRega === "cacto"}
+                onClick={() =>
+                  setFilterRega(filterRega === "cacto" ? "" : "cacto")
+                }
+                colorClass="bg-blue-100 text-blue-800 border-blue-200"
+              />
+              <FilterChip
+                label="Moderada"
+                icon="💧"
+                active={filterRega === "1gota"}
+                onClick={() =>
+                  setFilterRega(filterRega === "1gota" ? "" : "1gota")
+                }
+                colorClass="bg-blue-100 text-blue-800 border-blue-200"
+              />
+              <FilterChip
+                label="Frequente"
+                icon="💧💧"
+                active={filterRega === "2gotas"}
+                onClick={() =>
+                  setFilterRega(filterRega === "2gotas" ? "" : "2gotas")
+                }
+                colorClass="bg-blue-100 text-blue-800 border-blue-200"
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <FilterChip
+                label="Pet Friendly"
+                icon="🐶"
+                active={filterPet === "sim"}
+                onClick={() => setFilterPet(filterPet === "sim" ? "" : "sim")}
+              />
+              <FilterChip
+                label="Tóxica"
+                icon="🚫"
+                active={filterPet === "nao"}
+                onClick={() => setFilterPet(filterPet === "nao" ? "" : "nao")}
+                colorClass="bg-red-100 text-red-800 border-red-200"
+              />
+            </div>
+          </div>
+
+          {/* Visualização */}
+          <SectionTitle icon={FiEye} title="Agrupar Por" />
+          <div className="flex flex-wrap gap-2 mb-8">
+            <FilterChip
+              label="Luminosidade"
+              icon="💡"
+              active={viewMode === "luz"}
+              onClick={() => setViewMode(viewMode === "luz" ? null : "luz")}
+              colorClass="bg-purple-100 text-purple-800 border-purple-200"
+            />
+            <FilterChip
+              label="Rega"
+              icon="💧"
+              active={viewMode === "rega"}
+              onClick={() => setViewMode(viewMode === "rega" ? null : "rega")}
+              colorClass="bg-purple-100 text-purple-800 border-purple-200"
+            />
+            <FilterChip
+              label="Pet"
+              icon="🐶"
+              active={viewMode === "pet"}
+              onClick={() => setViewMode(viewMode === "pet" ? null : "pet")}
+              colorClass="bg-purple-100 text-purple-800 border-purple-200"
+            />
+          </div>
+        </div>
+
+        {/* Footer (Configurações) */}
+        <div className="p-4 border-t border-gray-100 bg-gray-50 space-y-2">
+          <button
+            onClick={() => {
+              setIsOpen(false);
+              onOpenSettings();
+            }}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-white hover:shadow-sm transition-all"
+          >
+            <FiSettings size={20} />
+            <span className="font-medium">Configurações</span>
+          </button>
+          <button
+            onClick={onLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all"
+          >
+            <FiLogOut size={20} />
+            <span className="font-medium">Sair da conta</span>
+          </button>
         </div>
       </div>
 
-      {/* FAB Button Container */}
-      <div className="fixed bottom-8 right-8 z-50">
-        {/* FAB Button */}
+      {/* Botão Flutuante Principal (Trigger) */}
+      <div className="fixed bottom-6 right-6 z-40">
         <button
-          onClick={() => setIsOpen(!isOpen)}
-          className={`w-16 h-16 rounded-2xl shadow-2xl shadow-green-300 flex items-center justify-center text-white text-3xl transition-all duration-300 hover:scale-110 active:scale-95 ${
-            isOpen
-              ? "bg-gray-800 rotate-90 rounded-full"
-              : "bg-gradient-to-br from-green-500 to-emerald-600"
-          }`}
+          onClick={() => setIsOpen(true)}
+          className="w-14 h-14 bg-gray-900 text-white rounded-2xl shadow-xl shadow-gray-400/50 flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
         >
-          {isOpen ? <FiX /> : <FiPlus />}
+          <FiMenu size={24} />
         </button>
+
+        {/* Indicador de Filtros Ativos (Bolinha) */}
+        {hasFilters && (
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></span>
+        )}
       </div>
     </>
   );
