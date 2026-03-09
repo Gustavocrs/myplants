@@ -165,22 +165,22 @@ export default function SettingsModal({onClose}) {
             <span className="text-xl">🌍</span>{" "}
             <span className="hidden md:inline ml-1">Perfil</span>
           </button>
-          <button
+          {/* <button
             className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "plants" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
             onClick={() => setActiveTab("plants")}
             title="Gerenciar Plantas"
           >
             <span className="text-xl">🌿</span>{" "}
             <span className="hidden md:inline ml-1">Plantas</span>
-          </button>
-          <button
+          </button> */}
+          {/* <button
             className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "views" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
             onClick={() => setActiveTab("views")}
             title="Modos de Visualização"
           >
             <span className="text-xl">👁️</span>{" "}
             <span className="hidden md:inline ml-1">Vistas</span>
-          </button>
+          </button> */}
         </div>
 
         <div className="p-6 overflow-y-auto flex-1">
@@ -483,7 +483,7 @@ export default function SettingsModal({onClose}) {
             </div>
           )}
 
-          {activeTab === "plants" && (
+          {/* {activeTab === "plants" && (
             <div className="space-y-6">
               <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100 text-sm text-yellow-800">
                 <p>
@@ -526,7 +526,7 @@ export default function SettingsModal({onClose}) {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
 
           {activeTab === "views" && (
             <div className="space-y-4">
