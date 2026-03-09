@@ -60,10 +60,10 @@ connectDB();
 startScheduler();
 
 // Rotas
-app.use("/api/plants", plantsRoutes);
-app.use("/api/identify", identifyRoutes);
-app.use("/api/settings", settingsRoutes);
-app.use("/api/public", publicRoutes);
+app.use("/plants", plantsRoutes);
+app.use("/identify", identifyRoutes);
+app.use("/settings", settingsRoutes);
+app.use("/public", publicRoutes);
 
 // Rota de Health Check
 app.get("/", (req, res) => {

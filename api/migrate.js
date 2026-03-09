@@ -29,7 +29,7 @@ const saveBase64Image = (base64String) => {
     fs.writeFileSync(uploadPath, buffer);
 
     // Usa a variável de ambiente ou fallback
-    const apiUrl = process.env.API_URL || "http://localhost:3001/api";
+    const apiUrl = process.env.API_URL;
     return `${apiUrl}/uploads/${fileName}`;
   } catch (error) {
     console.error("Erro ao salvar imagem:", error);

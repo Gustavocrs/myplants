@@ -105,7 +105,7 @@ export default function SettingsModal({onClose}) {
 
       // Usando fetch direto pois api.js não tem o método batchUpdate exposto explicitamente no contexto
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"}/plants/batch`,
+        `${process.env.NEXT_PUBLIC_API_URL}/plants/batch`,
         {
           method: "PUT",
           headers: {
