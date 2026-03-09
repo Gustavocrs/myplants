@@ -22,8 +22,15 @@ exports.getSettings = async (req, res) => {
 exports.updateSettings = async (req, res) => {
   try {
     const {userId} = req.params;
-    const {geminiApiKey, smtp, slug, isPublic, displayName, savedViews} =
-      req.body;
+    const {
+      geminiApiKey,
+      smtp,
+      slug,
+      isPublic,
+      displayName,
+      savedViews,
+      emailNotificationsEnabled,
+    } = req.body;
 
     // Validação simples do slug
     if (slug && /[^a-z0-9-]/.test(slug)) {
@@ -38,6 +45,7 @@ exports.updateSettings = async (req, res) => {
         slug,
         isPublic,
         displayName,
+        emailNotificationsEnabled,
       },
     };
 

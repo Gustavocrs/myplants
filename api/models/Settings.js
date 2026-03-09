@@ -5,6 +5,7 @@ const SettingsSchema = new mongoose.Schema({
   slug: {type: String, unique: true, sparse: true, trim: true}, // Link personalizado
   isPublic: {type: Boolean, default: false},
   displayName: {type: String}, // Nome para exibição pública
+  emailNotificationsEnabled: {type: Boolean, default: true}, // Controle global de notificações
   geminiApiKey: {type: String}, // Chave pessoal do usuário
   smtp: {
     host: String,

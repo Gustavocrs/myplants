@@ -45,6 +45,11 @@ const checkPlantsAndNotify = async () => {
       // Busca configurações uma vez por usuário
       const settings = await Settings.findOne({userId});
 
+      // Verifica se o usuário desativou as notificações por e-mail
+      if (settings && settings.emailNotificationsEnabled === false) {
+        continue;
+      }
+
       // Configura transporter de email
       const transporter = await getTransporterForUser(userId, settings);
 
@@ -93,7 +98,8 @@ const getTransporterForUser = async (userId, settings = null) => {
 };
 
 const sendReminderEmail = async (plant, transporter) => {
-  const confirmLink = `${process.env.NEXT_PUBLIC_API_URL}/plants/${plant._id}/water`;
+  // Prioriza a URL pública (HTTPS) do .env, mas aceita API_URL como fallback
+  const confirmLink = `${process.env.NEXT_PUBLIC_API_URL || process.env.API_URL}/plants/${plant._id}/water`;
 
   const mailOptions = {
     from: '"MyPlants 🌱" <noreply@myplants.com>',
