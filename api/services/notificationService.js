@@ -93,7 +93,7 @@ const getTransporterForUser = async (userId, settings = null) => {
 };
 
 const sendReminderEmail = async (plant, transporter) => {
-  const confirmLink = `${process.env.API_URL || "http://localhost:3001/api"}/plants/${plant._id}/water`;
+  const confirmLink = `${process.env.NEXT_PUBLIC_API_URL}/plants/${plant._id}/water`;
 
   const mailOptions = {
     from: '"MyPlants 🌱" <noreply@myplants.com>',
