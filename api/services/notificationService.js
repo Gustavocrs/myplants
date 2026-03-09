@@ -98,8 +98,8 @@ const getTransporterForUser = async (userId, settings = null) => {
 };
 
 const sendReminderEmail = async (plant, transporter) => {
-  // Prioriza a URL pública (HTTPS) do .env, mas aceita API_URL como fallback
-  const confirmLink = `${process.env.NEXT_PUBLIC_API_URL || process.env.API_URL}/plants/${plant._id}/water`;
+  // Usa API_URL definida no .env (backend) ou fallback local
+  const confirmLink = `${process.env.API_URL}/plants/${plant._id}/water`;
 
   const mailOptions = {
     from: '"MyPlants 🌱" <noreply@myplants.com>',
