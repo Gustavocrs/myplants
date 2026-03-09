@@ -9,7 +9,6 @@ import PlantCard from "../components/PlantCard";
 import PlantDetailsModal from "../components/PlantDetailsModal";
 import SettingsModal from "../components/SettingsModal";
 import {api} from "../services/api";
-import {FiLayout} from "react-icons/fi";
 
 export default function Home() {
   const {user, loginGoogle, logout} = useAuth();

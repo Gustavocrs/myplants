@@ -1,3 +1,5 @@
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export const api = {
   getPlants: async (userId) => {
     const url = userId
