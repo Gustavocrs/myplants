@@ -27,12 +27,17 @@ router.delete("/:id", plantsController.deletePlant);
 // mas o ideal seria estar no controller.
 router.get("/:id/water", async (req, res) => {
   try {
-    const plant = await Plant.findById(req.params.id);
-    if (!plant) return res.status(404).send("Planta não encontrada");
+    // Usar findByIdAndUpdate para evitar problemas de validação em campos não relacionados.
+    // A validação do Mongoose no .save() verifica o documento inteiro, o que causa
+    // o erro se um campo antigo (como 'luz') tiver um valor inválido.
+    // findByIdAndUpdate atualiza atomicamente apenas os campos especificados.
+    const plant = await Plant.findByIdAndUpdate(
+      req.params.id,
+      {$set: {ultimaRega: new Date(), notificationSent: false}},
+      {new: false}, // Retorna o documento original para usar os dados na resposta
+    );
 
-    plant.ultimaRega = new Date();
-    plant.notificationSent = false; // Reseta para permitir nova notificação no futuro
-    await plant.save();
+    if (!plant) return res.status(404).send("Planta não encontrada");
 
     res.send(`
       <div style="text-align: center; font-family: sans-serif; margin-top: 50px;">
@@ -43,7 +48,7 @@ router.get("/:id/water", async (req, res) => {
       </div>
     `);
   } catch (err) {
-    res.status(500).send("Erro ao confirmar rega: " + err.message);
+    res.status(500).send("Erro ao confirmar a rega: " + err.message);
   }
 });
 
