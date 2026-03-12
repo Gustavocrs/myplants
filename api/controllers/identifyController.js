@@ -104,7 +104,7 @@ exports.identifyPlant = async (req, res) => {
           model: MODEL_NAME,
           contents: [
             {inlineData: {mimeType: mimeType, data: base64Image}},
-            "Analise a imagem desta planta e identifique sua espécie. Avalie também o seu estado de saúde visível. Preencha todos os campos do schema solicitado com precisão. IMPORTANTE: O campo 'luz' deve ser EXATAMENTE um destes valores: 'Sombra', 'Meia-sombra', 'Luz Difusa', 'Sol Pleno'.",
+            "Analise a imagem desta planta e identifique sua espécie. Avalie também o seu estado de saúde visível. Preencha todos os campos do schema solicitado com precisão. Para o campo 'luz', use estritamente um destes valores: 'Sombra', 'Meia-sombra', 'Luz Difusa', 'Sol Pleno'.",
           ],
           config: {
             responseMimeType: "application/json",
@@ -130,13 +130,18 @@ exports.identifyPlant = async (req, res) => {
 
     // Sanitização de segurança: garante que o valor de 'luz' seja válido para o Mongoose
     const validLuz = ["Sombra", "Meia-sombra", "Luz Difusa", "Sol Pleno"];
-    if (plantData.luz && !validLuz.includes(plantData.luz)) {
-      // Se a IA retornou algo fora do padrão, tenta achar uma correspondência parcial ou usa o padrão
+
+    // Força o valor a ser um dos permitidos ou usa fallback
+    let luzCorrigida = "Meia-sombra";
+    if (plantData.luz) {
+      const valorIA = String(plantData.luz).trim();
+      // Tenta achar correspondência exata ou parcial (case-insensitive)
       const match = validLuz.find((v) =>
-        plantData.luz.toLowerCase().includes(v.toLowerCase()),
+        valorIA.toLowerCase().includes(v.toLowerCase()),
       );
-      plantData.luz = match || "Meia-sombra";
+      if (match) luzCorrigida = match;
     }
+    plantData.luz = luzCorrigida;
 
     return res.json({success: true, ...plantData});
   } catch (error) {
