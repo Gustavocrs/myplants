@@ -50,7 +50,12 @@ const saveBase64Image = (base64String) => {
     fs.mkdirSync(path.dirname(uploadPath), {recursive: true});
     fs.writeFileSync(uploadPath, buffer);
 
-    return `${process.env.API_URL}/uploads/${fileName}`;
+    // Ajusta a URL para apontar para a raiz do servidor (onde ficam os estáticos),
+    // removendo o sufixo '/api' se ele existir na variável de ambiente.
+    const baseUrl = process.env.API_URL
+      ? process.env.API_URL.replace(/\/api\/?$/, "")
+      : "";
+    return `${baseUrl}/uploads/${fileName}`;
   } catch (error) {
     console.error("Erro ao salvar imagem:", error);
     return base64String; // Fallback para base64 se der erro
