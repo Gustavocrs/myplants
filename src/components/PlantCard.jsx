@@ -1,6 +1,11 @@
 "use client";
 
+import {useState} from "react";
+import {FiImage} from "react-icons/fi";
+
 export default function PlantCard({plant, onClick, onEdit}) {
+  const [imageError, setImageError] = useState(false);
+
   // Lógica para a cor da bolinha de status
   const getStatusColor = () => {
     const hasScientific = !!plant.nomeCientifico;
@@ -21,11 +26,20 @@ export default function PlantCard({plant, onClick, onEdit}) {
       className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] overflow-hidden transition-all duration-300 group flex flex-col cursor-pointer hover:-translate-y-1 active:scale-95 relative border border-gray-100"
     >
       <div className="aspect-[4/5] relative overflow-hidden bg-gray-100">
-        <img
-          src={plant.imagemUrl}
-          alt={plant.nome}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
-        />
+        {!imageError ? (
+          <img
+            src={plant.imagemUrl}
+            alt={plant.nome}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
+            onError={() => setImageError(true)}
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-50">
+            <FiImage size={40} />
+            <span className="text-xs mt-2">Imagem indisponível</span>
+          </div>
+        )}
         {/* Overlay sutil no hover para indicar clique */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
 
