@@ -156,9 +156,31 @@ exports.batchUpdate = async (req, res) => {
 
 exports.deletePlant = async (req, res) => {
   try {
+    // 1. Busca a planta antes de deletar para conseguir o nome da imagem
+    const plant = await Plant.findById(req.params.id);
+    if (!plant) return res.status(404).json({error: "Planta não encontrada"});
+
+    // 2. Remove a imagem do disco se for local (evita lixo no servidor)
+    if (plant.imagemUrl && plant.imagemUrl.includes("/uploads/")) {
+      try {
+        const fileName = plant.imagemUrl.split("/").pop();
+        const filePath = path.join(
+          __dirname,
+          "..",
+          "public",
+          "uploads",
+          fileName,
+        );
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      } catch (e) {
+        console.error("Erro ao limpar imagem do disco:", e);
+      }
+    }
+
     await Plant.findByIdAndDelete(req.params.id);
     res.json({message: "Planta removida com sucesso"});
   } catch (err) {
+    console.error("Erro fatal ao excluir planta:", err);
     res.status(500).json({error: err.message});
   }
 };
