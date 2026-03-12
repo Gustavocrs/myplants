@@ -1,6 +1,8 @@
 const {GoogleGenAI, Type} = require("@google/genai");
 const Settings = require("../models/Settings");
 const {decrypt} = require("../utils/crypto");
+const fs = require("fs");
+const path = require("path");
 
 const MODEL_NAME = process.env.GEMINI_MODEL
   ? process.env.GEMINI_MODEL.trim()
@@ -11,7 +13,10 @@ const responseSchema = {
   properties: {
     nome: {type: Type.STRING},
     nomeCientifico: {type: Type.STRING},
-    luz: {type: Type.STRING},
+    luz: {
+      type: Type.STRING,
+      enum: ["Sombra", "Meia-sombra", "Luz Difusa", "Sol Pleno"],
+    },
     intervaloRega: {type: Type.INTEGER},
     petFriendly: {type: Type.BOOLEAN},
     observacoes: {type: Type.STRING},
@@ -28,11 +33,42 @@ const responseSchema = {
 
 exports.identifyPlant = async (req, res) => {
   try {
-    const file = req.file;
     // O userId deve vir no corpo da requisição (FormData)
     const userId = req.body.userId;
+    let base64Image;
+    let mimeType;
 
-    if (!file) {
+    if (req.file) {
+      // Caso 1: Upload de nova imagem
+      base64Image = req.file.buffer.toString("base64");
+      mimeType = req.file.mimetype;
+    } else if (req.body.currentImageUrl) {
+      // Caso 2: Imagem já existente no servidor (Lê do disco local)
+      try {
+        const fileName = req.body.currentImageUrl.split("/").pop();
+        const filePath = path.join(
+          __dirname,
+          "..",
+          "public",
+          "uploads",
+          fileName,
+        );
+
+        if (!fs.existsSync(filePath)) throw new Error("Arquivo não encontrado");
+
+        const buffer = fs.readFileSync(filePath);
+        base64Image = buffer.toString("base64");
+        mimeType =
+          path.extname(fileName).toLowerCase() === ".png"
+            ? "image/png"
+            : "image/jpeg";
+      } catch (err) {
+        return res.status(400).json({
+          success: false,
+          error: "Não foi possível acessar a imagem no servidor.",
+        });
+      }
+    } else {
       return res
         .status(400)
         .json({success: false, error: "Envie uma imagem da planta."});
@@ -57,21 +93,51 @@ exports.identifyPlant = async (req, res) => {
 
     // 2. Instancia o cliente com a chave correta
     const ai = new GoogleGenAI({apiKey});
-    const base64Image = file.buffer.toString("base64");
 
-    const response = await ai.models.generateContent({
-      model: MODEL_NAME,
-      contents: [
-        {inlineData: {mimeType: file.mimetype, data: base64Image}},
-        "Analise a imagem desta planta e identifique sua espécie. Avalie também o seu estado de saúde visível. Preencha todos os campos do schema solicitado com precisão.",
-      ],
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: responseSchema,
-      },
-    });
+    let response;
+    let retryCount = 0;
+    const maxRetries = 3;
+
+    while (retryCount < maxRetries) {
+      try {
+        response = await ai.models.generateContent({
+          model: MODEL_NAME,
+          contents: [
+            {inlineData: {mimeType: mimeType, data: base64Image}},
+            "Analise a imagem desta planta e identifique sua espécie. Avalie também o seu estado de saúde visível. Preencha todos os campos do schema solicitado com precisão. IMPORTANTE: O campo 'luz' deve ser EXATAMENTE um destes valores: 'Sombra', 'Meia-sombra', 'Luz Difusa', 'Sol Pleno'.",
+          ],
+          config: {
+            responseMimeType: "application/json",
+            responseSchema: responseSchema,
+          },
+        });
+        break; // Sucesso, sai do loop
+      } catch (err) {
+        retryCount++;
+        const isOverloaded =
+          err.status === 503 ||
+          (err.message && err.message.includes("high demand"));
+
+        if (isOverloaded && retryCount < maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, 2000)); // Espera 2s antes de tentar de novo
+        } else {
+          throw err;
+        }
+      }
+    }
 
     const plantData = JSON.parse(response.text);
+
+    // Sanitização de segurança: garante que o valor de 'luz' seja válido para o Mongoose
+    const validLuz = ["Sombra", "Meia-sombra", "Luz Difusa", "Sol Pleno"];
+    if (plantData.luz && !validLuz.includes(plantData.luz)) {
+      // Se a IA retornou algo fora do padrão, tenta achar uma correspondência parcial ou usa o padrão
+      const match = validLuz.find((v) =>
+        plantData.luz.toLowerCase().includes(v.toLowerCase()),
+      );
+      plantData.luz = match || "Meia-sombra";
+    }
+
     return res.json({success: true, ...plantData});
   } catch (error) {
     console.error("Erro Gemini:", error);
