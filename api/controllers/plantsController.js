@@ -48,6 +48,7 @@ const saveBase64Image = (base64String) => {
 
     // Garante que o diretório existe (redundância segura)
     fs.mkdirSync(path.dirname(uploadPath), {recursive: true});
+    console.log(`💾 [Controller] Salvando imagem em: ${uploadPath}`);
     fs.writeFileSync(uploadPath, buffer);
 
     // Ajusta a URL para apontar para a raiz do servidor (onde ficam os estáticos),

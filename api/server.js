@@ -31,11 +31,21 @@ app.use(express.urlencoded({limit: "50mb", extended: true}));
 
 // Configuração de Arquivos Estáticos (Uploads)
 const uploadsDir = path.join(__dirname, "public", "uploads");
+console.log(`📂 [Server] Diretório de Uploads configurado em: ${uploadsDir}`);
+
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, {recursive: true});
 }
 // Serve a pasta public/uploads na rota /uploads
 app.use("/uploads", express.static(uploadsDir));
+
+// Middleware de Debug para arquivos não encontrados (404 em uploads)
+app.use("/uploads", (req, res) => {
+  console.warn(
+    `⚠️ [Server] Arquivo não encontrado: ${req.path} (buscado em ${uploadsDir})`,
+  );
+  res.status(404).send("Imagem não encontrada");
+});
 
 // Conexão com MongoDB Otimizada para o Docker
 const connectDB = async () => {
