@@ -41,9 +41,27 @@ app.use("/uploads", express.static(uploadsDir));
 
 // Middleware de Debug para arquivos não encontrados (404 em uploads)
 app.use("/uploads", (req, res) => {
-  console.warn(
-    `⚠️ [Server] Arquivo não encontrado: ${req.path} (buscado em ${uploadsDir})`,
-  );
+  const filePath = path.join(uploadsDir, req.path);
+  console.warn(`⚠️ [Server] 404 no Static: ${req.path}`);
+
+  // Tentativa de recuperação manual (caso o express.static falhe por cache ou permissão)
+  if (fs.existsSync(filePath)) {
+    console.log(
+      `✅ [Server] Arquivo ENCONTRADO manualmente: ${filePath}. Enviando...`,
+    );
+    return res.sendFile(filePath);
+  }
+
+  console.error(`❌ [Server] Arquivo REALMENTE não existe em: ${filePath}`);
+  try {
+    const files = fs.readdirSync(uploadsDir);
+    console.log(
+      `📂 [Server] Conteúdo da pasta (${files.length} arquivos):`,
+      files.slice(-5).join(", "),
+    );
+  } catch (e) {
+    console.error(`❌ [Server] Erro ao listar diretório: ${e.message}`);
+  }
   res.status(404).send("Imagem não encontrada");
 });
 
