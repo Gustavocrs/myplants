@@ -62,6 +62,37 @@ export default function PublicProfilePage() {
       .toUpperCase();
   };
 
+  // Navegação do Modal (Vitrine)
+  const getSelectedIndex = () => {
+    if (!selectedPlant || !filteredPlants) return -1;
+    return filteredPlants.findIndex((p) => p._id === selectedPlant._id);
+  };
+
+  const handleNext = () => {
+    const idx = getSelectedIndex();
+    if (idx !== -1 && idx < filteredPlants.length - 1) {
+      setSelectedPlant(filteredPlants[idx + 1]);
+    }
+  };
+
+  const handlePrev = () => {
+    const idx = getSelectedIndex();
+    if (idx > 0) {
+      setSelectedPlant(filteredPlants[idx - 1]);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!selectedPlant) return;
+      if (e.key === "ArrowRight") handleNext();
+      if (e.key === "ArrowLeft") handlePrev();
+      if (e.key === "Escape") setSelectedPlant(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedPlant, filteredPlants]); // Atualiza listeners quando a planta ou a lista mudam
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
@@ -92,64 +123,63 @@ export default function PublicProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Hero Section / Header */}
-      <div className="relative bg-white pb-16">
-        {/* Banner Decorativo */}
-        <div className="h-48 w-full bg-gradient-to-r from-green-800 to-emerald-600 overflow-hidden relative">
-          <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/leaf.png')]"></div>
-          <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-          <div className="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-        </div>
+    <div className="min-h-screen bg-[#f8f7f4] text-stone-800 font-sans pb-20">
+      {/* Header Limpo e Orgânico */}
+      <header className="bg-white border-b border-stone-100 pt-16 pb-12 px-4 relative overflow-hidden">
+        {/* Elementos decorativos de fundo (Blobs) */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-green-50 rounded-full blur-3xl opacity-60 -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-50 rounded-full blur-3xl opacity-60 translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          {/* Profile Card Flutuante */}
-          <div className="-mt-16 flex flex-col sm:flex-row items-center sm:items-end gap-6 mb-8 text-center sm:text-left">
-            <div className="w-32 h-32 rounded-3xl bg-white p-1.5 shadow-xl ring-1 ring-gray-100 relative z-10">
-              <div className="w-full h-full bg-gradient-to-br from-green-100 to-emerald-50 rounded-2xl flex items-center justify-center text-3xl font-bold text-green-700 select-none">
-                {getInitials(data.profile.displayName)}
-              </div>
-            </div>
-
-            <div className="flex-1 pb-2">
-              <h1 className="text-3xl font-bold text-gray-900 leading-tight">
-                {data.profile.displayName}
-              </h1>
-              <p className="text-green-600 font-medium mt-1">
-                Coleção de Plantas
-              </p>
-            </div>
-
-            <div className="flex gap-3 pb-2 w-full sm:w-auto">
-              <button
-                onClick={handleShare}
-                className="flex-1 sm:flex-none items-center justify-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all font-medium shadow-sm active:scale-95"
-              >
-                <FiShare2 /> Compartilhar
-              </button>
-            </div>
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          {/* Avatar Centralizado */}
+          <div className="mx-auto w-24 h-24 bg-gradient-to-br from-green-700 to-emerald-600 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-6 ring-4 ring-white select-none">
+            {getInitials(data.profile.displayName)}
           </div>
 
-          {/* Search Bar e Stats */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-gray-100 pb-8">
-            <div className="relative w-full md:w-96">
-              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          {/* Títulos */}
+          <h1 className="text-4xl md:text-5xl font-extrabold text-stone-800 tracking-tight mb-2">
+            {data.profile.displayName}
+          </h1>
+          <p className="text-stone-500 text-lg font-medium mb-8 flex items-center justify-center gap-2">
+            <span className="text-green-600">🌿</span> Coleção de Plantas
+          </p>
+
+          {/* Barra de Busca e Ações */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-lg mx-auto">
+            <div className="relative w-full group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <FiSearch
+                  className="text-stone-400 group-focus-within:text-green-600 transition-colors"
+                  size={20}
+                />
+              </div>
               <input
                 type="text"
-                placeholder="Buscar nesta coleção..."
+                placeholder="Buscar no jardim..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-gray-100 border-transparent focus:bg-white border focus:border-green-500 rounded-xl transition-all outline-none"
+                className="w-full pl-11 pr-4 py-3.5 bg-stone-50 border border-stone-200 rounded-2xl focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-500/10 outline-none transition-all placeholder:text-stone-400 text-stone-700 shadow-inner"
               />
             </div>
-            <div className="text-sm text-gray-500 font-medium">
-              Mostrando{" "}
-              <span className="text-gray-900">{filteredPlants?.length}</span> de{" "}
-              <span className="text-gray-900">{data.plants.length}</span>{" "}
-              plantas
-            </div>
+            <button
+              onClick={handleShare}
+              className="p-3.5 bg-white border border-stone-200 rounded-2xl text-stone-500 hover:bg-stone-50 hover:text-green-700 hover:border-green-200 transition-all shadow-sm active:scale-95 shrink-0"
+              title="Compartilhar Link"
+            >
+              <FiShare2 size={22} />
+            </button>
           </div>
         </div>
+      </header>
+
+      {/* Contador Discreto */}
+      <div className="max-w-7xl mx-auto px-6 mt-8 mb-6 flex items-center justify-between">
+        <span className="text-xs font-bold text-stone-400 uppercase tracking-widest">
+          Plantas
+        </span>
+        <span className="bg-white border border-stone-200 text-stone-600 px-3 py-1 rounded-full text-xs font-bold shadow-sm">
+          {filteredPlants?.length}
+        </span>
       </div>
 
       {/* Main Grid */}
@@ -170,18 +200,21 @@ export default function PublicProfilePage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-20">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
-              🌿
+          <div className="text-center py-20 flex flex-col items-center">
+            <div className="w-20 h-20 bg-stone-100 rounded-full flex items-center justify-center mb-4 text-stone-400">
+              <FiWind size={32} />
             </div>
-            <h3 className="text-lg font-medium text-gray-900">
-              Nenhuma planta encontrada
+            <h3 className="text-lg font-medium text-stone-800">
+              Nenhuma planta encontrada nesta busca
             </h3>
-            <p className="text-gray-500 mt-1">Tente buscar por outro nome.</p>
+            <p className="text-stone-500 mt-1 max-w-xs">
+              Tente buscar por outro nome ou limpe o filtro para ver o jardim
+              completo.
+            </p>
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm("")}
-                className="mt-4 text-green-600 font-medium hover:underline"
+                className="mt-4 px-4 py-2 bg-stone-200 text-stone-700 rounded-lg hover:bg-stone-300 transition-colors text-sm font-medium"
               >
                 Limpar busca
               </button>
@@ -191,17 +224,17 @@ export default function PublicProfilePage() {
       </main>
 
       {/* Branding Footer */}
-      <footer className="border-t border-gray-200 bg-white py-8 mt-auto">
+      <footer className="border-t border-stone-200 bg-white py-10 mt-auto">
         <div className="max-w-7xl mx-auto px-4 flex flex-col items-center text-center">
-          <p className="text-sm text-gray-500 mb-2">
-            Esta coleção foi criada usando
+          <p className="text-sm text-stone-500 mb-3">
+            Jardim digital cultivado no
           </p>
-          <div className="flex items-center gap-2 text-xl font-bold text-gray-800 tracking-tight">
-            <span className="text-green-600">🌱</span> MyPlants
+          <div className="flex items-center gap-2 text-xl font-bold text-stone-800 tracking-tight mb-4">
+            <span className="text-green-600 text-2xl">🌱</span> MyPlants
           </div>
           <a
             href="/"
-            className="mt-4 text-xs font-semibold text-green-600 uppercase tracking-wider hover:underline"
+            className="px-6 py-2 bg-green-50 text-green-700 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-green-100 transition-colors"
           >
             Crie o seu jardim grátis
           </a>
@@ -214,6 +247,10 @@ export default function PublicProfilePage() {
           plant={selectedPlant}
           onClose={() => setSelectedPlant(null)}
           isPublicView={true}
+          onNext={handleNext}
+          onPrev={handlePrev}
+          hasNext={getSelectedIndex() < (filteredPlants?.length || 0) - 1}
+          hasPrev={getSelectedIndex() > 0}
         />
       )}
     </div>
