@@ -23,7 +23,7 @@ fi
  git fetch origin
  git checkout $BRANCH
  git reset --hard origin/$BRANCH
- git clean -fd
+ # git clean -fd
  echo "⚠️  Usando versão local dos arquivos (Git sync desativado)"
 
 # 3. Limpeza de containers parados e imagens antigas (dangling) ANTES do build
@@ -33,7 +33,7 @@ docker image prune -f
 
 # 4. Derrubar APENAS a API e limpar volumes de cache (node_modules, etc)
 echo "Reiniciando API e limpando caches..."
-docker compose down -v
+docker compose down
 
 # 5. Rodar docker compose up da API com build limpo
 echo "Construindo e atualizando a API..."
