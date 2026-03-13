@@ -23,7 +23,7 @@ export default function PlantDetailsModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-0 md:p-4 animate-in fade-in duration-200"
       onClick={onClose}
     >
       {/* Setas de Navegação (Desktop) */}
@@ -54,7 +54,7 @@ export default function PlantDetailsModal({
       )}
 
       <div
-        className="w-full max-w-lg md:max-w-5xl md:h-[85vh] bg-white shadow-2xl flex flex-col md:flex-row rounded-3xl overflow-hidden relative"
+        className="w-full h-[100dvh] md:h-[85vh] md:max-w-5xl bg-white shadow-2xl flex flex-col md:flex-row rounded-none md:rounded-3xl overflow-hidden relative"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Botão Fechar */}

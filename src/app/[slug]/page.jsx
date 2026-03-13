@@ -1,11 +1,11 @@
 "use client";
 
-import {useState, useEffect} from "react";
+import {useState, useEffect, useRef} from "react";
 import {useParams} from "next/navigation";
 import {api} from "../../services/api";
 import PlantCard from "../../components/PlantCard";
 import PlantDetailsModal from "../../components/PlantDetailsModal";
-import {FiSearch, FiShare2, FiWind} from "react-icons/fi";
+import {FiSearch, FiShare2, FiWind, FiX} from "react-icons/fi";
 
 export default function PublicProfilePage() {
   const {slug} = useParams();
@@ -13,7 +13,9 @@ export default function PublicProfilePage() {
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [selectedPlant, setSelectedPlant] = useState(null);
+  const searchInputRef = useRef(null);
 
   useEffect(() => {
     if (slug) {
@@ -55,6 +57,12 @@ export default function PublicProfilePage() {
   const getFirstName = (name) => {
     return name?.split(" ")[0] || "";
   };
+
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
 
   // Navegação do Modal (Vitrine)
   const getSelectedIndex = () => {
@@ -119,67 +127,89 @@ export default function PublicProfilePage() {
   return (
     <div className="min-h-screen bg-[#f8f7f4] text-stone-800 font-sans pb-20">
       {/* Header Dividido */}
-      <header className="flex flex-col md:flex-row h-auto md:h-32 shadow-sm relative z-10">
-        {/* Coluna Esquerda - Logo (Verde) */}
-        <div className="w-full md:w-1/3 bg-gradient-to-br from-green-600 to-emerald-800 flex items-center justify-center p-4 text-white relative overflow-hidden">
+      <header className="flex flex-col md:flex-row h-auto md:h-24 shadow-sm relative z-10 bg-white">
+        {/* Coluna 1 - Logo (Verde) */}
+        <div className="w-full md:w-1/4 bg-gradient-to-br from-green-600 to-emerald-800 flex items-center justify-center p-4 text-white relative overflow-hidden">
           <a
             href="/"
-            className="flex flex-row md:flex-col items-center justify-center h-full w-full hover:scale-105 transition-transform duration-300 gap-3 md:gap-0"
+            className="flex flex-row items-center justify-center h-full w-full hover:scale-105 transition-transform duration-300 gap-2"
           >
             {/* Logo ocupando aproximadamente 70% da altura do container */}
-            <span className="text-[3rem] md:text-[4rem] leading-none drop-shadow-md">
+            <span className="text-4xl md:text-5xl leading-none drop-shadow-md">
               🌱
             </span>
-            <span className="text-xl md:text-2xl font-bold tracking-tight drop-shadow-sm md:mt-1">
+            <span className="text-lg md:text-xl font-bold tracking-tight drop-shadow-sm">
               MyPlants
             </span>
           </a>
         </div>
 
-        {/* Coluna Direita - Info (Branca) */}
-        <div className="w-full md:w-2/3 bg-white p-6 md:p-8 flex flex-col justify-center items-center md:items-start text-center md:text-left border-b border-stone-100 md:border-none">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-stone-800 tracking-tight mb-1">
+        {/* Coluna 2 - Info (Branca) */}
+        <div className="w-full md:w-2/4 bg-white p-4 md:px-8 flex flex-col justify-center items-center md:items-start text-center md:text-left border-b border-stone-100 md:border-none">
+          <h1 className="text-xl md:text-2xl font-extrabold text-stone-800 tracking-tight">
             Jardim Digital de{" "}
             <span className="text-green-700">
               {getFirstName(data.profile.displayName)}
             </span>
           </h1>
-          <p className="text-stone-500 text-sm md:text-base font-medium">
-            Conheça as plantas que cultivo.
+          <p className="text-stone-500 text-xs md:text-sm font-medium mt-1">
+            Conheça as plantas que cultivo
           </p>
+        </div>
+
+        {/* Coluna 3 - Ações (Branca) */}
+        <div className="w-full md:w-1/4 bg-white p-4 flex items-center justify-center md:justify-end gap-3 md:pr-8">
+          {/* Busca Expansível */}
+          <div
+            className={`relative flex items-center transition-all duration-300 ease-in-out ${
+              isSearchOpen ? "w-full md:w-64" : "w-10"
+            }`}
+          >
+            {isSearchOpen ? (
+              <div className="relative w-full">
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Buscar..."
+                  className="w-full pl-4 pr-10 py-2 bg-stone-50 border border-stone-200 rounded-full text-sm focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100 transition-all"
+                  onBlur={() => !searchTerm && setIsSearchOpen(false)}
+                />
+                <button
+                  onClick={() => {
+                    setSearchTerm("");
+                    setIsSearchOpen(false);
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                >
+                  <FiX size={16} />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsSearchOpen(true)}
+                className="w-10 h-10 flex items-center justify-center text-stone-500 hover:text-green-600 hover:bg-stone-50 rounded-full transition-colors"
+                title="Buscar"
+              >
+                <FiSearch size={20} />
+              </button>
+            )}
+          </div>
+
+          {/* Botão Compartilhar */}
+          <button
+            onClick={handleShare}
+            className="w-10 h-10 flex items-center justify-center text-stone-500 hover:text-green-600 hover:bg-stone-50 rounded-full transition-colors"
+            title="Compartilhar"
+          >
+            <FiShare2 size={20} />
+          </button>
         </div>
       </header>
 
       {/* Main Grid */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Área de Busca e Ações */}
-        <div className="flex flex-col items-center mb-10">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-lg">
-            <div className="relative w-full group">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <FiSearch
-                  className="text-stone-400 group-focus-within:text-green-600 transition-colors"
-                  size={20}
-                />
-              </div>
-              <input
-                type="text"
-                placeholder="Buscar no jardim..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 bg-white border border-stone-200 rounded-2xl focus:border-green-500 focus:ring-4 focus:ring-green-500/10 outline-none transition-all placeholder:text-stone-400 text-stone-700 shadow-sm"
-              />
-            </div>
-            <button
-              onClick={handleShare}
-              className="p-3 bg-white border border-stone-200 rounded-2xl text-stone-500 hover:bg-stone-50 hover:text-green-700 hover:border-green-200 transition-all shadow-sm active:scale-95 shrink-0"
-              title="Compartilhar Link"
-            >
-              <FiShare2 size={22} />
-            </button>
-          </div>
-        </div>
-
         {filteredPlants?.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
             {filteredPlants.map((plant) => (
