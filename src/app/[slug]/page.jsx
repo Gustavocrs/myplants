@@ -52,14 +52,8 @@ export default function PublicProfilePage() {
     plant.nome.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  // Gera iniciais para o avatar
-  const getInitials = (name) => {
-    return name
-      ?.split(" ")
-      .map((n) => n[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase();
+  const getFirstName = (name) => {
+    return name?.split(" ")[0] || "";
   };
 
   // Navegação do Modal (Vitrine)
@@ -124,28 +118,43 @@ export default function PublicProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#f8f7f4] text-stone-800 font-sans pb-20">
-      {/* Header Limpo e Orgânico */}
-      <header className="bg-white border-b border-stone-100 pt-16 pb-12 px-4 relative overflow-hidden">
-        {/* Elementos decorativos de fundo (Blobs) */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-green-50 rounded-full blur-3xl opacity-60 -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-50 rounded-full blur-3xl opacity-60 translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
+      {/* Header Dividido */}
+      <header className="flex flex-col md:flex-row h-auto md:h-32 shadow-sm relative z-10">
+        {/* Coluna Esquerda - Logo (Verde) */}
+        <div className="w-full md:w-1/3 bg-gradient-to-br from-green-600 to-emerald-800 flex items-center justify-center p-4 text-white relative overflow-hidden">
+          <a
+            href="/"
+            className="flex flex-row md:flex-col items-center justify-center h-full w-full hover:scale-105 transition-transform duration-300 gap-3 md:gap-0"
+          >
+            {/* Logo ocupando aproximadamente 70% da altura do container */}
+            <span className="text-[3rem] md:text-[4rem] leading-none drop-shadow-md">
+              🌱
+            </span>
+            <span className="text-xl md:text-2xl font-bold tracking-tight drop-shadow-sm md:mt-1">
+              MyPlants
+            </span>
+          </a>
+        </div>
 
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          {/* Avatar Centralizado */}
-          <div className="mx-auto w-24 h-24 bg-gradient-to-br from-green-700 to-emerald-600 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-6 ring-4 ring-white select-none">
-            {getInitials(data.profile.displayName)}
-          </div>
-
-          {/* Títulos */}
-          <h1 className="text-4xl md:text-5xl font-extrabold text-stone-800 tracking-tight mb-2">
-            {data.profile.displayName}
+        {/* Coluna Direita - Info (Branca) */}
+        <div className="w-full md:w-2/3 bg-white p-6 md:p-8 flex flex-col justify-center items-center md:items-start text-center md:text-left border-b border-stone-100 md:border-none">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-stone-800 tracking-tight mb-1">
+            Jardim Digital de{" "}
+            <span className="text-green-700">
+              {getFirstName(data.profile.displayName)}
+            </span>
           </h1>
-          <p className="text-stone-500 text-lg font-medium mb-8 flex items-center justify-center gap-2">
-            <span className="text-green-600">🌿</span> Coleção de Plantas
+          <p className="text-stone-500 text-sm md:text-base font-medium">
+            Conheça as plantas que cultivo.
           </p>
+        </div>
+      </header>
 
-          {/* Barra de Busca e Ações */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-lg mx-auto">
+      {/* Main Grid */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Área de Busca e Ações */}
+        <div className="flex flex-col items-center mb-10">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-lg">
             <div className="relative w-full group">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <FiSearch
@@ -158,32 +167,19 @@ export default function PublicProfilePage() {
                 placeholder="Buscar no jardim..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-11 pr-4 py-3.5 bg-stone-50 border border-stone-200 rounded-2xl focus:bg-white focus:border-green-500 focus:ring-4 focus:ring-green-500/10 outline-none transition-all placeholder:text-stone-400 text-stone-700 shadow-inner"
+                className="w-full pl-11 pr-4 py-3 bg-white border border-stone-200 rounded-2xl focus:border-green-500 focus:ring-4 focus:ring-green-500/10 outline-none transition-all placeholder:text-stone-400 text-stone-700 shadow-sm"
               />
             </div>
             <button
               onClick={handleShare}
-              className="p-3.5 bg-white border border-stone-200 rounded-2xl text-stone-500 hover:bg-stone-50 hover:text-green-700 hover:border-green-200 transition-all shadow-sm active:scale-95 shrink-0"
+              className="p-3 bg-white border border-stone-200 rounded-2xl text-stone-500 hover:bg-stone-50 hover:text-green-700 hover:border-green-200 transition-all shadow-sm active:scale-95 shrink-0"
               title="Compartilhar Link"
             >
               <FiShare2 size={22} />
             </button>
           </div>
         </div>
-      </header>
 
-      {/* Contador Discreto */}
-      <div className="max-w-7xl mx-auto px-6 mt-8 mb-6 flex items-center justify-between">
-        <span className="text-xs font-bold text-stone-400 uppercase tracking-widest">
-          Plantas
-        </span>
-        <span className="bg-white border border-stone-200 text-stone-600 px-3 py-1 rounded-full text-xs font-bold shadow-sm">
-          {filteredPlants?.length}
-        </span>
-      </div>
-
-      {/* Main Grid */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {filteredPlants?.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
             {filteredPlants.map((plant) => (
@@ -232,12 +228,12 @@ export default function PublicProfilePage() {
           <div className="flex items-center gap-2 text-xl font-bold text-stone-800 tracking-tight mb-4">
             <span className="text-green-600 text-2xl">🌱</span> MyPlants
           </div>
-          <a
+          {/* <a
             href="/"
             className="px-6 py-2 bg-green-50 text-green-700 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-green-100 transition-colors"
           >
             Crie o seu jardim grátis
-          </a>
+          </a> */}
         </div>
       </footer>
 

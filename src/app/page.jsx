@@ -120,6 +120,38 @@ export default function Home() {
     return matchesSearch && matchesLuz && matchesRega && matchesPet;
   });
 
+  // Navegação do Modal (Vitrine)
+  const getSelectedIndex = () => {
+    if (!selectedPlant) return -1;
+    return filteredPlants.findIndex((p) => p._id === selectedPlant._id);
+  };
+
+  const handleNext = () => {
+    const idx = getSelectedIndex();
+    if (idx !== -1 && idx < filteredPlants.length - 1) {
+      setSelectedPlant(filteredPlants[idx + 1]);
+    }
+  };
+
+  const handlePrev = () => {
+    const idx = getSelectedIndex();
+    if (idx > 0) {
+      setSelectedPlant(filteredPlants[idx - 1]);
+    }
+  };
+
+  // Atalhos de teclado para navegação
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!selectedPlant) return;
+      if (e.key === "ArrowRight") handleNext();
+      if (e.key === "ArrowLeft") handlePrev();
+      if (e.key === "Escape") setSelectedPlant(null);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedPlant, filteredPlants]);
+
   // Agrupa as plantas (View Mode)
   const groupedPlants = viewMode
     ? filteredPlants.reduce((acc, plant) => {
@@ -343,6 +375,10 @@ export default function Home() {
         <PlantDetailsModal
           plant={selectedPlant}
           onClose={() => setSelectedPlant(null)}
+          onNext={handleNext}
+          onPrev={handlePrev}
+          hasNext={getSelectedIndex() < filteredPlants.length - 1}
+          hasPrev={getSelectedIndex() > 0}
         />
       )}
 
