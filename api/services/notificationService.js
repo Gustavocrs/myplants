@@ -11,6 +11,8 @@ const transporters = {};
 const checkPlantsAndNotify = async () => {
   console.log("⏰ Verificando notificações de rega...");
 
+  const horaAtual = new Date().getHours();
+
   try {
     // Busca todas as plantas que precisam de rega e ainda não foram notificadas
     // Otimização: Filtra no banco em vez de trazer tudo
@@ -44,6 +46,12 @@ const checkPlantsAndNotify = async () => {
 
       // Busca configurações uma vez por usuário
       const settings = await Settings.findOne({userId});
+
+      // Verifica se é a hora correta para este usuário
+      const frequencia = settings?.frequenciaEnvio || "diario";
+      const horaDisparo = settings?.horaDisparo ?? 8;
+
+      if (frequencia === "diario" && horaAtual !== horaDisparo) continue;
 
       // Verifica se o usuário desativou as notificações por e-mail
       if (settings && settings.emailNotificationsEnabled === false) {

@@ -25,6 +25,17 @@ const SettingsSchema = new mongoose.Schema({
       },
     },
   ],
+  frequenciaEnvio: {
+    type: String,
+    enum: ["diario", "hora"],
+    default: "diario",
+  },
+  horaDisparo: {
+    type: Number,
+    min: 0,
+    max: 23,
+    default: 8, // Padrão: 8 da manhã
+  },
 });
 
 module.exports = mongoose.model("Settings", SettingsSchema);
