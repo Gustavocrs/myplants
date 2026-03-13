@@ -13,6 +13,7 @@ services:
       - EMAIL_USER=${EMAIL_USER}
       - EMAIL_PASS=${EMAIL_PASS}
       - API_URL=${API_URL}
+      - TZ=${TZ}
     volumes:
       - ./api:/app
       - /app/node_modules
