@@ -51,7 +51,12 @@ const checkPlantsAndNotify = async () => {
       const frequencia = settings?.frequenciaEnvio || "diario";
       const horaDisparo = settings?.horaDisparo ?? 8;
 
-      if (frequencia === "diario" && horaAtual !== horaDisparo) continue;
+      if (frequencia === "diario" && horaAtual !== horaDisparo) {
+        console.log(
+          `⏳ Usuário ${userId} aguardando horário: ${horaDisparo}h (Atual: ${horaAtual}h)`,
+        );
+        continue;
+      }
 
       // Verifica se o usuário desativou as notificações por e-mail
       if (settings && settings.emailNotificationsEnabled === false) {
