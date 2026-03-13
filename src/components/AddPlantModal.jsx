@@ -234,7 +234,7 @@ export default function AddPlantModal({
       };
 
       if (plantToEdit) {
-        await api.updatePlant(plantToEdit.id, plantData);
+        await api.updatePlant(plantToEdit._id, plantData);
       } else {
         await api.createPlant(plantData);
       }
@@ -455,7 +455,7 @@ export default function AddPlantModal({
             <div>
               {plantToEdit && (
                 <button
-                  onClick={() => onDelete(plantToEdit.id)}
+                  onClick={() => onDelete(plantToEdit._id)}
                   className="text-red-500 hover:text-red-700 text-sm font-medium px-3 py-2 rounded hover:bg-red-50 transition-colors flex items-center gap-1"
                 >
                   <span className="text-lg">🗑️</span>
