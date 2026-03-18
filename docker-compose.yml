@@ -1,5 +1,5 @@
 services:
-  api:
+  myplants:
     build: ./api
     image: myplants-api
     container_name: myplants-api
