@@ -6,20 +6,6 @@ import {FiImage} from "react-icons/fi";
 export default function PlantCard({plant, onClick, onEdit}) {
   const [imageError, setImageError] = useState(false);
 
-  // Lógica para a cor da bolinha de status
-  const getStatusColor = () => {
-    const hasScientific = !!plant.nomeCientifico;
-    const hasNotes = !!plant.observacoes;
-    const hasDate = !!plant.dataAquisicao;
-
-    // Verde: Totalmente preenchida (considerando os campos opcionais principais)
-    if (hasScientific && hasNotes && hasDate) return "bg-green-500";
-    // Vermelho: Apenas o básico (foto e nome são obrigatórios, então checamos a falta do resto)
-    if (!hasScientific && !hasNotes && !hasDate) return "bg-orange-400";
-    // Amarelo: Parcial
-    return "bg-yellow-500";
-  };
-
   // Lógica para verificar se a planta está com a rega atrasada
   const isWateringOverdue = () => {
     if (!plant.ultimaRega || !plant.intervaloRega) return false;
@@ -32,6 +18,23 @@ export default function PlantCard({plant, onClick, onEdit}) {
   };
 
   const isOverdue = isWateringOverdue();
+
+  // Lógica para a cor da bolinha de status
+  const getStatusColor = () => {
+    // Se a rega estiver atrasada, a bolinha fica vermelha para alertar o usuário
+    if (isOverdue) return "bg-red-500";
+
+    const hasScientific = !!plant.nomeCientifico;
+    const hasNotes = !!plant.observacoes;
+    const hasDate = !!plant.dataAquisicao;
+
+    // Verde: Totalmente preenchida (considerando os campos opcionais principais)
+    if (hasScientific && hasNotes && hasDate) return "bg-green-500";
+    // Laranja: Apenas o básico (foto e nome são obrigatórios, então checamos a falta do resto)
+    if (!hasScientific && !hasNotes && !hasDate) return "bg-orange-400";
+    // Amarelo: Parcial
+    return "bg-yellow-500";
+  };
 
   return (
     <div
