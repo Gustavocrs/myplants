@@ -35,6 +35,7 @@ exports.identifyPlant = async (req, res) => {
   try {
     // O userId deve vir no corpo da requisição (FormData)
     const userId = req.body.userId;
+    const hint = req.body.hint;
     let base64Image;
     let mimeType;
 
@@ -94,6 +95,13 @@ exports.identifyPlant = async (req, res) => {
     // 2. Instancia o cliente com a chave correta
     const ai = new GoogleGenAI({apiKey});
 
+    let promptStr =
+      "Analise a imagem desta planta e identifique sua espécie. Avalie também o seu estado de saúde visível. Preencha todos os campos do schema solicitado com precisão. Para o campo 'luz', use estritamente um destes valores: 'Sombra', 'Meia-sombra', 'Luz Difusa', 'Sol Pleno'.";
+
+    if (hint && hint.trim() !== "") {
+      promptStr += ` O usuário sugeriu que o nome popular da planta possa ser "${hint.trim()}". Considere fortemente essa informação como dica para a identificação, validando-a com o que você vê na imagem.`;
+    }
+
     let response;
     let retryCount = 0;
     const maxRetries = 3;
@@ -104,7 +112,7 @@ exports.identifyPlant = async (req, res) => {
           model: MODEL_NAME,
           contents: [
             {inlineData: {mimeType: mimeType, data: base64Image}},
-            "Analise a imagem desta planta e identifique sua espécie. Avalie também o seu estado de saúde visível. Preencha todos os campos do schema solicitado com precisão. Para o campo 'luz', use estritamente um destes valores: 'Sombra', 'Meia-sombra', 'Luz Difusa', 'Sol Pleno'.",
+            promptStr,
           ],
           config: {
             responseMimeType: "application/json",

@@ -48,7 +48,7 @@ export const api = {
     return response.json();
   },
 
-  identifyPlant: async (imageSource, userId) => {
+  identifyPlant: async (imageSource, userId, hint = "") => {
     const formData = new FormData();
     if (imageSource instanceof File) {
       formData.append("image", imageSource);
@@ -58,6 +58,7 @@ export const api = {
     formData.append("prompt", "Identifique esta planta");
     // Envia o ID do usuário para que o backend possa buscar a chave personalizada
     if (userId) formData.append("userId", userId);
+    if (hint) formData.append("hint", hint);
 
     const response = await fetch(`${API_URL}/identify`, {
       method: "POST",
