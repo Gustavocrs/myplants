@@ -21,6 +21,11 @@ export default function Home() {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [plantToEdit, setPlantToEdit] = useState(null);
   const [selectedPlant, setSelectedPlant] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    message: "",
+    onConfirm: null,
+  });
 
   // Filtros
   const [filterLuz, setFilterLuz] = useState("");
@@ -58,16 +63,21 @@ export default function Home() {
     setShowAddModal(true);
   };
 
-  const handleDelete = async (id) => {
-    if (confirm("Tem certeza que deseja excluir esta planta?")) {
-      try {
-        await api.deletePlant(id);
-        setShowAddModal(false);
-        loadPlants();
-      } catch (error) {
-        alert("Erro ao excluir planta");
-      }
-    }
+  const handleDelete = (id) => {
+    setConfirmDialog({
+      isOpen: true,
+      message: "Tem certeza que deseja excluir esta planta?",
+      onConfirm: async () => {
+        setConfirmDialog({isOpen: false, message: "", onConfirm: null});
+        try {
+          await api.deletePlant(id);
+          setShowAddModal(false);
+          loadPlants();
+        } catch (error) {
+          alert("Erro ao excluir planta");
+        }
+      },
+    });
   };
 
   // Função chamada pelo FloatingMenu para iniciar fluxo de IA
@@ -148,8 +158,8 @@ export default function Home() {
       if (e.key === "ArrowLeft") handlePrev();
       if (e.key === "Escape") setSelectedPlant(null);
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [selectedPlant, filteredPlants]);
 
   // Agrupa as plantas (View Mode)
@@ -383,7 +393,11 @@ export default function Home() {
       )}
 
       {showSettingsModal && (
-        <SettingsModal onClose={() => setShowSettingsModal(false)} />
+        <SettingsModal
+          onClose={() => setShowSettingsModal(false)}
+          plants={plants}
+          onPlantsUpdate={loadPlants}
+        />
       )}
 
       {/* Overlay de Loading da IA */}
@@ -394,6 +408,38 @@ export default function Home() {
           <p className="text-sm text-gray-400 mt-2">
             A inteligência artificial está identificando sua planta.
           </p>
+        </div>
+      )}
+
+      {/* Modal Customizado de Confirmação para Exclusão */}
+      {confirmDialog.isOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full mx-4 animate-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-bold text-gray-800 mb-2">
+              Confirmar Exclusão
+            </h3>
+            <p className="text-gray-600 mb-6">{confirmDialog.message}</p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() =>
+                  setConfirmDialog({
+                    isOpen: false,
+                    message: "",
+                    onConfirm: null,
+                  })
+                }
+                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDialog.onConfirm}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

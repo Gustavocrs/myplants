@@ -20,6 +20,19 @@ export default function PlantCard({plant, onClick, onEdit}) {
     return "bg-yellow-500";
   };
 
+  // Lógica para verificar se a planta está com a rega atrasada
+  const isWateringOverdue = () => {
+    if (!plant.ultimaRega || !plant.intervaloRega) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Zera a hora para comparar apenas datas
+    const nextDate = new Date(plant.ultimaRega);
+    nextDate.setDate(nextDate.getDate() + Number(plant.intervaloRega));
+    nextDate.setHours(0, 0, 0, 0);
+    return today > nextDate;
+  };
+
+  const isOverdue = isWateringOverdue();
+
   return (
     <div
       onClick={() => onClick(plant)}
@@ -43,11 +56,24 @@ export default function PlantCard({plant, onClick, onEdit}) {
         {/* Overlay sutil no hover para indicar clique */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
 
-        {/* Bolinha de Status - Movida para a esquerda */}
-        <div
-          className={`absolute top-3 left-3 w-2.5 h-2.5 rounded-full shadow-lg ring-2 ring-white/50 ${getStatusColor()}`}
-          title="Nível de detalhes da planta"
-        />
+        {/* Indicadores - Canto Superior Esquerdo */}
+        <div className="absolute top-3 left-3 flex flex-col items-center gap-2 z-10">
+          {/* Indicador de Rega Atrasada */}
+          {isOverdue && (
+            <div
+              className="bg-white/90 backdrop-blur-sm text-blue-500 p-1.5 rounded-full shadow-sm flex items-center justify-center animate-bounce"
+              title="Passou do dia de regar!"
+            >
+              <span className="text-sm leading-none">💧</span>
+            </div>
+          )}
+
+          {/* Bolinha de Status */}
+          <div
+            className={`w-2.5 h-2.5 rounded-full shadow-lg ring-2 ring-white/50 ${getStatusColor()}`}
+            title="Nível de detalhes da planta"
+          />
+        </div>
 
         {/* Botão de Editar - Aparece no Hover (Desktop) ou Sempre (Mobile) */}
         {onEdit && (

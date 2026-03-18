@@ -2,8 +2,9 @@
 import {useState, useEffect} from "react";
 import {api} from "../services/api";
 import {useAuth} from "@/context/AuthContext";
+import WateringStatus from "./WateringStatus";
 
-export default function SettingsModal({onClose}) {
+export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
   const {user} = useAuth();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("general"); // general | email | profile
@@ -11,6 +12,18 @@ export default function SettingsModal({onClose}) {
   const [showSmtpPass, setShowSmtpPass] = useState(false);
   const [testingEmail, setTestingEmail] = useState(false);
   const [massUpdateLoading, setMassUpdateLoading] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    message: "",
+    onConfirm: null,
+  });
+  const [alertDialog, setAlertDialog] = useState({
+    isOpen: false,
+    message: "",
+    isError: false,
+    onCloseAlert: null,
+  });
+  const [hostName, setHostName] = useState("");
 
   const [formData, setFormData] = useState({
     slug: "",
@@ -33,6 +46,7 @@ export default function SettingsModal({onClose}) {
     if (user) {
       loadSettings();
     }
+    setHostName(globalThis.location?.host || "");
   }, [user]);
 
   const loadSettings = async () => {
@@ -71,10 +85,18 @@ export default function SettingsModal({onClose}) {
     try {
       setLoading(true);
       await api.saveSettings(user.uid, formData);
-      alert("Configurações salvas com sucesso!");
-      onClose();
+      setAlertDialog({
+        isOpen: true,
+        message: "Configurações salvas com sucesso!",
+        isError: false,
+        onCloseAlert: () => onClose(),
+      });
     } catch (error) {
-      alert("Erro ao salvar: " + error.message);
+      setAlertDialog({
+        isOpen: true,
+        message: "Erro ao salvar: " + error.message,
+        isError: true,
+      });
     } finally {
       setLoading(false);
     }
@@ -86,45 +108,63 @@ export default function SettingsModal({onClose}) {
       // Salva antes de testar para garantir que o backend use os dados mais recentes
       await api.saveSettings(user.uid, formData);
       await api.testNotification(user.uid, user.email);
-      alert(
-        `E-mail de teste enviado para ${user.email}! Verifique sua caixa de entrada (e spam).`,
-      );
+      setAlertDialog({
+        isOpen: true,
+        message: `E-mail de teste enviado para ${user.email}! Verifique sua caixa de entrada (e spam).`,
+        isError: false,
+      });
     } catch (error) {
-      alert("Erro no teste: " + error.message);
+      setAlertDialog({
+        isOpen: true,
+        message: "Erro no teste: " + error.message,
+        isError: true,
+      });
     } finally {
       setTestingEmail(false);
     }
   };
 
-  const handleMassUpdate = async (field, value) => {
-    if (!confirm("Tem certeza? Isso afetará TODAS as suas plantas.")) return;
+  const handleMassUpdate = (field, value) => {
+    setConfirmDialog({
+      isOpen: true,
+      message: "Tem certeza? Isso afetará TODAS as suas plantas.",
+      onConfirm: async () => {
+        setConfirmDialog({isOpen: false, message: "", onConfirm: null});
+        try {
+          setMassUpdateLoading(true);
+          const token = await user.getIdToken();
 
-    try {
-      setMassUpdateLoading(true);
-      const token = await user.getIdToken(); // Se precisar de auth header, mas aqui estamos usando body userId por simplicidade na API atual
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/plants/batch`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                userId: user.uid,
+                updates: {[field]: value},
+              }),
+            },
+          );
 
-      // Usando fetch direto pois api.js não tem o método batchUpdate exposto explicitamente no contexto
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/plants/batch`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            userId: user.uid,
-            updates: {[field]: value},
-          }),
-        },
-      );
-
-      if (!response.ok) throw new Error("Falha na atualização em massa");
-      alert("Plantas atualizadas com sucesso!");
-    } catch (error) {
-      alert("Erro: " + error.message);
-    } finally {
-      setMassUpdateLoading(false);
-    }
+          if (!response.ok) throw new Error("Falha na atualização em massa");
+          setAlertDialog({
+            isOpen: true,
+            message: "Plantas atualizadas com sucesso!",
+            isError: false,
+          });
+        } catch (error) {
+          setAlertDialog({
+            isOpen: true,
+            message: "Erro: " + error.message,
+            isError: true,
+          });
+        } finally {
+          setMassUpdateLoading(false);
+        }
+      },
+    });
   };
 
   return (
@@ -164,6 +204,14 @@ export default function SettingsModal({onClose}) {
           >
             <span className="text-xl">🌍</span>{" "}
             <span className="hidden md:inline ml-1">Perfil</span>
+          </button>
+          <button
+            className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "watering" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
+            onClick={() => setActiveTab("watering")}
+            title="Status de Rega"
+          >
+            <span className="text-xl">💧</span>{" "}
+            <span className="hidden md:inline ml-1">Rega</span>
           </button>
           {/* <button
             className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "plants" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
@@ -442,10 +490,7 @@ export default function SettingsModal({onClose}) {
                     </label>
                     <div className="flex items-center">
                       <span className="bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg px-3 py-2 text-gray-500 text-sm">
-                        {typeof window !== "undefined"
-                          ? window.location.host
-                          : ""}
-                        /
+                        {hostName}/
                       </span>
                       <input
                         type="text"
@@ -580,6 +625,32 @@ export default function SettingsModal({onClose}) {
               )}
             </div>
           )}
+
+          {activeTab === "watering" && (
+            <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+              <WateringStatus
+                plants={plants}
+                onUpdateWatering={async (plantId, novaData) => {
+                  try {
+                    setLoading(true);
+                    await api.updatePlant(plantId, {
+                      ultimaRega: novaData,
+                      notificationSent: false,
+                    });
+                    if (onPlantsUpdate) onPlantsUpdate();
+                  } catch (error) {
+                    setAlertDialog({
+                      isOpen: true,
+                      message: "Erro ao atualizar a rega.",
+                      isError: true,
+                    });
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+              />
+            </div>
+          )}
         </div>
 
         <div className="p-6 border-t border-gray-100 flex justify-end gap-3">
@@ -597,6 +668,69 @@ export default function SettingsModal({onClose}) {
             {loading ? "Salvando..." : "Salvar Alterações"}
           </button>
         </div>
+
+        {/* Modal Customizado de Confirmação */}
+        {confirmDialog.isOpen && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full mx-4 animate-in zoom-in-95 duration-200">
+              <h3 className="text-lg font-bold text-gray-800 mb-2">
+                Confirmar Ação
+              </h3>
+              <p className="text-gray-600 mb-6">{confirmDialog.message}</p>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() =>
+                    setConfirmDialog({
+                      isOpen: false,
+                      message: "",
+                      onConfirm: null,
+                    })
+                  }
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmDialog.onConfirm}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                >
+                  Confirmar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal Customizado de Alerta (Sucesso/Erro) */}
+        {alertDialog.isOpen && (
+          <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full mx-4 animate-in zoom-in-95 duration-200">
+              <h3
+                className={`text-lg font-bold mb-2 ${alertDialog.isError ? "text-red-600" : "text-gray-800"}`}
+              >
+                {alertDialog.isError ? "Erro" : "Sucesso"}
+              </h3>
+              <p className="text-gray-600 mb-6">{alertDialog.message}</p>
+              <div className="flex justify-end">
+                <button
+                  onClick={() => {
+                    const callback = alertDialog.onCloseAlert;
+                    setAlertDialog({
+                      isOpen: false,
+                      message: "",
+                      isError: false,
+                      onCloseAlert: null,
+                    });
+                    if (callback) callback();
+                  }}
+                  className={`px-4 py-2 text-white rounded-lg transition-colors font-medium ${alertDialog.isError ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}`}
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
