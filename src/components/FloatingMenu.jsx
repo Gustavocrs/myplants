@@ -26,6 +26,8 @@ export default function FloatingMenu({
   setFilterRega,
   filterPet,
   setFilterPet,
+  filterAtrasada,
+  setFilterAtrasada,
   viewMode,
   setViewMode,
 }) {
@@ -43,12 +45,14 @@ export default function FloatingMenu({
     };
   }, [isOpen]);
 
-  const hasFilters = filterLuz || filterRega || filterPet || viewMode;
+  const hasFilters =
+    filterLuz || filterRega || filterPet || filterAtrasada || viewMode;
 
   const clearFilters = () => {
     setFilterLuz("");
     setFilterRega("");
     setFilterPet("");
+    setFilterAtrasada(false);
     setViewMode(null);
   };
 
@@ -201,6 +205,16 @@ export default function FloatingMenu({
                   setFilterRega(filterRega === "2gotas" ? "" : "2gotas")
                 }
                 colorClass="bg-blue-100 text-blue-800 border-blue-200"
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <FilterChip
+                label="Precisando de Rega"
+                icon="🚨"
+                active={filterAtrasada}
+                onClick={() => setFilterAtrasada(!filterAtrasada)}
+                colorClass="bg-red-100 text-red-800 border-red-200"
               />
             </div>
 

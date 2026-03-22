@@ -32,6 +32,7 @@ export default function Home() {
   const [filterRega, setFilterRega] = useState("");
   const [filterPet, setFilterPet] = useState("");
   const [viewMode, setViewMode] = useState(null);
+  const [filterAtrasada, setFilterAtrasada] = useState(false);
 
   // IA
   const fileInputRef = useRef(null);
@@ -127,7 +128,27 @@ export default function Home() {
       matchesRega = plant.intervaloRega > 3 && plant.intervaloRega <= 7;
     else if (filterRega === "2gotas") matchesRega = plant.intervaloRega <= 3;
 
-    return matchesSearch && matchesLuz && matchesRega && matchesPet;
+    let matchesAtrasada = true;
+    if (filterAtrasada) {
+      if (!plant.ultimaRega || !plant.intervaloRega) {
+        matchesAtrasada = false;
+      } else {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const nextDate = new Date(plant.ultimaRega);
+        nextDate.setDate(nextDate.getDate() + Number(plant.intervaloRega));
+        nextDate.setHours(0, 0, 0, 0);
+        matchesAtrasada = today > nextDate;
+      }
+    }
+
+    return (
+      matchesSearch &&
+      matchesLuz &&
+      matchesRega &&
+      matchesPet &&
+      matchesAtrasada
+    );
   });
 
   // Navegação do Modal (Vitrine)
@@ -245,15 +266,23 @@ export default function Home() {
         </div>
 
         {/* Indicador de Filtros Ativos */}
-        {(filterLuz || filterRega || filterPet) && (
+        {(filterLuz || filterRega || filterPet || filterAtrasada) && (
           <div className="flex flex-wrap gap-2 mb-4 animate-in fade-in slide-in-from-top-2">
             {filterLuz && (
-              <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full border border-yellow-200 flex items-center gap-1">
+              <span
+                onDoubleClick={() => setFilterLuz("")}
+                title="Duplo clique para remover"
+                className="cursor-pointer hover:opacity-80 transition-opacity bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full border border-yellow-200 flex items-center gap-1"
+              >
                 ☀️ {filterLuz}
               </span>
             )}
             {filterRega && (
-              <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full border border-blue-200 flex items-center gap-1">
+              <span
+                onDoubleClick={() => setFilterRega("")}
+                title="Duplo clique para remover"
+                className="cursor-pointer hover:opacity-80 transition-opacity bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full border border-blue-200 flex items-center gap-1"
+              >
                 💧{" "}
                 {filterRega === "cacto"
                   ? "Espaçada"
@@ -264,13 +293,24 @@ export default function Home() {
             )}
             {filterPet && (
               <span
-                className={`text-xs px-2 py-1 rounded-full border flex items-center gap-1 ${
+                onDoubleClick={() => setFilterPet("")}
+                title="Duplo clique para remover"
+                className={`cursor-pointer hover:opacity-80 transition-opacity text-xs px-2 py-1 rounded-full border flex items-center gap-1 ${
                   filterPet === "sim"
                     ? "bg-green-100 text-green-800 border-green-200"
                     : "bg-red-100 text-red-800 border-red-200"
                 }`}
               >
                 {filterPet === "sim" ? "🐶 Pet Friendly" : "🚫 Tóxica"}
+              </span>
+            )}
+            {filterAtrasada && (
+              <span
+                onDoubleClick={() => setFilterAtrasada(false)}
+                title="Duplo clique para remover"
+                className="cursor-pointer hover:opacity-80 transition-opacity bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full border border-red-200 flex items-center gap-1"
+              >
+                🚨 Precisando de Rega
               </span>
             )}
           </div>
@@ -363,6 +403,8 @@ export default function Home() {
         setFilterRega={setFilterRega}
         filterPet={filterPet}
         setFilterPet={setFilterPet}
+        filterAtrasada={filterAtrasada}
+        setFilterAtrasada={setFilterAtrasada}
         viewMode={viewMode}
         setViewMode={setViewMode}
       />
