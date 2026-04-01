@@ -82,6 +82,21 @@ export default function Home() {
       },
     });
   };
+  const handleQuickWater = async (id) => {
+    try {
+      setLoading(true);
+      await api.updatePlant(id, {
+        ultimaRega: new Date().toISOString(),
+        notificationSent: false,
+      });
+      await loadPlants();
+    } catch (error) {
+      console.error("Erro ao regar planta:", error);
+      alert("Erro ao registrar rega.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Função chamada pelo FloatingMenu para iniciar fluxo de IA
   const handleAiScan = () => {
@@ -343,6 +358,7 @@ export default function Home() {
                       plant={plant}
                       onClick={setSelectedPlant}
                       onEdit={handleEdit}
+                      onWater={handleQuickWater}
                     />
                   ))}
                 </div>
@@ -358,6 +374,7 @@ export default function Home() {
                 plant={plant}
                 onClick={setSelectedPlant}
                 onEdit={handleEdit}
+                onWater={handleQuickWater}
               />
             ))}
           </div>
