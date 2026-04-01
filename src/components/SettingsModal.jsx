@@ -174,9 +174,9 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
           <h2 className="text-3xl font-black text-neutral-900 font-heading tracking-tight">Configurações</h2>
           <button
             onClick={onClose}
-            className="text-neutral-400 hover:text-primary-600 p-2 hover:bg-primary-50 rounded-xl transition-all"
+            className="text-neutral-900 hover:text-primary-600 p-3 hover:bg-neutral-100 rounded-2xl transition-all"
           >
-            <span className="text-xl">✕</span>
+            <span className="text-xl font-bold">✕</span>
           </button>
         </div>
 

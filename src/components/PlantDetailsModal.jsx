@@ -60,7 +60,7 @@ export default function PlantDetailsModal({
         {/* Botão Fechar */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 z-20 glass bg-white/20 hover:bg-white/40 text-white rounded-2xl p-3 backdrop-blur-md transition-all hover:scale-105 active:scale-95 shadow-xl border border-white/50"
+          className="absolute top-6 right-6 z-20 glass bg-white/80 hover:bg-white text-neutral-900 rounded-2xl p-3 backdrop-blur-md transition-all hover:scale-105 active:scale-95 shadow-xl border border-white/50"
         >
           <FiX size={24} />
         </button>

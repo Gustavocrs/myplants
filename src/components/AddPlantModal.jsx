@@ -261,9 +261,9 @@ export default function AddPlantModal({
             </h2>
             <button
               onClick={onClose}
-              className="text-neutral-400 hover:text-primary-600 p-2 hover:bg-primary-50 rounded-xl transition-all"
+              className="text-neutral-900 hover:text-primary-600 p-2 hover:bg-primary-50 rounded-xl transition-all"
             >
-              <span className="text-xl">✕</span>
+              <span className="text-xl font-bold">✕</span>
             </button>
           </div>
 
