@@ -12,12 +12,12 @@ const HeroSection = ({ onGetStarted }) => {
       <div className="absolute -top-20 -right-20 w-80 h-80 bg-accent-400/20 rounded-full blur-3xl -z-10 animate-float"></div>
 
       <div className="mx-auto max-w-6xl text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-3 rounded-full border border-primary-200 bg-primary-50/50 text-primary-800 text-sm font-bold mb-8 animate-fade-in shadow-sm">
+        {/* <div className="inline-flex items-center gap-2 px-4 py-3 rounded-full border border-primary-200 bg-primary-50/50 text-primary-800 text-sm font-bold mb-8 animate-fade-in shadow-sm">
           <span className="flex h-2 w-2 rounded-full bg-primary-500 animate-pulse"></span>
           Gestão Profissional para seu Jardim
-        </div>
+        </div> */}
 
-        <h1 className="font-heading text-5xl md:text-7xl font-extrabold leading-[1.1] text-neutral-900 mb-6 animate-slide-up">
+        <h1 className="font-heading text-5xl md:text-7xl font-extrabold leading-[1.1] text-neutral-900 mb-6 animate-slide-up mt-20">
           Controle seu jardim <br />
           com <span className="text-primary-500">inteligência</span>.
         </h1>

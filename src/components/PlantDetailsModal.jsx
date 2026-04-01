@@ -1,6 +1,7 @@
 "use client";
 import {useEffect} from "react";
 import {FiX, FiChevronLeft, FiChevronRight} from "react-icons/fi";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 export default function PlantDetailsModal({
   plant,
@@ -11,6 +12,7 @@ export default function PlantDetailsModal({
   hasNext,
   hasPrev,
 }) {
+  useEscapeKey(onClose);
   // Bloqueia o scroll do corpo da página quando o modal abre
   useEffect(() => {
     document.body.style.overflow = "hidden";

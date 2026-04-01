@@ -3,6 +3,7 @@
 import {useState, useRef, useEffect} from "react";
 import {api} from "../services/api";
 import {useAuth} from "@/context/AuthContext";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { FiTrash2 } from "react-icons/fi";
 
 export default function AddPlantModal({
@@ -12,6 +13,7 @@ export default function AddPlantModal({
   initialData,
   onDelete,
 }) {
+  useEscapeKey(onClose);
   const {user} = useAuth();
   const [nome, setNome] = useState("");
   const [nomeCientifico, setNomeCientifico] = useState("");
@@ -252,212 +254,216 @@ export default function AddPlantModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-md z-50 overflow-y-auto animate-in fade-in duration-300 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl bg-white/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-white/50 overflow-hidden font-body animate-in zoom-in-95 duration-300">
-        <div className="p-8 md:p-10 relative">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-black text-neutral-900 font-heading tracking-tight">
+    <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-md z-50 overflow-y-auto animate-in fade-in duration-300 flex justify-center p-4 sm:p-8">
+      <div className="w-full max-w-3xl lg:max-w-4xl bg-white/90 backdrop-blur-2xl rounded-[2rem] shadow-2xl border border-white/50 overflow-hidden font-body animate-in zoom-in-95 duration-300 my-auto h-fit flex flex-col">
+        <div className="p-5 md:p-8 relative text-left flex flex-col gap-5 text-sm">
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-black text-neutral-900 font-heading tracking-tight">
               {plantToEdit ? "Editar Planta" : "Nova Planta"}
             </h2>
             <button
               onClick={onClose}
-              className="text-neutral-900 hover:text-primary-600 p-2 hover:bg-primary-50 rounded-xl transition-all"
+              className="text-neutral-900 hover:text-primary-600 p-1.5 hover:bg-neutral-100/50 rounded-xl transition-all"
             >
               <span className="text-xl font-bold">✕</span>
             </button>
           </div>
 
-          <div className="space-y-4">
-            {/* Área de Upload Clicável */}
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="h-48 bg-neutral-100/50 border-2 border-dashed border-neutral-200 rounded-[2rem] flex flex-col items-center justify-center text-neutral-400 cursor-pointer hover:bg-primary-50/50 hover:border-primary-300 transition-all relative overflow-hidden group shadow-inner"
-            >
-              {preview ? (
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              ) : (
-                <div className="text-center group-hover:scale-110 transition-transform duration-300">
-                  <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm text-2xl group-hover:bg-primary-500 group-hover:text-white transition-all">
-                    📸
-                  </div>
-                  <p className="font-bold text-sm text-neutral-500">Toque para selecionar</p>
-                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">Upload de Foto</span>
-                </div>
-              )}
-              {/* Input invisível */}
-              <input
-                type="file"
-                hidden
-                ref={fileInputRef}
-                onChange={handleImageChange}
-                accept="image/*"
-              />
-            </div>
-
-            {/* Botão de IA */}
-            {imagemUrl && (
-              <button
-                onClick={handleAiFill}
-                disabled={loading}
-                className="w-full py-4 bg-primary-900 text-white rounded-2xl shadow-xl shadow-primary-900/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 font-bold text-sm border-2 border-white/10"
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            {/* Coluna da Esquerda (Upload e IA) */}
+            <div className="col-span-1 lg:col-span-5 flex flex-col gap-4">
+              {/* Área de Upload Clicável */}
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="aspect-video lg:aspect-square bg-neutral-100/50 border-2 border-dashed border-neutral-300 rounded-[1.5rem] flex flex-col items-center justify-center text-neutral-400 cursor-pointer hover:bg-primary-50/50 hover:border-primary-400 transition-all relative overflow-hidden group shadow-inner min-h-[160px]"
               >
-                {loading
-                  ? "✨ Analisando com IA..."
-                  : "✨ Preencher dados e avaliar saúde com IA"}
-              </button>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-1.5">
-                <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
-                  Nome Popular *
-                </label>
+                {preview ? (
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className="text-center group-hover:scale-110 transition-transform duration-300">
+                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm text-xl group-hover:bg-primary-500 group-hover:text-white transition-all">
+                      📸
+                    </div>
+                    <p className="font-bold text-xs text-neutral-500">Toque para selecionar</p>
+                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">Upload de Foto</span>
+                  </div>
+                )}
+                {/* Input invisível */}
                 <input
-                  type="text"
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                  className="w-full bg-white border border-neutral-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium"
-                  placeholder="Ex: Samambaia"
+                  type="file"
+                  hidden
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  accept="image/*"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
-                  Nome Científico
-                </label>
-                <input
-                  type="text"
-                  value={nomeCientifico}
-                  onChange={(e) => setNomeCientifico(e.target.value)}
-                  className="w-full bg-white border border-neutral-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium"
-                  placeholder="Ex: Nephrolepis exaltata"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
-                  Luz
-                </label>
-                <select
-                  value={luz}
-                  onChange={(e) => setLuz(e.target.value)}
-                  className="w-full bg-white border border-neutral-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium appearance-none"
+              {/* Botão de IA */}
+              {imagemUrl && (
+                <button
+                  onClick={handleAiFill}
+                  disabled={loading}
+                  className="w-full py-3 bg-primary-900 text-white rounded-xl shadow-xl shadow-primary-900/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 font-bold text-sm border-2 border-white/10"
                 >
-                  <option value="Sombra">Sombra</option>
-                  <option value="Meia-sombra">Meia-sombra</option>
-                  <option value="Luz Difusa">Luz Difusa</option>
-                  <option value="Sol Pleno">Sol Pleno</option>
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
-                  Intervalo de Rega (dias)
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={intervaloRega}
-                  onChange={(e) => setIntervaloRega(e.target.value)}
-                  className="w-full bg-white border border-neutral-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
-                  Última Rega
-                </label>
-                <input
-                  type="date"
-                  value={ultimaRega}
-                  onChange={(e) => setUltimaRega(e.target.value)}
-                  className="w-full bg-white border border-neutral-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
-                  Próxima Rega (Previsão)
-                </label>
-                <input
-                  type="date"
-                  value={proximaRega}
-                  onChange={handleProximaRegaChange}
-                  className="w-full bg-secondary-50 border border-secondary-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-secondary-100 focus:border-secondary-300 transition-all shadow-sm font-bold text-secondary-900"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
-                  Data de Aquisição
-                </label>
-                <input
-                  type="date"
-                  value={dataAquisicao}
-                  onChange={(e) => setDataAquisicao(e.target.value)}
-                  className="w-full bg-white border border-neutral-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium"
-                />
-              </div>
+                  {loading
+                    ? "✨ Analisando com IA..."
+                    : "✨ Preencher dados com IA"}
+                </button>
+              )}
             </div>
 
-            <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-4 bg-neutral-50/50 p-6 rounded-[2rem] border border-neutral-100">
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="lembretesAtivos"
-                  checked={lembretesAtivos}
-                  onChange={(e) => setLembretesAtivos(e.target.checked)}
-                  className="w-5 h-5 text-primary-500 border-neutral-300 rounded-lg focus:ring-primary-500 transition-all cursor-pointer"
-                />
-                <label
-                  htmlFor="lembretesAtivos"
-                  className="text-sm text-neutral-700 font-bold cursor-pointer"
-                >
-                  🔔 Receber lembretes de rega
-                </label>
+            {/* Coluna da Direita (Formulário) */}
+            <div className="col-span-1 lg:col-span-7 flex flex-col gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
+                    Nome Popular *
+                  </label>
+                  <input
+                    type="text"
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    className="w-full bg-white border border-neutral-100 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium text-sm"
+                    placeholder="Ex: Samambaia"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
+                    Nome Científico
+                  </label>
+                  <input
+                    type="text"
+                    value={nomeCientifico}
+                    onChange={(e) => setNomeCientifico(e.target.value)}
+                    className="w-full bg-white border border-neutral-100 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium text-sm"
+                    placeholder="Ex: Nephrolepis exaltata"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
+                    Luz
+                  </label>
+                  <select
+                    value={luz}
+                    onChange={(e) => setLuz(e.target.value)}
+                    className="w-full bg-white border border-neutral-100 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium appearance-none text-sm"
+                  >
+                    <option value="Sombra">Sombra</option>
+                    <option value="Meia-sombra">Meia-sombra</option>
+                    <option value="Luz Difusa">Luz Difusa</option>
+                    <option value="Sol Pleno">Sol Pleno</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
+                    Rega a cada (dias)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={intervaloRega}
+                    onChange={(e) => setIntervaloRega(e.target.value)}
+                    className="w-full bg-white border border-neutral-100 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium text-sm"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
+                    Última Rega
+                  </label>
+                  <input
+                    type="date"
+                    value={ultimaRega}
+                    onChange={(e) => setUltimaRega(e.target.value)}
+                    className="w-full bg-white border border-neutral-100 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium text-sm"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
+                    Próxima Rega
+                  </label>
+                  <input
+                    type="date"
+                    value={proximaRega}
+                    onChange={handleProximaRegaChange}
+                    className="w-full bg-secondary-50 border border-secondary-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-4 focus:ring-secondary-100 focus:border-secondary-300 transition-all shadow-sm font-bold text-secondary-900 text-sm"
+                  />
+                </div>
+
+                <div className="space-y-1.5 sm:col-span-2 md:col-span-1">
+                  <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
+                    Data de Aquisição
+                  </label>
+                  <input
+                    type="date"
+                    value={dataAquisicao}
+                    onChange={(e) => setDataAquisicao(e.target.value)}
+                    className="w-full bg-white border border-neutral-100 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium text-sm"
+                  />
+                </div>
+                
+                <div className="flex flex-col gap-3 justify-center sm:col-span-2 md:col-span-1">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="lembretesAtivos"
+                      checked={lembretesAtivos}
+                      onChange={(e) => setLembretesAtivos(e.target.checked)}
+                      className="w-4 h-4 text-primary-500 border-neutral-300 rounded focus:ring-primary-500 transition-all cursor-pointer"
+                    />
+                    <label
+                      htmlFor="lembretesAtivos"
+                      className="text-xs text-neutral-700 font-bold cursor-pointer"
+                    >
+                      🔔 Receber lembretes
+                    </label>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="petFriendly"
+                      checked={petFriendly}
+                      onChange={(e) => setPetFriendly(e.target.checked)}
+                      className="w-4 h-4 text-primary-500 border-neutral-300 rounded focus:ring-primary-500 transition-all cursor-pointer"
+                    />
+                    <label htmlFor="petFriendly" className="text-xs text-neutral-700 font-medium cursor-pointer">
+                      🐾 Pet Friendly
+                    </label>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="petFriendly"
-                  checked={petFriendly}
-                  onChange={(e) => setPetFriendly(e.target.checked)}
-                  className="w-5 h-5 text-primary-500 border-neutral-300 rounded-lg focus:ring-primary-500 transition-all cursor-pointer"
-                />
-                <label htmlFor="petFriendly" className="text-sm text-neutral-700 font-medium cursor-pointer">
-                  🐾 Pet Friendly (Segura para animais)
+              <div className="space-y-1.5 flex-1 flex flex-col">
+                <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
+                  Avaliação Botânica & Observações
                 </label>
+                <textarea
+                  value={observacoes}
+                  onChange={(e) => setObservacoes(e.target.value)}
+                  className="w-full bg-white border border-neutral-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium resize-none flex-1 min-h-[60px] text-sm"
+                  placeholder="Cuidados especiais, história da planta..."
+                />
               </div>
-            </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
-                Avaliação Botânica & Observações
-              </label>
-              <textarea
-                value={observacoes}
-                onChange={(e) => setObservacoes(e.target.value)}
-                rows="4"
-                className="w-full bg-white border border-neutral-100 rounded-[1.5rem] px-5 py-4 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium resize-none"
-                placeholder="Cuidados especiais, história da planta..."
-              />
             </div>
           </div>
+        </div>
 
-          <div className="flex justify-between items-center mt-12 bg-neutral-50 -mx-10 -mb-10 p-8">
-            {/* Botão de Excluir */}
+        <div className="flex justify-between items-center bg-neutral-50 p-5 md:px-8 border-t border-neutral-100 mt-auto">
+          {/* Botão de Excluir */}
             <div>
               {plantToEdit && (
                 <button
                   onClick={() => onDelete(plantToEdit._id)}
-                  className="text-red-500 hover:text-red-700 text-sm font-black uppercase tracking-widest px-4 py-2 hover:bg-red-50 rounded-xl transition-all flex items-center gap-2"
+                  className="text-red-500 hover:text-red-700 text-xs font-black uppercase tracking-widest px-3 py-2 hover:bg-red-50 rounded-lg transition-all flex items-center gap-2"
                 >
                   <FiTrash2 className="text-base" />
                   <span className="hidden md:inline">Excluir</span>
@@ -469,7 +475,7 @@ export default function AddPlantModal({
               <button
                 onClick={hasChanges() ? handleSave : onClose}
                 disabled={loading || (hasChanges() && (!nome || !imagemUrl))}
-                className={`px-8 py-4 rounded-2xl transition-all shadow-xl disabled:opacity-50 flex items-center gap-2 font-bold text-sm hover:scale-105 active:scale-95 ${
+                className={`px-6 py-3 rounded-xl transition-all shadow-xl disabled:opacity-50 flex items-center gap-2 font-bold text-sm hover:scale-105 active:scale-95 ${
                   hasChanges()
                     ? "bg-primary-500 text-white shadow-primary-500/25"
                     : "bg-white text-neutral-700 border border-neutral-200"
@@ -487,7 +493,6 @@ export default function AddPlantModal({
               </button>
             </div>
           </div>
-        </div>
       </div>
     </div>
   );

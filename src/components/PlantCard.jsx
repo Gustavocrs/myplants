@@ -60,15 +60,20 @@ export default function PlantCard({plant, onClick, onEdit, onWater}) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-40 group-hover:opacity-100 transition-opacity duration-500" />
 
         {/* Indicadores */}
-        <div className="absolute top-4 left-4 flex flex-col items-center gap-3 z-10">
+        <div className="absolute top-4 left-4 flex flex-col items-center gap-3 z-50">
           {/* Indicador de Rega Atrasada */}
           {isOverdue && (
-            <div
-              className="glass text-blue-500 w-9 h-9 rounded-full shadow-lg flex items-center justify-center animate-bounce border border-white/50"
-              title="Passou do dia de regar!"
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (onWater) onWater(plant._id);
+              }}
+              className="glass text-blue-500 w-9 h-9 rounded-full shadow-lg flex items-center justify-center animate-bounce hover:animate-none hover:bg-blue-50 hover:scale-110 active:scale-95 transition-all cursor-pointer border border-white/50 z-20"
+              title="Regar Rapidamente"
             >
               <span className="text-sm leading-none drop-shadow-sm">💧</span>
-            </div>
+            </button>
           )}
 
           {/* Bolinha de Status */}

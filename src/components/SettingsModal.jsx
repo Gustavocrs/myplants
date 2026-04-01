@@ -3,8 +3,10 @@ import {useState, useEffect} from "react";
 import {api} from "../services/api";
 import {useAuth} from "@/context/AuthContext";
 import WateringStatus from "./WateringStatus";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
 
 export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
+  useEscapeKey(onClose);
   const {user} = useAuth();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("general"); // general | email | profile

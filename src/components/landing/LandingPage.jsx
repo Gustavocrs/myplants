@@ -19,7 +19,7 @@ const LandingPage = ({ onLogin }) => {
           <FeaturesSection />
         </div>
         <IASection />
-        <PricingSection onGetStarted={onLogin} />
+        {/* <PricingSection onGetStarted={onLogin} /> */}
         <CtaSection onGetStarted={onLogin} />
       </main>
       <Footer />
