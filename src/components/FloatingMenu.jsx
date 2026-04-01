@@ -92,7 +92,7 @@ export default function FloatingMenu({
       {/* Backdrop (Fundo Escuro) */}
       <div
         className={`
-          fixed inset-0 bg-black/30 backdrop-blur-sm z-40 transition-opacity duration-300
+          fixed inset-0 bg-neutral-900/40 backdrop-blur-md z-40 transition-opacity duration-500
           ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}
         `}
         onClick={() => setIsOpen(false)}
@@ -101,14 +101,15 @@ export default function FloatingMenu({
       {/* Sidebar (Drawer) */}
       <div
         className={`
-          fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl z-50 
-          transform transition-transform duration-300 ease-out flex flex-col
+          fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white/90 backdrop-blur-2xl shadow-2xl z-50 
+          transform transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) flex flex-col font-body
           ${isOpen ? "translate-x-0" : "translate-x-full"}
+          border-l border-white/50
         `}
       >
         {/* Header do Menu */}
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-          <h2 className="text-xl font-bold text-gray-800">Menu</h2>
+        <div className="p-8 border-b border-neutral-100 flex justify-between items-center bg-white/50">
+          <h2 className="text-2xl font-black text-neutral-900 font-heading tracking-tight">Menu</h2>
           <button
             onClick={() => setIsOpen(false)}
             className="p-2 hover:bg-gray-100 rounded-full text-gray-500 transition-colors"
@@ -263,39 +264,39 @@ export default function FloatingMenu({
         </div>
 
         {/* Footer (Configurações) */}
-        <div className="p-4 border-t border-gray-100 bg-gray-50 space-y-2">
+        <div className="p-6 border-t border-neutral-100 bg-neutral-50/50 space-y-3">
           <button
             onClick={() => {
               setIsOpen(false);
               onOpenSettings();
             }}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-white hover:shadow-sm transition-all"
+            className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-neutral-600 hover:bg-white hover:text-primary-600 hover:shadow-premium transition-all font-bold text-sm"
           >
-            <FiSettings size={20} />
-            <span className="font-medium">Configurações</span>
+            <FiSettings size={20} className="animate-spin-slow" />
+            <span>Configurações</span>
           </button>
           <button
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all"
+            className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-red-500 hover:bg-red-50 transition-all font-bold text-sm"
           >
             <FiLogOut size={20} />
-            <span className="font-medium">Sair da conta</span>
+            <span>Sair da conta</span>
           </button>
         </div>
       </div>
 
       {/* Botão Flutuante Principal (Trigger) */}
-      <div className="fixed bottom-6 right-6 z-40">
+      <div className="fixed bottom-8 right-8 z-40">
         <button
           onClick={() => setIsOpen(true)}
-          className="w-14 h-14 bg-gray-900 text-white rounded-2xl shadow-xl shadow-gray-400/50 flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
+          className="w-16 h-16 bg-primary-900 text-white rounded-[1.5rem] shadow-2xl shadow-primary-900/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-all group border-2 border-white/10"
         >
-          <FiMenu size={24} />
+          <FiMenu size={28} className="group-hover:rotate-12 transition-transform" />
         </button>
 
         {/* Indicador de Filtros Ativos (Bolinha) */}
         {hasFilters && (
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></span>
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary-500 border-4 border-white rounded-full shadow-lg animate-bounce"></span>
         )}
       </div>
     </>

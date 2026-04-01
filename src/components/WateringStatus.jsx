@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { FiDroplet, FiCalendar, FiCheckCircle } from "react-icons/fi";
 
 export default function WateringStatus({plants = [], onUpdateWatering}) {
   const getNextWateringDate = (ultimaRega, intervaloRega) => {
@@ -10,94 +13,75 @@ export default function WateringStatus({plants = [], onUpdateWatering}) {
 
   const handleWater = (plant) => {
     const today = new Date().toISOString();
-    // Chama a função passada pelo componente pai (ex: Settings ou Page) para atualizar na API
     if (onUpdateWatering) {
       onUpdateWatering(plant.id || plant._id, today);
     }
   };
 
   return (
-    <div className="bg-white rounded-xl">
-      <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 text-sm text-blue-800 mb-6">
-        <p>
-          Acompanhe e atualize rapidamente o status de rega de todas as suas
-          plantas em um só lugar.
-        </p>
+    <div className="space-y-6 font-body">
+      <div className="glass p-6 rounded-2xl border border-primary-100 flex items-center gap-4 animate-fade-in shadow-sm">
+        <div className="w-12 h-12 bg-primary-100 text-primary-600 rounded-2xl flex items-center justify-center shrink-0 shadow-sm shadow-primary-500/10 text-xl">
+          💧
+        </div>
+        <div>
+          <h3 className="font-heading font-black text-neutral-900 tracking-tight">Status de Hidratação</h3>
+          <p className="text-sm text-neutral-500">Acompanhe e atualize a rega de suas plantas em tempo real.</p>
+        </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse min-w-[600px]">
-          <thead>
-            <tr className="border-b-2 border-gray-100 text-gray-500 text-sm uppercase tracking-wider">
-              <th className="p-3 pb-4 font-semibold">Planta</th>
-              <th className="p-3 pb-4 font-semibold">Última Rega</th>
-              <th className="p-3 pb-4 font-semibold">Próxima Rega</th>
-              <th className="p-3 pb-4 font-semibold text-right">Ação</th>
-            </tr>
-          </thead>
-          <tbody>
-            {plants.length === 0 ? (
-              <tr>
-                <td colSpan="4" className="p-6 text-center text-gray-500">
-                  Nenhuma planta cadastrada para exibir o status.
-                </td>
-              </tr>
-            ) : (
-              plants.map((plant) => (
-                <tr
-                  key={plant.id || plant._id}
-                  className="border-b border-gray-50 hover:bg-gray-50 transition-colors"
-                >
-                  <td className="p-3 flex items-center gap-4">
-                    {/* Miniatura da Foto */}
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 shrink-0 border border-gray-200 shadow-sm">
-                      {plant.imagemUrl ? (
-                        <img
-                          src={plant.imagemUrl}
-                          alt={plant.nome || "Planta"}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-xl">
-                          🌱
-                        </div>
-                      )}
+      <div className="grid grid-cols-1 gap-4">
+        {plants.length === 0 ? (
+          <div className="p-12 text-center glass rounded-3xl border border-neutral-100">
+            <p className="text-neutral-400 font-medium italic">Nenhuma planta cadastrada para exibir o status.</p>
+          </div>
+        ) : (
+          plants.map((plant) => (
+            <div
+              key={plant.id || plant._id}
+              className="glass p-5 rounded-3xl border border-neutral-100 shadow-sm hover:shadow-premium transition-all group flex flex-col md:flex-row items-center gap-6"
+            >
+              <div className="flex items-center gap-4 flex-1 w-full">
+                <div className="w-16 h-16 rounded-[1.25rem] overflow-hidden bg-neutral-100 shrink-0 border-2 border-white shadow-sm">
+                  {plant.imagemUrl ? (
+                    <img
+                      src={plant.imagemUrl}
+                      alt={plant.nome || "Planta"}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-2xl">
+                      🌱
                     </div>
-                    <div>
-                      <span className="font-semibold text-gray-700 block">
-                        {plant.nome ||
-                          plant.nomeCientifico ||
-                          "Planta sem nome"}
-                      </span>
-                    </div>
-                  </td>
+                  )}
+                </div>
+                <div>
+                  <h4 className="font-heading font-black text-neutral-900 tracking-tight text-lg mb-1">
+                    {plant.nome || plant.nomeCientifico || "Planta sem nome"}
+                  </h4>
+                  <div className="flex flex-wrap gap-3">
+                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
+                      <FiCalendar size={12} className="text-primary-500" />
+                      Última: {plant.ultimaRega ? new Date(plant.ultimaRega).toLocaleDateString("pt-BR") : "---"}
+                    </span>
+                    <span className="flex items-center gap-1.5 text-[10px] font-black text-secondary-600 uppercase tracking-widest bg-secondary-100 px-2.5 py-1 rounded-lg">
+                      <FiDroplet size={12} />
+                      Próxima: {getNextWateringDate(plant.ultimaRega, plant.intervaloRega)}
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-                  {/* Data da Última Rega */}
-                  <td className="p-3 text-gray-600">
-                    {plant.ultimaRega
-                      ? new Date(plant.ultimaRega).toLocaleDateString("pt-BR")
-                      : "Nunca regada"}
-                  </td>
-
-                  {/* Data da Próxima Rega (Cálculo) */}
-                  <td className="p-3 font-medium text-emerald-600">
-                    {getNextWateringDate(plant.ultimaRega, plant.intervaloRega)}
-                  </td>
-
-                  {/* Botão de Ação */}
-                  <td className="p-3 text-right">
-                    <button
-                      onClick={() => handleWater(plant)}
-                      className="bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white font-medium py-1.5 px-4 rounded-lg shadow-sm transition-colors text-sm flex items-center gap-2 ml-auto"
-                    >
-                      <span>💦</span> Atualizar
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              <button
+                onClick={() => handleWater(plant)}
+                className="w-full md:w-auto bg-primary-500 hover:bg-primary-600 text-white font-bold py-4 px-8 rounded-2xl shadow-lg shadow-primary-500/20 transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 text-sm"
+              >
+                <FiCheckCircle size={18} />
+                <span>Regar Agora</span>
+              </button>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

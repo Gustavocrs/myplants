@@ -168,118 +168,97 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
   };
 
   return (
-    <div className="fixed inset-0 bg-white z-50 flex flex-col animate-in slide-in-from-bottom-10 duration-300">
-      <div className="w-full max-w-3xl mx-auto h-full flex flex-col bg-white">
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-gray-800">Configurações</h2>
+    <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+      <div className="w-full max-w-4xl bg-white/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-white/50 h-[90vh] flex flex-col font-body overflow-hidden animate-in zoom-in-95 duration-300">
+        <div className="p-8 md:p-10 border-b border-neutral-100 flex justify-between items-center bg-white/50">
+          <h2 className="text-3xl font-black text-neutral-900 font-heading tracking-tight">Configurações</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-neutral-400 hover:text-primary-600 p-2 hover:bg-primary-50 rounded-xl transition-all"
           >
-            ✕
+            <span className="text-xl">✕</span>
           </button>
         </div>
 
-        <div className="flex border-b border-gray-200">
+        <div className="flex bg-neutral-50/50 p-2 gap-2 overflow-x-auto no-scrollbar">
           <button
-            className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "general" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
+            className={`flex-1 min-w-[100px] py-4 px-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === "general" ? "bg-white text-primary-900 shadow-premium" : "text-neutral-400 hover:text-neutral-600 hover:bg-white/50"}`}
             onClick={() => setActiveTab("general")}
-            title="Inteligência Artificial"
           >
-            <span className="text-xl">🤖</span>{" "}
-            <span className="hidden md:inline ml-1">IA</span>
+            <span>🤖 IA</span>
           </button>
           <button
-            className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "email" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
+            className={`flex-1 min-w-[100px] py-4 px-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === "email" ? "bg-white text-primary-900 shadow-premium" : "text-neutral-400 hover:text-neutral-600 hover:bg-white/50"}`}
             onClick={() => setActiveTab("email")}
-            title="Notificações"
           >
-            <span className="text-xl">📧</span>{" "}
-            <span className="hidden md:inline ml-1">Email</span>
+            <span>📧 Email</span>
           </button>
           <button
-            className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "profile" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
+            className={`flex-1 min-w-[100px] py-4 px-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === "profile" ? "bg-white text-primary-900 shadow-premium" : "text-neutral-400 hover:text-neutral-600 hover:bg-white/50"}`}
             onClick={() => setActiveTab("profile")}
-            title="Perfil Público"
           >
-            <span className="text-xl">🌍</span>{" "}
-            <span className="hidden md:inline ml-1">Perfil</span>
+            <span>🌍 Perfil</span>
           </button>
           <button
-            className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "watering" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
+            className={`flex-1 min-w-[100px] py-4 px-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === "watering" ? "bg-white text-primary-900 shadow-premium" : "text-neutral-400 hover:text-neutral-600 hover:bg-white/50"}`}
             onClick={() => setActiveTab("watering")}
-            title="Status de Rega"
           >
-            <span className="text-xl">💧</span>{" "}
-            <span className="hidden md:inline ml-1">Rega</span>
+            <span>💧 Rega</span>
           </button>
-          {/* <button
-            className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "plants" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
-            onClick={() => setActiveTab("plants")}
-            title="Gerenciar Plantas"
-          >
-            <span className="text-xl">🌿</span>{" "}
-            <span className="hidden md:inline ml-1">Plantas</span>
-          </button> */}
-          {/* <button
-            className={`flex-1 py-3 font-medium text-sm transition-colors ${activeTab === "views" ? "text-green-600 border-b-2 border-green-600" : "text-gray-500 hover:text-gray-700"}`}
-            onClick={() => setActiveTab("views")}
-            title="Modos de Visualização"
-          >
-            <span className="text-xl">👁️</span>{" "}
-            <span className="hidden md:inline ml-1">Vistas</span>
-          </button> */}
         </div>
 
         <div className="p-6 overflow-y-auto flex-1">
           {activeTab === "general" && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Chave da API do Gemini (Google)
+            <div className="space-y-6 max-w-2xl animate-fade-in">
+              <div className="space-y-1.5">
+                <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
+                  Chave da API do Gemini (Google AI)
                 </label>
-                <div className="relative">
+                <div className="relative group">
                   <input
                     type={showGeminiKey ? "text" : "password"}
                     value={formData.geminiApiKey}
                     onChange={(e) =>
                       setFormData({...formData, geminiApiKey: e.target.value})
                     }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 outline-none pr-10"
-                    placeholder="Ex: AIzaSy..."
+                    className="w-full bg-white border border-neutral-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium pr-12"
+                    placeholder="AIzaSy..."
                   />
                   <button
                     type="button"
                     onClick={() => setShowGeminiKey(!showGeminiKey)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                    title={showGeminiKey ? "Ocultar chave" : "Exibir chave"}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-primary-600"
                   >
                     {showGeminiKey ? "🙈" : "👁️"}
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Deixe em branco para usar a chave padrão do sistema (se
-                  disponível).
-                  <br />
-                  <a
-                    href="https://aistudio.google.com/app/apikey"
-                    target="_blank"
-                    className="text-green-600 hover:underline"
-                  >
-                    Obter chave aqui
-                  </a>
-                </p>
+                <div className="bg-primary-50 p-4 rounded-2xl border border-primary-100 mt-4">
+                  <p className="text-xs text-primary-800 font-medium leading-relaxed">
+                    Personalize o motor de inteligência artificial. Deixe em branco para usar a infraestrutura padrão do MyPlants.
+                    <br />
+                    <a
+                      href="https://aistudio.google.com/app/apikey"
+                      target="_blank"
+                      className="inline-block mt-2 font-bold hover:underline"
+                    >
+                      Gerar minha própria chave gratuita ↗
+                    </a>
+                  </p>
+                </div>
               </div>
             </div>
           )}
 
           {activeTab === "email" && (
-            <div className="space-y-4">
-              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+            <div className="space-y-8 animate-fade-in max-w-2xl">
+              <div className="bg-neutral-50/50 p-6 rounded-[2rem] border border-neutral-100">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-700 font-medium">
-                    Ativar notificações por e-mail
-                  </span>
+                  <div>
+                    <span className="text-neutral-900 font-bold block">
+                      Notificações Ativas
+                    </span>
+                    <span className="text-xs text-neutral-400">Receba avisos de rega diretamente no seu e-mail.</span>
+                  </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
@@ -292,7 +271,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                    <div className="w-14 h-8 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-500 shadow-inner"></div>
                   </label>
                 </div>
               </div>
@@ -653,19 +632,19 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
           )}
         </div>
 
-        <div className="p-6 border-t border-gray-100 flex justify-end gap-3">
+        <div className="p-8 border-t border-neutral-100 flex justify-end gap-4 bg-white/50">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="px-8 py-4 text-neutral-400 font-bold hover:text-neutral-600 transition-all text-sm uppercase tracking-widest"
           >
             Cancelar
           </button>
           <button
             onClick={handleSave}
             disabled={loading}
-            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+            className="px-10 py-4 bg-primary-900 text-white rounded-2xl shadow-xl shadow-primary-900/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 font-bold text-sm border-2 border-white/10"
           >
-            {loading ? "Salvando..." : "Salvar Alterações"}
+            {loading ? "Processando..." : "Salvar Configurações"}
           </button>
         </div>
 

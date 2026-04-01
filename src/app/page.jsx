@@ -205,8 +205,8 @@ export default function Home() {
 
   if (authLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-green-600 border-t-transparent"></div>
+      <div className="flex h-screen items-center justify-center bg-neutral-50">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary-500 border-t-transparent shadow-lg shadow-primary-500/20"></div>
       </div>
     );
   }
@@ -217,22 +217,26 @@ export default function Home() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-neutral-50 pb-24 relative overflow-hidden font-body">
+      {/* Background Ornaments */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary-100/30 rounded-full blur-[120px] -z-10"></div>
+      <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-secondary-100/20 rounded-full blur-[100px] -z-10"></div>
+
       {/* Header Fixo */}
-      <div className="sticky top-0 z-20 bg-white/80 px-6 py-4 backdrop-blur-md border-b border-gray-100">
-        <div className="mx-auto max-w-5xl flex items-center justify-between gap-4">
-          <h1 className="text-xl font-bold text-green-800 flex items-center gap-2">
-            <span>🌱</span> MyPlants
+      <div className="sticky top-0 z-30 px-4 py-4 animate-slide-down">
+        <div className="mx-auto max-w-5xl glass rounded-2xl px-6 py-4 flex items-center justify-between gap-4 shadow-premium border border-white/50">
+          <h1 className="text-2xl font-black text-primary-900 flex items-center gap-2 font-heading tracking-tight">
+            <span className="drop-shadow-sm">🌱</span> MyPlants
           </h1>
 
-          <div className="relative flex-1 max-w-md">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <div className="relative flex-1 max-w-md group">
+            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-primary-400 group-focus-within:text-primary-600 transition-colors" size={18} />
             <input
               type="text"
-              placeholder="Buscar plantas..."
+              placeholder="Buscar em seu jardim..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-full bg-gray-100 py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-green-500 transition-all"
+              className="w-full rounded-2xl bg-white/50 border border-neutral-100 py-3 pl-12 pr-4 text-sm outline-none focus:ring-4 focus:ring-primary-100 focus:bg-white focus:border-primary-200 transition-all shadow-sm font-medium"
             />
           </div>
         </div>
@@ -240,21 +244,21 @@ export default function Home() {
 
       <div className="mx-auto max-w-5xl p-6">
         {/* Resumo / Status */}
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-gray-800">Meu Jardim</h2>
-          <div className="text-sm font-medium text-gray-500 bg-white px-3 py-1 rounded-full shadow-sm border border-gray-100">
+        <div className="mb-8 flex items-center justify-between animate-fade-in">
+          <h2 className="text-3xl font-black text-neutral-900 font-heading tracking-tight">Meu Jardim</h2>
+          <div className="text-sm font-bold text-primary-700 bg-primary-100/50 px-4 py-2 rounded-xl shadow-sm border border-primary-200 backdrop-blur-sm">
             {plants.length} {plants.length === 1 ? "planta" : "plantas"}
           </div>
         </div>
 
         {/* Indicador de Filtros Ativos */}
         {(filterLuz || filterRega || filterPet || filterAtrasada) && (
-          <div className="flex flex-wrap gap-2 mb-4 animate-in fade-in slide-in-from-top-2">
+          <div className="flex flex-wrap gap-2 mb-6 animate-in fade-in slide-in-from-top-2">
             {filterLuz && (
               <span
                 onDoubleClick={() => setFilterLuz("")}
                 title="Duplo clique para remover"
-                className="cursor-pointer hover:opacity-80 transition-opacity bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full border border-yellow-200 flex items-center gap-1"
+                className="cursor-pointer hover:scale-105 active:scale-95 transition-all bg-accent-100 text-accent-900 text-xs font-bold px-3 py-1.5 rounded-xl border border-accent-200 shadow-sm flex items-center gap-1"
               >
                 ☀️ {filterLuz}
               </span>
@@ -263,7 +267,7 @@ export default function Home() {
               <span
                 onDoubleClick={() => setFilterRega("")}
                 title="Duplo clique para remover"
-                className="cursor-pointer hover:opacity-80 transition-opacity bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full border border-blue-200 flex items-center gap-1"
+                className="cursor-pointer hover:scale-105 active:scale-95 transition-all bg-secondary-100 text-secondary-900 text-xs font-bold px-3 py-1.5 rounded-xl border border-secondary-200 shadow-sm flex items-center gap-1"
               >
                 💧{" "}
                 {filterRega === "cacto"
@@ -277,10 +281,10 @@ export default function Home() {
               <span
                 onDoubleClick={() => setFilterPet("")}
                 title="Duplo clique para remover"
-                className={`cursor-pointer hover:opacity-80 transition-opacity text-xs px-2 py-1 rounded-full border flex items-center gap-1 ${
+                className={`cursor-pointer hover:scale-105 active:scale-95 transition-all text-xs font-bold px-3 py-1.5 rounded-xl border flex items-center gap-1 shadow-sm ${
                   filterPet === "sim"
-                    ? "bg-green-100 text-green-800 border-green-200"
-                    : "bg-red-100 text-red-800 border-red-200"
+                    ? "bg-primary-100 text-primary-900 border-primary-200"
+                    : "bg-red-100 text-red-900 border-red-200"
                 }`}
               >
                 {filterPet === "sim" ? "🐶 Pet Friendly" : "🚫 Tóxica"}
@@ -290,7 +294,7 @@ export default function Home() {
               <span
                 onDoubleClick={() => setFilterAtrasada(false)}
                 title="Duplo clique para remover"
-                className="cursor-pointer hover:opacity-80 transition-opacity bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full border border-red-200 flex items-center gap-1"
+                className="cursor-pointer hover:scale-105 active:scale-95 transition-all bg-red-100 text-red-900 text-xs font-bold px-3 py-1.5 rounded-xl border border-red-200 shadow-sm flex items-center gap-1"
               >
                 🚨 Precisando de Rega
               </span>
@@ -299,11 +303,11 @@ export default function Home() {
         )}
 
         {loading ? (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
             {[...Array(4)].map((_, i) => (
               <div
                 key={i}
-                className="h-64 animate-pulse rounded-3xl bg-gray-200"
+                className="h-72 animate-pulse rounded-[2rem] bg-neutral-200/50 border border-neutral-100"
               ></div>
             ))}
           </div>
@@ -322,17 +326,17 @@ export default function Home() {
           </div>
         ) : viewMode ? (
           // Visualização Agrupada
-          <div className="space-y-8">
+          <div className="space-y-12">
             {Object.entries(groupedPlants).map(([groupName, groupPlants]) => (
-              <div key={groupName} className="animate-in fade-in duration-500">
-                <h3 className="mb-4 text-lg font-bold text-gray-700 border-b pb-2 border-gray-200 flex items-center gap-2">
-                  <span className="w-2 h-8 bg-green-500 rounded-full inline-block"></span>
+              <div key={groupName} className="animate-fade-in">
+                <h3 className="mb-6 text-xl font-black text-neutral-900 border-b border-neutral-100 pb-3 flex items-center gap-3 font-heading tracking-tight">
+                  <span className="w-2 h-8 bg-primary-500 rounded-full inline-block shadow-sm shadow-primary-500/20"></span>
                   {groupName}
-                  <span className="text-xs font-normal text-gray-400 ml-auto bg-gray-100 px-2 py-0.5 rounded-full">
-                    {groupPlants.length}
+                  <span className="text-xs font-bold text-primary-600 ml-auto bg-primary-100 px-3 py-1 rounded-xl">
+                    {groupPlants.length} {groupPlants.length === 1 ? 'item' : 'itens'}
                   </span>
                 </h3>
-                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
                   {groupPlants.map((plant) => (
                     <PlantCard
                       key={plant._id}
@@ -347,7 +351,7 @@ export default function Home() {
           </div>
         ) : (
           // Visualização Padrão (Grid)
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 animate-in fade-in duration-500">
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4 animate-fade-in">
             {filteredPlants.map((plant) => (
               <PlantCard
                 key={plant._id}

@@ -3,6 +3,7 @@
 import {useState, useRef, useEffect} from "react";
 import {api} from "../services/api";
 import {useAuth} from "@/context/AuthContext";
+import { FiTrash2 } from "react-icons/fi";
 
 export default function AddPlantModal({
   onClose,
@@ -251,18 +252,18 @@ export default function AddPlantModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-white z-50 overflow-y-auto animate-in slide-in-from-bottom-10 duration-300">
-      <div className="w-full max-w-3xl mx-auto min-h-screen bg-white">
-        <div className="p-6 md:p-8 relative pb-24">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">
+    <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-md z-50 overflow-y-auto animate-in fade-in duration-300 flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl bg-white/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-white/50 overflow-hidden font-body animate-in zoom-in-95 duration-300">
+        <div className="p-8 md:p-10 relative">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-3xl font-black text-neutral-900 font-heading tracking-tight">
               {plantToEdit ? "Editar Planta" : "Nova Planta"}
             </h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 p-2"
+              className="text-neutral-400 hover:text-primary-600 p-2 hover:bg-primary-50 rounded-xl transition-all"
             >
-              ✕
+              <span className="text-xl">✕</span>
             </button>
           </div>
 
@@ -270,21 +271,22 @@ export default function AddPlantModal({
             {/* Área de Upload Clicável */}
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="h-40 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:bg-gray-100 transition-colors relative overflow-hidden group"
+              className="h-48 bg-neutral-100/50 border-2 border-dashed border-neutral-200 rounded-[2rem] flex flex-col items-center justify-center text-neutral-400 cursor-pointer hover:bg-primary-50/50 hover:border-primary-300 transition-all relative overflow-hidden group shadow-inner"
             >
               {preview ? (
                 <img
                   src={preview}
                   alt="Preview"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               ) : (
-                <>
-                  <p className="group-hover:scale-110 transition-transform duration-200">
-                    📸 Upload de Foto
-                  </p>
-                  <span className="text-xs mt-1">(Toque para selecionar)</span>
-                </>
+                <div className="text-center group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm text-2xl group-hover:bg-primary-500 group-hover:text-white transition-all">
+                    📸
+                  </div>
+                  <p className="font-bold text-sm text-neutral-500">Toque para selecionar</p>
+                  <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">Upload de Foto</span>
+                </div>
               )}
               {/* Input invisível */}
               <input
@@ -296,54 +298,54 @@ export default function AddPlantModal({
               />
             </div>
 
-            {/* Botão de IA para preenchimento */}
+            {/* Botão de IA */}
             {imagemUrl && (
               <button
                 onClick={handleAiFill}
                 disabled={loading}
-                className="w-full py-2 bg-purple-50 text-purple-700 rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors flex items-center justify-center gap-2 font-medium text-sm"
+                className="w-full py-4 bg-primary-900 text-white rounded-2xl shadow-xl shadow-primary-900/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 font-bold text-sm border-2 border-white/10"
               >
                 {loading
-                  ? "Analisando..."
+                  ? "✨ Analisando com IA..."
                   : "✨ Preencher dados e avaliar saúde com IA"}
               </button>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-1.5">
+                <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
                   Nome Popular *
                 </label>
                 <input
                   type="text"
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full bg-white border border-neutral-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium"
                   placeholder="Ex: Samambaia"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="space-y-1.5">
+                <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
                   Nome Científico
                 </label>
                 <input
                   type="text"
                   value={nomeCientifico}
                   onChange={(e) => setNomeCientifico(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full bg-white border border-neutral-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium"
                   placeholder="Ex: Nephrolepis exaltata"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="space-y-1.5">
+                <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
                   Luz
                 </label>
                 <select
                   value={luz}
                   onChange={(e) => setLuz(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                  className="w-full bg-white border border-neutral-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium appearance-none"
                 >
                   <option value="Sombra">Sombra</option>
                   <option value="Meia-sombra">Meia-sombra</option>
@@ -352,8 +354,8 @@ export default function AddPlantModal({
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="space-y-1.5">
+                <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
                   Intervalo de Rega (dias)
                 </label>
                 <input
@@ -361,133 +363,126 @@ export default function AddPlantModal({
                   min="1"
                   value={intervaloRega}
                   onChange={(e) => setIntervaloRega(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full bg-white border border-neutral-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="space-y-1.5">
+                <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
                   Última Rega
                 </label>
                 <input
                   type="date"
                   value={ultimaRega}
                   onChange={(e) => setUltimaRega(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full bg-white border border-neutral-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="space-y-1.5">
+                <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
                   Próxima Rega (Previsão)
                 </label>
                 <input
                   type="date"
                   value={proximaRega}
                   onChange={handleProximaRegaChange}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 bg-green-50"
+                  className="w-full bg-secondary-50 border border-secondary-200 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-secondary-100 focus:border-secondary-300 transition-all shadow-sm font-bold text-secondary-900"
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Define quando você será notificado novamente.
-                </p>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="space-y-1.5">
+                <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
                   Data de Aquisição
                 </label>
                 <input
                   type="date"
                   value={dataAquisicao}
                   onChange={(e) => setDataAquisicao(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full bg-white border border-neutral-100 rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium"
                 />
               </div>
             </div>
 
             <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-4 bg-neutral-50/50 p-6 rounded-[2rem] border border-neutral-100">
+              <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
                   id="lembretesAtivos"
                   checked={lembretesAtivos}
                   onChange={(e) => setLembretesAtivos(e.target.checked)}
-                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                  className="w-5 h-5 text-primary-500 border-neutral-300 rounded-lg focus:ring-primary-500 transition-all cursor-pointer"
                 />
                 <label
                   htmlFor="lembretesAtivos"
-                  className="text-sm text-gray-700 font-medium"
+                  className="text-sm text-neutral-700 font-bold cursor-pointer"
                 >
                   🔔 Receber lembretes de rega
                 </label>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
                   id="petFriendly"
                   checked={petFriendly}
                   onChange={(e) => setPetFriendly(e.target.checked)}
-                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                  className="w-5 h-5 text-primary-500 border-neutral-300 rounded-lg focus:ring-primary-500 transition-all cursor-pointer"
                 />
-                <label htmlFor="petFriendly" className="text-sm text-gray-700">
-                  Pet Friendly (Segura para animais)
+                <label htmlFor="petFriendly" className="text-sm text-neutral-700 font-medium cursor-pointer">
+                  🐾 Pet Friendly (Segura para animais)
                 </label>
               </div>
             </div>
+            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Avaliação
+            <div className="space-y-1.5">
+              <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
+                Avaliação Botânica & Observações
               </label>
               <textarea
                 value={observacoes}
                 onChange={(e) => setObservacoes(e.target.value)}
-                rows="3"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+                rows="4"
+                className="w-full bg-white border border-neutral-100 rounded-[1.5rem] px-5 py-4 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium resize-none"
                 placeholder="Cuidados especiais, história da planta..."
               />
             </div>
           </div>
 
-          <div className="flex justify-between items-center mt-8">
-            {/* Botão de Excluir (apenas na edição) */}
+          <div className="flex justify-between items-center mt-12 bg-neutral-50 -mx-10 -mb-10 p-8">
+            {/* Botão de Excluir */}
             <div>
               {plantToEdit && (
                 <button
                   onClick={() => onDelete(plantToEdit._id)}
-                  className="text-red-500 hover:text-red-700 text-sm font-medium px-3 py-2 rounded hover:bg-red-50 transition-colors flex items-center gap-1"
+                  className="text-red-500 hover:text-red-700 text-sm font-black uppercase tracking-widest px-4 py-2 hover:bg-red-50 rounded-xl transition-all flex items-center gap-2"
                 >
-                  <span className="text-lg">🗑️</span>
+                  <FiTrash2 className="text-base" />
                   <span className="hidden md:inline">Excluir</span>
                 </button>
               )}
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <button
                 onClick={hasChanges() ? handleSave : onClose}
                 disabled={loading || (hasChanges() && (!nome || !imagemUrl))}
-                className={`px-6 py-2 rounded-lg transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2 font-medium ${
+                className={`px-8 py-4 rounded-2xl transition-all shadow-xl disabled:opacity-50 flex items-center gap-2 font-bold text-sm hover:scale-105 active:scale-95 ${
                   hasChanges()
-                    ? "bg-green-600 text-white hover:bg-green-700"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    ? "bg-primary-500 text-white shadow-primary-500/25"
+                    : "bg-white text-neutral-700 border border-neutral-200"
                 }`}
               >
                 {loading ? (
-                  "Salvando..."
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white animate-spin rounded-full"></div>
                 ) : hasChanges() ? (
                   <>
-                    <span className="md:hidden text-lg">💾</span>
-                    <span className="hidden md:inline">
-                      {plantToEdit ? "Atualizar" : "Salvar"}
-                    </span>
+                    <span>{plantToEdit ? "Salvar Alterações" : "Adicionar ao Jardim"}</span>
                   </>
                 ) : (
-                  <>
-                    <span className="md:hidden text-lg">✕</span>
-                    <span className="hidden md:inline">Fechar</span>
-                  </>
+                  <span>Fechar</span>
                 )}
               </button>
             </div>
