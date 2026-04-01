@@ -211,7 +211,7 @@ export default function Home() {
     );
   }
 
-  if (false && !user) {
+  if (!user) {
     return <LandingPage onLogin={loginGoogle} />;
   }
 
