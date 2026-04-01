@@ -1,25 +1,97 @@
 @import "tailwindcss";
 
+@theme {
+  /* Colors - Derived from #166534 (H=143, S=64%, L=24%) */
+  --color-primary-50: hsl(143 60% 95%);
+  --color-primary-100: hsl(143 60% 90%);
+  --color-primary-200: hsl(143 55% 82%);
+  --color-primary-300: hsl(143 55% 72%);
+  --color-primary-400: hsl(143 60% 62%);
+  --color-primary-500: hsl(143 64% 24%);
+  --color-primary-600: hsl(143 67% 20%);
+  --color-primary-700: hsl(143 70% 17%);
+  --color-primary-800: hsl(143 70% 13%);
+  --color-primary-900: hsl(143 74% 10%);
+
+  --color-secondary-400: hsl(323 60% 55%);
+  --color-secondary-500: hsl(323 60% 45%);
+  --color-secondary-600: hsl(323 60% 35%);
+
+  --color-accent-400: hsl(173 70% 60%);
+  --color-accent-500: hsl(173 70% 50%);
+  --color-accent-600: hsl(173 70% 40%);
+
+  --color-neutral-50: hsl(143 5% 97%);
+  --color-neutral-100: hsl(143 5% 93%);
+  --color-neutral-200: hsl(143 5% 85%);
+  --color-neutral-300: hsl(143 8% 70%);
+  --color-neutral-400: hsl(143 8% 55%);
+  --color-neutral-500: hsl(143 10% 40%);
+  --color-neutral-600: hsl(143 10% 30%);
+  --color-neutral-700: hsl(143 12% 20%);
+  --color-neutral-800: hsl(143 15% 13%);
+  --color-neutral-900: hsl(143 18% 8%);
+
+  /* Typography */
+  --font-heading: "Outfit", sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  /* Radius & Shadows */
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-premium: 0 20px 25px -5px rgba(22, 101, 52, 0.1), 0 8px 10px -6px rgba(22, 101, 52, 0.1);
+
+  /* Custom Animations */
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  --animate-fade-in: fade-in 0.6s ease-out forwards;
+  --animate-slide-up: slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-float: float 3s ease-in-out infinite;
+}
+
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 240, 253, 244; /* Green-50 tint */
-  --background-end-rgb: 255, 255, 255;
+  background: var(--color-neutral-50);
+  color: var(--color-neutral-800);
+  font-family: var(--font-body);
+}
+
+[data-theme='dark'] {
+  background: var(--color-neutral-900);
+  color: var(--color-neutral-50);
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Esconde a barra de rolagem mas mantém a funcionalidade (opcional, bom para mobile look) */
+/* Glassmorphism Utility */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .glass {
+  background: rgba(22, 101, 52, 0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Scrollbar Utility */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

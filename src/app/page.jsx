@@ -10,6 +10,8 @@ import PlantDetailsModal from "../components/PlantDetailsModal";
 import FloatingMenu from "../components/FloatingMenu";
 import SettingsModal from "../components/SettingsModal";
 import {FiSearch, FiWind} from "react-icons/fi";
+import LandingPage from "../components/landing/LandingPage";
+
 
 export default function Home() {
   const {user, loading: authLoading, logout, loginGoogle} = useAuth();
@@ -209,30 +211,10 @@ export default function Home() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-white p-4 text-center">
-        <div className="mb-6 rounded-full bg-green-100 p-6">
-          <span className="text-6xl">🌿</span>
-        </div>
-        <h1 className="mb-2 text-4xl font-bold text-gray-900">MyPlants</h1>
-        <p className="mb-8 text-gray-600">
-          Gerencie seu jardim urbano com inteligência.
-        </p>
-        <button
-          onClick={loginGoogle}
-          className="flex items-center gap-3 rounded-xl bg-gray-900 px-8 py-4 font-bold text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
-        >
-          <img
-            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-            className="h-6 w-6"
-            alt="Google"
-          />
-          Entrar com Google
-        </button>
-      </div>
-    );
+  if (false && !user) {
+    return <LandingPage onLogin={loginGoogle} />;
   }
+
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
