@@ -78,53 +78,34 @@ export default function PlantCard({plant, onClick, onEdit, onWater}) {
           />
         </div>
 
-        {/* Botão de Editar - Aparece no Hover (Desktop) ou Sempre (Mobile) */}
-        <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 z-10">
-          {onEdit && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit(plant);
-              }}
-              className="glass text-neutral-700 p-2.5 rounded-xl shadow-lg hover:bg-white hover:text-primary-600 transition-all duration-300 border border-white/50"
-              title="Editar"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="w-4 h-4"
+          {/* Botão de Editar - Aparece no Hover (Desktop) ou Sempre (Mobile) */}
+          <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 z-10">
+            {onEdit && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(plant);
+                }}
+                className="glass text-neutral-700 p-2.5 rounded-xl shadow-lg hover:bg-white hover:text-primary-600 transition-all duration-300 border border-white/50"
+                title="Editar"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
-                />
-              </svg>
-            </button>
-          )}
-          
-          {onWater && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onWater(plant._id || plant.id);
-              }}
-              className="glass text-blue-600 p-2.5 rounded-xl shadow-lg hover:bg-white hover:text-blue-500 transition-all duration-300 border border-white/50"
-              title="Regar Agora"
-            >
-              <svg 
-                viewBox="0 0 24 24" 
-                fill="currentColor" 
-                className="w-4 h-4 shadow-sm"
-              >
-                <path d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.63 15.341c-.4.512-.86 1.059-1.373 1.059-.514 0-.974-.547-1.373-1.059-.69-.882-1.317-1.92-1.317-2.91 0-1.285.836-2.181 1.871-2.181 1.036 0 1.871.896 1.871 2.181 0 .99-.627 2.028-1.317 2.91z" />
-              </svg>
-            </button>
-          )}
-        </div>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-4 h-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
 
         {/* Informações sobrepostas */}
         <div className="absolute bottom-0 left-0 right-0 p-6 text-white translate-y-4 group-hover:translate-y-0 transition-transform duration-500 bg-gradient-to-t from-black/80 via-black/20 to-transparent">
