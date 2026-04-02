@@ -1,5 +1,6 @@
 "use client";
 
+import heic2any from "heic2any";
 import { useEffect, useRef, useState } from "react";
 import { FiTrash2 } from "react-icons/fi";
 import { useAuth } from "@/context/AuthContext";
@@ -94,11 +95,29 @@ export default function AddPlantModal({
   };
 
   // Gerencia a seleção da imagem e cria o preview
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      compressImage(file);
+  const handleImageChange = async (e) => {
+    let file = e.target.files[0];
+    if (!file) return;
+
+    const ext = file.name.split(".").pop().toLowerCase();
+    if (ext === "heic" || ext === "heif") {
+      try {
+        const converted = await heic2any({
+          blob: file,
+          toType: "image/jpeg",
+          quality: 0.85,
+        });
+        file = new File([converted], file.name.replace(/\.heic$/i, ".jpg"), {
+          type: "image/jpeg",
+        });
+      } catch (err) {
+        console.error("Erro ao converter HEIC:", err);
+        alert("Erro ao converter imagem HEIC");
+        return;
+      }
     }
+
+    compressImage(file);
   };
 
   // Função para redimensionar e comprimir a imagem

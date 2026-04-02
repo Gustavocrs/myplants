@@ -1,5 +1,6 @@
 "use client";
 
+import heic2any from "heic2any";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FiSearch, FiWind } from "react-icons/fi";
@@ -103,17 +104,33 @@ export default function Home() {
   };
 
   const handleAiImageSelect = async (e) => {
-    const file = e.target.files[0];
+    let file = e.target.files[0];
     if (!file) return;
+
+    const ext = file.name.split(".").pop().toLowerCase();
+    if (ext === "heic" || ext === "heif") {
+      try {
+        const converted = await heic2any({
+          blob: file,
+          toType: "image/jpeg",
+          quality: 0.85,
+        });
+        file = new File([converted], file.name.replace(/\.heic$/i, ".jpg"), {
+          type: "image/jpeg",
+        });
+      } catch (err) {
+        console.error("Erro ao converter HEIC:", err);
+        alert("Erro ao converter imagem HEIC");
+        return;
+      }
+    }
 
     setAiLoading(true);
     try {
-      // Comprime e converte para base64 para preview imediato no modal
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = async (event) => {
         const base64 = event.target.result;
-        // Envia para o modal preenchido parcialmente
         setInitialAiData({ imagemUrl: base64 });
         setAiLoading(false);
         setShowAddModal(true);
