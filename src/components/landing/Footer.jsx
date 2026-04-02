@@ -7,8 +7,8 @@ import { FiLinkedin, FiGithub, FiMail } from "react-icons/fi";
 
 const Footer = () => {
   return (
-    <footer className="py-12 px-6 border-t border-neutral-200">
-      <div className="mx-auto max-w-6xl grid grid-cols-1 md:grid-cols-4 gap-12 text-center md:text-left">
+    <footer className="py-10 sm:py-12 px-4 sm:px-6 border-t border-neutral-200">
+      <div className="mx-auto max-w-6xl grid grid-cols-2 md:grid-cols-4 gap-8 sm:gap-12 text-center md:text-left">
         <div className="col-span-1 md:col-span-1">
           <div className="flex items-center gap-2 mb-6">
             <Image 
@@ -59,7 +59,7 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl mt-16 pt-8 border-t border-neutral-100 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="mx-auto max-w-6xl mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-neutral-100 flex flex-col md:flex-row items-center justify-between gap-4">
         <span className="text-xs text-neutral-400 font-medium">© 2026 MyPlants. Todos os direitos reservados.</span>
         <span className="text-xs text-neutral-300 font-bold tracking-widest">SYSTECH ECOSYSTEM</span>
       </div>
