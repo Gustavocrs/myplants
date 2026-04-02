@@ -306,7 +306,7 @@ export default function SettingsModal({
                     placeholder="smtp.gmail.com"
                   />
                 </div>
-                <div className="w-1/2">
+                <div className="w-full">
                   <label className="block text-sm font-medium text-neutral-700 mb-1.5">
                     Porta
                   </label>
