@@ -390,7 +390,7 @@ export default function Home() {
         type="file"
         ref={fileInputRef}
         onChange={handleAiImageSelect}
-        accept="image/*,.heif,.heic"
+        accept="image/*,.heic,.heif"
         className="hidden"
       />
 

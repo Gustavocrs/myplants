@@ -317,7 +317,7 @@ export default function AddPlantModal({
                   hidden
                   ref={fileInputRef}
                   onChange={handleImageChange}
-                  accept="image/*,.heif,.heic"
+                  accept="image/*,.heic,.heif"
                 />
               </div>
 

@@ -2,18 +2,34 @@ const Plant = require("../models/Plant");
 const mongoose = require("mongoose");
 const fs = require("fs");
 const path = require("path");
+const sharp = require("sharp");
 
 // Limite de 10MB em bytes
 const MAX_STORAGE_BYTES = 10 * 1024 * 1024;
 
+async function convertHeicToJpeg(base64String) {
+  const matches = base64String.match(
+    /^data:image\/([a-zA-Z0-9]+);base64,(.+)$/,
+  );
+  if (!matches) return base64String;
+
+  const ext = matches[1].toLowerCase();
+  if (ext !== "heic" && ext !== "heif") return base64String;
+
+  const buffer = Buffer.from(matches[2], "base64");
+  const jpegBuffer = await sharp(buffer).jpeg({ quality: 85 }).toBuffer();
+
+  return `data:image/jpeg;base64,${jpegBuffer.toString("base64")}`;
+}
+
 // Função auxiliar para verificar uso de armazenamento
 const checkStorageLimit = async (userId, newDocumentSize = 0) => {
   const stats = await Plant.aggregate([
-    {$match: {userId: userId}},
+    { $match: { userId: userId } },
     {
       $group: {
         _id: null,
-        totalSize: {$sum: {$bsonSize: "$$ROOT"}},
+        totalSize: { $sum: { $bsonSize: "$$ROOT" } },
       },
     },
   ]);
@@ -47,7 +63,7 @@ const saveBase64Image = (base64String) => {
     );
 
     // Garante que o diretório existe (redundância segura)
-    fs.mkdirSync(path.dirname(uploadPath), {recursive: true});
+    fs.mkdirSync(path.dirname(uploadPath), { recursive: true });
     console.log(`💾 [Controller] Salvando imagem em: ${uploadPath}`);
     fs.writeFileSync(uploadPath, buffer);
 
@@ -65,26 +81,26 @@ const saveBase64Image = (base64String) => {
 
 exports.getAllPlants = async (req, res) => {
   try {
-    const {userId} = req.query;
-    const filter = userId ? {userId} : {};
+    const { userId } = req.query;
+    const filter = userId ? { userId } : {};
     const plants = await Plant.find(filter)
-      .collation({locale: "pt", strength: 1})
-      .sort({nome: 1});
+      .collation({ locale: "pt", strength: 1 })
+      .sort({ nome: 1 });
     res.json(plants);
   } catch (err) {
-    res.status(500).json({error: err.message});
+    res.status(500).json({ error: err.message });
   }
 };
 
 exports.createPlant = async (req, res) => {
   try {
-    const {userId} = req.body;
+    const { userId } = req.body;
 
     // Validação Básica
     if (!req.body.nome || !req.body.userId) {
       return res
         .status(400)
-        .json({error: "Campos obrigatórios: nome e userId"});
+        .json({ error: "Campos obrigatórios: nome e userId" });
     }
 
     // Estima o tamanho do novo documento (aproximação baseada no JSON)
@@ -92,6 +108,7 @@ exports.createPlant = async (req, res) => {
 
     // Otimização: Salva imagem em disco antes de verificar cota do banco
     if (req.body.imagemUrl) {
+      req.body.imagemUrl = await convertHeicToJpeg(req.body.imagemUrl);
       req.body.imagemUrl = saveBase64Image(req.body.imagemUrl);
     }
 
@@ -104,7 +121,7 @@ exports.createPlant = async (req, res) => {
     const savedPlant = await newPlant.save();
     res.status(201).json(savedPlant);
   } catch (err) {
-    res.status(400).json({error: err.message});
+    res.status(400).json({ error: err.message });
   }
 };
 
@@ -113,30 +130,33 @@ exports.updatePlant = async (req, res) => {
     // Na atualização, é difícil calcular o delta exato sem ler antes,
     // mas podemos verificar se o usuário já está estourado.
     const plant = await Plant.findById(req.params.id);
-    if (!plant) return res.status(404).json({error: "Planta não encontrada"});
+    if (!plant) return res.status(404).json({ error: "Planta não encontrada" });
 
     // Se estiver trocando a imagem (que é pesada), verifica o limite
     if (req.body.imagemUrl && req.body.imagemUrl !== plant.imagemUrl) {
       // Converte nova imagem base64 para arquivo
+      req.body.imagemUrl = await convertHeicToJpeg(req.body.imagemUrl);
       req.body.imagemUrl = saveBase64Image(req.body.imagemUrl);
     }
 
     const updatedPlant = await Plant.findByIdAndUpdate(
       req.params.id,
       req.body,
-      {new: true},
+      { new: true },
     );
     res.json(updatedPlant);
   } catch (err) {
-    res.status(400).json({error: err.message});
+    res.status(400).json({ error: err.message });
   }
 };
 
 exports.batchUpdate = async (req, res) => {
   try {
-    const {userId, updates} = req.body;
+    const { userId, updates } = req.body;
     if (!userId || !updates) {
-      return res.status(400).json({error: "UserId e updates são obrigatórios"});
+      return res
+        .status(400)
+        .json({ error: "UserId e updates são obrigatórios" });
     }
 
     // Filtra apenas campos permitidos para atualização em massa
@@ -153,10 +173,10 @@ exports.batchUpdate = async (req, res) => {
       }
     });
 
-    await Plant.updateMany({userId}, {$set: filteredUpdates});
-    res.json({success: true, message: "Plantas atualizadas com sucesso."});
+    await Plant.updateMany({ userId }, { $set: filteredUpdates });
+    res.json({ success: true, message: "Plantas atualizadas com sucesso." });
   } catch (err) {
-    res.status(500).json({error: err.message});
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -164,7 +184,7 @@ exports.deletePlant = async (req, res) => {
   try {
     // 1. Busca a planta antes de deletar para conseguir o nome da imagem
     const plant = await Plant.findById(req.params.id);
-    if (!plant) return res.status(404).json({error: "Planta não encontrada"});
+    if (!plant) return res.status(404).json({ error: "Planta não encontrada" });
 
     // 2. Remove a imagem do disco se for local (evita lixo no servidor)
     if (plant.imagemUrl && plant.imagemUrl.includes("/uploads/")) {
@@ -184,10 +204,10 @@ exports.deletePlant = async (req, res) => {
     }
 
     await Plant.findByIdAndDelete(req.params.id);
-    res.json({message: "Planta removida com sucesso"});
+    res.json({ message: "Planta removida com sucesso" });
   } catch (err) {
     console.error("Erro fatal ao excluir planta:", err);
-    res.status(500).json({error: err.message});
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -200,16 +220,16 @@ exports.confirmWatering = async (req, res) => {
 
 exports.getStorageUsage = async (req, res) => {
   try {
-    const {userId} = req.query;
-    if (!userId) return res.status(400).json({error: "UserId obrigatório"});
+    const { userId } = req.query;
+    if (!userId) return res.status(400).json({ error: "UserId obrigatório" });
 
     // Executa a agregação para calcular o tamanho real no banco
     const stats = await Plant.aggregate([
-      {$match: {userId: userId}},
+      { $match: { userId: userId } },
       {
         $group: {
           _id: null,
-          totalSize: {$sum: {$bsonSize: "$$ROOT"}},
+          totalSize: { $sum: { $bsonSize: "$$ROOT" } },
         },
       },
     ]);
@@ -218,8 +238,8 @@ exports.getStorageUsage = async (req, res) => {
     const sizeMB = totalSize / (1024 * 1024);
 
     // Retorna em MB
-    res.json({sizeMB});
+    res.json({ sizeMB });
   } catch (err) {
-    res.status(500).json({error: err.message});
+    res.status(500).json({ error: err.message });
   }
 };
