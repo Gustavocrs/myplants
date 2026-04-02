@@ -326,7 +326,7 @@ export default function SettingsModal({
                     placeholder="587"
                   />
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-end">
                   <div className="flex items-center">
                     <input
                       type="checkbox"
