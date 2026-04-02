@@ -171,9 +171,9 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
 
   return (
     <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
-      <div className="w-full max-w-4xl bg-white/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-white/50 h-[90vh] flex flex-col font-body overflow-hidden animate-in zoom-in-95 duration-300">
-        <div className="p-8 md:p-10 border-b border-neutral-100 flex justify-between items-center bg-white/50">
-          <h2 className="text-3xl font-black text-neutral-900 font-heading tracking-tight">Configurações</h2>
+      <div className="w-full max-w-4xl bg-white/90 backdrop-blur-2xl rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl border border-white/50 h-[95vh] sm:h-[90vh] flex flex-col font-body overflow-hidden animate-in zoom-in-95 duration-300">
+        <div className="p-6 sm:p-8 md:p-10 border-b border-neutral-100 flex justify-between items-center bg-white/50">
+          <h2 className="text-2xl sm:text-3xl font-black text-neutral-900 font-heading tracking-tight">Configurações</h2>
           <button
             onClick={onClose}
             className="text-neutral-900 hover:text-primary-600 p-3 hover:bg-neutral-100 rounded-2xl transition-all"
@@ -184,32 +184,32 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
 
         <div className="flex bg-neutral-50/50 p-2 gap-2 overflow-x-auto no-scrollbar">
           <button
-            className={`flex-1 min-w-[100px] py-4 px-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === "general" ? "bg-white text-primary-900 shadow-premium" : "text-neutral-400 hover:text-neutral-600 hover:bg-white/50"}`}
+            className={`flex-1 min-w-[100px] py-3 px-3 sm:py-4 sm:px-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === "general" ? "bg-white text-primary-900 shadow-premium" : "text-neutral-400 hover:text-neutral-600 hover:bg-white/50"}`}
             onClick={() => setActiveTab("general")}
           >
             <span>🤖 IA</span>
           </button>
           <button
-            className={`flex-1 min-w-[100px] py-4 px-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === "email" ? "bg-white text-primary-900 shadow-premium" : "text-neutral-400 hover:text-neutral-600 hover:bg-white/50"}`}
+            className={`flex-1 min-w-[100px] py-3 px-3 sm:py-4 sm:px-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === "email" ? "bg-white text-primary-900 shadow-premium" : "text-neutral-400 hover:text-neutral-600 hover:bg-white/50"}`}
             onClick={() => setActiveTab("email")}
           >
             <span>📧 Email</span>
           </button>
           <button
-            className={`flex-1 min-w-[100px] py-4 px-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === "profile" ? "bg-white text-primary-900 shadow-premium" : "text-neutral-400 hover:text-neutral-600 hover:bg-white/50"}`}
+            className={`flex-1 min-w-[100px] py-3 px-3 sm:py-4 sm:px-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === "profile" ? "bg-white text-primary-900 shadow-premium" : "text-neutral-400 hover:text-neutral-600 hover:bg-white/50"}`}
             onClick={() => setActiveTab("profile")}
           >
             <span>🌍 Perfil</span>
           </button>
           <button
-            className={`flex-1 min-w-[100px] py-4 px-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === "watering" ? "bg-white text-primary-900 shadow-premium" : "text-neutral-400 hover:text-neutral-600 hover:bg-white/50"}`}
+            className={`flex-1 min-w-[100px] py-3 px-3 sm:py-4 sm:px-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === "watering" ? "bg-white text-primary-900 shadow-premium" : "text-neutral-400 hover:text-neutral-600 hover:bg-white/50"}`}
             onClick={() => setActiveTab("watering")}
           >
             <span>💧 Rega</span>
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
           {activeTab === "general" && (
             <div className="space-y-6 max-w-2xl animate-fade-in">
               <div className="space-y-1.5">
@@ -278,7 +278,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Servidor SMTP (Host)
@@ -634,17 +634,17 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
           )}
         </div>
 
-        <div className="p-8 border-t border-neutral-100 flex justify-end gap-4 bg-white/50">
+        <div className="p-4 sm:p-6 md:p-8 border-t border-neutral-100 flex flex-col sm:flex-row justify-end gap-4 bg-white/50">
           <button
             onClick={onClose}
-            className="px-8 py-4 text-neutral-400 font-bold hover:text-neutral-600 transition-all text-sm uppercase tracking-widest"
+            className="px-8 py-4 text-neutral-400 font-bold hover:text-neutral-600 transition-all text-sm uppercase tracking-widest w-full sm:w-auto"
           >
             Cancelar
           </button>
           <button
             onClick={handleSave}
             disabled={loading}
-            className="px-10 py-4 bg-primary-900 text-white rounded-2xl shadow-xl shadow-primary-900/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 font-bold text-sm border-2 border-white/10"
+            className="px-10 py-4 bg-primary-900 text-white rounded-2xl shadow-xl shadow-primary-900/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 font-bold text-sm border-2 border-white/10 w-full sm:w-auto"
           >
             {loading ? "Processando..." : "Salvar Configurações"}
           </button>

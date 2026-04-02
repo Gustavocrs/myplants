@@ -39,7 +39,7 @@ export default function PlantCard({plant, onClick, onEdit, onWater}) {
   return (
     <div
       onClick={() => onClick(plant)}
-      className="bg-white rounded-[2rem] shadow-premium hover:shadow-2xl overflow-hidden transition-all duration-500 group flex flex-col cursor-pointer hover:-translate-y-2 active:scale-95 relative border border-neutral-100 group font-body"
+      className="bg-white rounded-[1.5rem] sm:rounded-[2rem] shadow-premium hover:shadow-2xl overflow-hidden transition-all duration-500 group flex flex-col cursor-pointer hover:-translate-y-2 active:scale-95 relative border border-neutral-100 group font-body"
     >
       <div className="aspect-[4/5] relative overflow-hidden bg-gray-100">
         {!imageError ? (
@@ -91,7 +91,7 @@ export default function PlantCard({plant, onClick, onEdit, onWater}) {
                   e.stopPropagation();
                   onEdit(plant);
                 }}
-                className="glass text-neutral-700 p-2.5 rounded-xl shadow-lg hover:bg-white hover:text-primary-600 transition-all duration-300 border border-white/50"
+                className="glass text-neutral-700 p-2 sm:p-2.5 rounded-xl shadow-lg hover:bg-white hover:text-primary-600 transition-all duration-300 border border-white/50"
                 title="Editar"
               >
                 <svg
@@ -115,7 +115,7 @@ export default function PlantCard({plant, onClick, onEdit, onWater}) {
         {/* Informações sobrepostas */}
         <div className="absolute bottom-0 left-0 right-0 p-6 text-white translate-y-4 group-hover:translate-y-0 transition-transform duration-500 bg-gradient-to-t from-black/80 via-black/20 to-transparent">
           <h3
-            className="font-heading text-xl font-black leading-tight drop-shadow-md truncate tracking-tight"
+            className="font-heading text-lg sm:text-xl font-black leading-tight drop-shadow-md truncate tracking-tight"
             title={plant.nome}
           >
             {plant.nome}
@@ -126,11 +126,11 @@ export default function PlantCard({plant, onClick, onEdit, onWater}) {
         </div>
       </div>
 
-      <div className="px-6 py-4 bg-white flex justify-between items-center border-t border-neutral-50 group-hover:bg-neutral-50 transition-colors">
+      <div className="px-4 py-3 sm:px-6 sm:py-4 bg-white flex justify-between items-center border-t border-neutral-50 group-hover:bg-neutral-50 transition-colors">
         <div className="flex gap-4 text-sm text-neutral-400 w-full justify-between items-center">
           <span
             title={plant.luz}
-            className="flex items-center justify-center w-8 h-8 rounded-xl bg-neutral-100/50 text-base"
+            className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-neutral-100/50 text-base"
           >
             {plant.luz === "Sol Pleno"
               ? "☀️"
@@ -152,7 +152,7 @@ export default function PlantCard({plant, onClick, onEdit, onWater}) {
           </span>
           <span
             title={plant.petFriendly ? "Pet Friendly" : "Tóxica"}
-            className={`flex items-center justify-center w-8 h-8 rounded-xl text-base ${plant.petFriendly ? 'bg-primary-100/50' : 'bg-red-100/50'}`}
+            className={`flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-xl text-base ${plant.petFriendly ? 'bg-primary-100/50' : 'bg-red-100/50'}`}
           >
             {plant.petFriendly ? "🐶" : "🚫"}
           </span>

@@ -56,7 +56,7 @@ export default function PlantDetailsModal({
       )}
 
       <div
-        className="w-full h-[100dvh] md:h-[85vh] md:max-w-5xl glass bg-white/90 backdrop-blur-2xl shadow-2xl flex flex-col md:flex-row rounded-none md:rounded-[3rem] overflow-hidden relative border border-white/50 animate-in zoom-in-95 duration-300"
+        className="w-full h-[100dvh] md:h-[85vh] md:max-w-5xl glass bg-white/90 backdrop-blur-2xl shadow-2xl flex flex-col md:flex-row rounded-none md:rounded-[2rem] lg:rounded-[3rem] overflow-hidden relative border border-white/50 animate-in zoom-in-95 duration-300"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Botão Fechar */}
@@ -68,7 +68,7 @@ export default function PlantDetailsModal({
         </button>
 
         {/* Coluna da Esquerda (Imagem) */}
-        <div className="relative h-96 md:h-full md:w-1/2 shrink-0 bg-neutral-100 overflow-hidden">
+        <div className="relative h-72 sm:h-80 md:h-full md:w-1/2 shrink-0 bg-neutral-100 overflow-hidden">
           <img
             src={plant.imagemUrl}
             alt={plant.nome}
@@ -77,7 +77,7 @@ export default function PlantDetailsModal({
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
           <div className="absolute bottom-10 left-10 right-10 text-white">
-            <h2 className="text-4xl md:text-5xl font-black leading-tight drop-shadow-lg font-heading tracking-tight">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-black leading-tight drop-shadow-lg font-heading tracking-tight">
               {plant.nome}
             </h2>
             {plant.nomeCientifico && (
@@ -89,10 +89,10 @@ export default function PlantDetailsModal({
         </div>
 
         {/* Coluna da Direita (Detalhes) */}
-        <div className="flex-1 overflow-y-auto bg-transparent p-10 md:p-12 flex flex-col no-scrollbar">
+        <div className="flex-1 overflow-y-auto bg-transparent p-6 sm:p-8 md:p-12 flex flex-col no-scrollbar">
           <div className="space-y-12 flex-1">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-accent-50/50 p-6 rounded-[2rem] border border-accent-100 flex flex-col items-center justify-center text-center gap-2 group hover:bg-accent-100/50 transition-colors">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6">
+              <div className="bg-accent-50/50 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border border-accent-100 flex flex-col items-center justify-center text-center gap-2 group hover:bg-accent-100/50 transition-colors">
                 <span className="text-4xl group-hover:scale-110 transition-transform">
                   {plant.luz === "Sol Pleno"
                     ? "☀️"
@@ -107,7 +107,7 @@ export default function PlantDetailsModal({
                 </span>
               </div>
 
-              <div className="bg-secondary-50/50 p-6 rounded-[2rem] border border-secondary-100 flex flex-col items-center justify-center text-center gap-2 group hover:bg-secondary-100/50 transition-colors">
+              <div className="bg-secondary-50/50 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border border-secondary-100 flex flex-col items-center justify-center text-center gap-2 group hover:bg-secondary-100/50 transition-colors">
                 <span className="text-4xl group-hover:scale-110 transition-transform">
                   {plant.intervaloRega <= 3
                     ? "💧"
@@ -121,7 +121,7 @@ export default function PlantDetailsModal({
               </div>
 
               {plant.dataAquisicao && (
-                <div className="bg-neutral-50/50 p-6 rounded-[2rem] border border-neutral-100 flex flex-col items-center justify-center text-center gap-2 group hover:bg-neutral-100 transition-colors">
+                <div className="bg-neutral-50/50 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border border-neutral-100 flex flex-col items-center justify-center text-center gap-2 group hover:bg-neutral-100 transition-colors">
                   <span className="text-4xl group-hover:scale-110 transition-transform">📅</span>
                   <span className="font-bold text-neutral-700 text-xs uppercase tracking-widest">
                     {new Date(plant.dataAquisicao).toLocaleDateString("pt-BR")}
@@ -130,7 +130,7 @@ export default function PlantDetailsModal({
               )}
 
               <div
-                className={`p-6 rounded-[2rem] border flex flex-col items-center justify-center text-center gap-2 group transition-colors ${plant.petFriendly ? "bg-primary-50/50 border-primary-100 hover:bg-primary-100/50" : "bg-red-50/50 border-red-100 hover:bg-red-100/50"}`}
+                className={`p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border flex flex-col items-center justify-center text-center gap-2 group transition-colors ${plant.petFriendly ? "bg-primary-50/50 border-primary-100 hover:bg-primary-100/50" : "bg-red-50/50 border-red-100 hover:bg-red-100/50"}`}
               >
                 <span className="text-4xl group-hover:scale-110 transition-transform">
                   {plant.petFriendly ? "🐶" : "🚫"}
@@ -144,7 +144,7 @@ export default function PlantDetailsModal({
             </div>
 
             {plant.observacoes && !isPublicView && (
-              <div className="bg-primary-50/30 p-8 rounded-[2.5rem] border border-primary-100 relative overflow-hidden group">
+              <div className="bg-primary-50/30 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-primary-100 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-primary-100/50 rounded-full blur-2xl -z-10 group-hover:scale-150 transition-transform duration-700"></div>
                 <span className="block text-primary-900 text-[10px] uppercase tracking-widest font-black mb-4 flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-primary-500 rounded-full animate-pulse"></span>

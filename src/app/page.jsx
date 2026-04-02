@@ -238,20 +238,20 @@ export default function Home() {
       <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-secondary-100/20 rounded-full blur-[100px] -z-10"></div>
 
       {/* Header Fixo */}
-      <div className="sticky top-0 z-30 px-4 py-4 animate-slide-down">
-        <div className="mx-auto max-w-5xl glass rounded-2xl px-6 py-4 flex items-center justify-between gap-4 shadow-premium border border-white/50">
-          <h1 className="text-2xl font-black text-primary-900 flex items-center gap-2 font-heading tracking-tight">
+      <div className="sticky top-0 z-30 px-4 py-3 sm:py-4 animate-slide-down">
+        <div className="mx-auto max-w-5xl glass rounded-2xl px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between gap-4 shadow-premium border border-white/50">
+          <h1 className="text-xl sm:text-2xl font-black text-primary-900 flex items-center gap-2 font-heading tracking-tight">
             <span className="drop-shadow-sm">🌱</span> MyPlants
           </h1>
 
           <div className="relative flex-1 max-w-md group">
-            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-primary-400 group-focus-within:text-primary-600 transition-colors" size={18} />
+            <FiSearch className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-primary-400 group-focus-within:text-primary-600 transition-colors" size={18} />
             <input
               type="text"
               placeholder="Buscar em seu jardim..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-2xl bg-white/50 border border-neutral-100 py-3 pl-12 pr-4 text-sm outline-none focus:ring-4 focus:ring-primary-100 focus:bg-white focus:border-primary-200 transition-all shadow-sm font-medium"
+              className="w-full rounded-2xl bg-white/50 border border-neutral-100 py-2.5 sm:py-3 pl-10 sm:pl-12 pr-3 sm:pr-4 text-xs sm:text-sm outline-none focus:ring-4 focus:ring-primary-100 focus:bg-white focus:border-primary-200 transition-all shadow-sm font-medium"
             />
           </div>
         </div>
@@ -260,7 +260,7 @@ export default function Home() {
       <div className="mx-auto max-w-5xl p-6">
         {/* Resumo / Status */}
         <div className="mb-8 flex items-center justify-between animate-fade-in">
-          <h2 className="text-3xl font-black text-neutral-900 font-heading tracking-tight">Meu Jardim</h2>
+          <h2 className="text-2xl sm:text-3xl font-black text-neutral-900 font-heading tracking-tight">Meu Jardim</h2>
           <div className="text-sm font-bold text-primary-700 bg-primary-100/50 px-4 py-2 rounded-xl shadow-sm border border-primary-200 backdrop-blur-sm">
             {plants.length} {plants.length === 1 ? "planta" : "plantas"}
           </div>
@@ -322,7 +322,7 @@ export default function Home() {
             {[...Array(4)].map((_, i) => (
               <div
                 key={i}
-                className="h-72 animate-pulse rounded-[2rem] bg-neutral-200/50 border border-neutral-100"
+                className="h-56 sm:h-72 animate-pulse rounded-[2rem] bg-neutral-200/50 border border-neutral-100"
               ></div>
             ))}
           </div>

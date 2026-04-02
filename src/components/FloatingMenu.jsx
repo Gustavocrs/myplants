@@ -108,8 +108,8 @@ export default function FloatingMenu({
         `}
       >
         {/* Header do Menu */}
-        <div className="p-8 border-b border-neutral-100 flex justify-between items-center bg-white/50">
-          <h2 className="text-2xl font-black text-neutral-900 font-heading tracking-tight">Menu</h2>
+        <div className="p-6 sm:p-8 border-b border-neutral-100 flex justify-between items-center bg-white/50">
+          <h2 className="text-xl sm:text-2xl font-black text-neutral-900 font-heading tracking-tight">Menu</h2>
           <button
             onClick={() => setIsOpen(false)}
             className="p-2 hover:bg-gray-100 rounded-full text-gray-500 transition-colors"
@@ -119,7 +119,7 @@ export default function FloatingMenu({
         </div>
 
         {/* Conteúdo Scrollável */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {/* Ações Principais */}
           <SectionTitle icon={FiPlus} title="Adicionar" />
           <div className="grid grid-cols-2 gap-3 mb-8">
@@ -286,12 +286,12 @@ export default function FloatingMenu({
       </div>
 
       {/* Botão Flutuante Principal (Trigger) */}
-      <div className="fixed bottom-8 right-8 z-40">
+      <div className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-40">
         <button
           onClick={() => setIsOpen(true)}
-          className="w-16 h-16 bg-primary-900 text-white rounded-[1.5rem] shadow-2xl shadow-primary-900/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-all group border-2 border-white/10"
+          className="w-14 h-14 sm:w-16 sm:h-16 bg-primary-900 text-white rounded-[1.5rem] shadow-2xl shadow-primary-900/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-all group border-2 border-white/10"
         >
-          <FiMenu size={28} className="group-hover:rotate-12 transition-transform" />
+          <FiMenu size={24} className="sm:w-7 sm:h-7 group-hover:rotate-12 transition-transform" />
         </button>
 
         {/* Indicador de Filtros Ativos (Bolinha) */}

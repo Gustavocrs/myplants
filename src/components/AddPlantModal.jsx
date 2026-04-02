@@ -255,10 +255,10 @@ export default function AddPlantModal({
 
   return (
     <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-md z-50 overflow-y-auto animate-in fade-in duration-300 flex justify-center p-4 sm:p-8">
-      <div className="w-full max-w-3xl lg:max-w-4xl bg-white/90 backdrop-blur-2xl rounded-[2rem] shadow-2xl border border-white/50 overflow-hidden font-body animate-in zoom-in-95 duration-300 my-auto h-fit flex flex-col">
+      <div className="w-full max-w-3xl lg:max-w-4xl bg-white/90 backdrop-blur-2xl rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl border border-white/50 overflow-hidden font-body animate-in zoom-in-95 duration-300 my-auto h-fit flex flex-col">
         <div className="p-5 md:p-8 relative text-left flex flex-col gap-5 text-sm">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-black text-neutral-900 font-heading tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-black text-neutral-900 font-heading tracking-tight">
               {plantToEdit ? "Editar Planta" : "Nova Planta"}
             </h2>
             <button
@@ -275,7 +275,7 @@ export default function AddPlantModal({
               {/* Área de Upload Clicável */}
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="aspect-video lg:aspect-square bg-neutral-100/50 border-2 border-dashed border-neutral-300 rounded-[1.5rem] flex flex-col items-center justify-center text-neutral-400 cursor-pointer hover:bg-primary-50/50 hover:border-primary-400 transition-all relative overflow-hidden group shadow-inner min-h-[160px]"
+                className="aspect-video lg:aspect-square bg-neutral-100/50 border-2 border-dashed border-neutral-300 rounded-[1.5rem] flex flex-col items-center justify-center text-neutral-400 cursor-pointer hover:bg-primary-50/50 hover:border-primary-400 transition-all relative overflow-hidden group shadow-inner min-h-[120px] sm:min-h-[160px]"
               >
                 {preview ? (
                   <img
@@ -457,7 +457,7 @@ export default function AddPlantModal({
           </div>
         </div>
 
-        <div className="flex justify-between items-center bg-neutral-50 p-5 md:px-8 border-t border-neutral-100 mt-auto">
+        <div className="flex justify-between items-center bg-neutral-50 p-4 sm:p-5 border-t border-neutral-100 mt-auto">
           {/* Botão de Excluir */}
             <div>
               {plantToEdit && (
@@ -475,7 +475,7 @@ export default function AddPlantModal({
               <button
                 onClick={hasChanges() ? handleSave : onClose}
                 disabled={loading || (hasChanges() && (!nome || !imagemUrl))}
-                className={`px-6 py-3 rounded-xl transition-all shadow-xl disabled:opacity-50 flex items-center gap-2 font-bold text-sm hover:scale-105 active:scale-95 ${
+                className={`px-6 py-3 rounded-xl transition-all shadow-xl disabled:opacity-50 flex items-center gap-2 font-bold text-sm hover:scale-105 active:scale-95 w-full sm:w-auto justify-center ${
                   hasChanges()
                     ? "bg-primary-500 text-white shadow-primary-500/25"
                     : "bg-white text-neutral-700 border border-neutral-200"
