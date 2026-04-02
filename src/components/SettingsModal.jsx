@@ -306,7 +306,7 @@ export default function SettingsModal({
                     placeholder="smtp.gmail.com"
                   />
                 </div>
-                <div className="flex items-end gap-4">
+                <div className="flex items-center gap-4">
                   <div className="flex-1">
                     <label className="block text-sm font-medium text-neutral-700 mb-1.5">
                       Porta
