@@ -306,7 +306,7 @@ export default function SettingsModal({
                     placeholder="smtp.gmail.com"
                   />
                 </div>
-                <div>
+                <div className="w-1/2">
                   <label className="block text-sm font-medium text-neutral-700 mb-1.5">
                     Porta
                   </label>
@@ -326,25 +326,27 @@ export default function SettingsModal({
                     placeholder="587"
                   />
                 </div>
-                <div className="flex items-center pt-6">
-                  <input
-                    type="checkbox"
-                    id="secure"
-                    checked={formData.smtp.secure}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        smtp: { ...formData.smtp, secure: e.target.checked },
-                      })
-                    }
-                    className="w-4 h-4 text-primary-500 rounded focus:ring-primary-500"
-                  />
-                  <label
-                    htmlFor="secure"
-                    className="ml-2 text-sm text-neutral-700"
-                  >
-                    Usar SSL/TLS
-                  </label>
+                <div className="flex items-end pb-1">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="secure"
+                      checked={formData.smtp.secure}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          smtp: { ...formData.smtp, secure: e.target.checked },
+                        })
+                      }
+                      className="w-4 h-4 text-primary-500 rounded focus:ring-primary-500"
+                    />
+                    <label
+                      htmlFor="secure"
+                      className="ml-2 text-sm text-neutral-700"
+                    >
+                      Usar SSL/TLS
+                    </label>
+                  </div>
                 </div>
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-neutral-700 mb-1.5">
@@ -363,7 +365,7 @@ export default function SettingsModal({
                     placeholder="seu-email@gmail.com"
                   />
                 </div>
-                <div>
+                <div className="col-span-2">
                   <label className="block text-sm font-medium text-neutral-700 mb-1.5">
                     Usuário SMTP
                   </label>
@@ -379,7 +381,7 @@ export default function SettingsModal({
                     className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all"
                   />
                 </div>
-                <div>
+                <div className="col-span-2">
                   <label className="block text-sm font-medium text-neutral-700 mb-1.5">
                     Senha SMTP
                   </label>
@@ -409,17 +411,17 @@ export default function SettingsModal({
 
               <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
                 <p className="text-sm text-yellow-800">
-                  ⚠️ Para Gmail, é necessário usar uma "Senha de App".
-                  <br />
-                  <a
-                    href="https://myaccount.google.com/apppasswords"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-yellow-700 hover:underline font-medium"
-                  >
-                    Gerar Senha de App aqui ↗
-                  </a>
+                  ⚠️ Para Gmail, é necessário usar uma{" "}
+                  <span className="font-semibold">Senha de App</span>.
                 </p>
+                <a
+                  href="https://myaccount.google.com/apppasswords"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-2 text-yellow-700 hover:underline text-sm font-medium"
+                >
+                  Gerar Senha de App aqui ↗
+                </a>
               </div>
 
               <div className="pt-2 border-t border-neutral-100">
