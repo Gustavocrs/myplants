@@ -306,28 +306,28 @@ export default function SettingsModal({
                     placeholder="smtp.gmail.com"
                   />
                 </div>
-                <div className="w-full">
-                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-                    Porta
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.smtp.port}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        smtp: {
-                          ...formData.smtp,
-                          port: Number(e.target.value),
-                        },
-                      })
-                    }
-                    className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all"
-                    placeholder="587"
-                  />
-                </div>
-                <div className="flex items-end">
-                  <div className="flex items-center">
+                <div className="flex items-end gap-4">
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-neutral-700 mb-1.5">
+                      Porta
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.smtp.port}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          smtp: {
+                            ...formData.smtp,
+                            port: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all"
+                      placeholder="587"
+                    />
+                  </div>
+                  <div className="flex items-center pt-6">
                     <input
                       type="checkbox"
                       id="secure"
