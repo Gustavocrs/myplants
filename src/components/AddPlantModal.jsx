@@ -1,10 +1,10 @@
 "use client";
 
-import {useState, useRef, useEffect} from "react";
-import {api} from "../services/api";
-import {useAuth} from "@/context/AuthContext";
-import { useEscapeKey } from "@/hooks/useEscapeKey";
+import { useEffect, useRef, useState } from "react";
 import { FiTrash2 } from "react-icons/fi";
+import { useAuth } from "@/context/AuthContext";
+import { useEscapeKey } from "@/hooks/useEscapeKey";
+import { api } from "../services/api";
 
 export default function AddPlantModal({
   onClose,
@@ -14,7 +14,7 @@ export default function AddPlantModal({
   onDelete,
 }) {
   useEscapeKey(onClose);
-  const {user} = useAuth();
+  const { user } = useAuth();
   const [nome, setNome] = useState("");
   const [nomeCientifico, setNomeCientifico] = useState("");
   const [luz, setLuz] = useState("Meia-sombra");
@@ -149,7 +149,7 @@ export default function AddPlantModal({
     while (n--) {
       u8arr[n] = bstr.charCodeAt(n);
     }
-    return new File([u8arr], filename, {type: mime});
+    return new File([u8arr], filename, { type: mime });
   };
 
   const handleAiFill = async () => {
@@ -263,7 +263,9 @@ export default function AddPlantModal({
               {plantToEdit ? "Editar Planta" : "Nova Planta"}
             </h2>
             <p className="text-sm text-neutral-500 mt-0.5">
-              {plantToEdit ? "Atualize as informações da sua planta" : "Adicione uma nova planta ao seu jardim"}
+              {plantToEdit
+                ? "Atualize as informações da sua planta"
+                : "Adicione uma nova planta ao seu jardim"}
             </p>
           </div>
           <button
@@ -302,8 +304,12 @@ export default function AddPlantModal({
                     <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm text-primary-500 group-hover:scale-110 transition-transform">
                       📷
                     </div>
-                    <p className="text-sm font-medium text-neutral-600">Selecionar foto</p>
-                    <p className="text-xs text-neutral-400 mt-1">JPG, PNG até 5MB</p>
+                    <p className="text-sm font-medium text-neutral-600">
+                      Selecionar foto
+                    </p>
+                    <p className="text-xs text-neutral-400 mt-1">
+                      JPG, PNG até 5MB
+                    </p>
                   </div>
                 )}
                 <input
@@ -311,7 +317,7 @@ export default function AddPlantModal({
                   hidden
                   ref={fileInputRef}
                   onChange={handleImageChange}
-                  accept="image/*"
+                  accept="image/*,.heif,.heic"
                 />
               </div>
 
@@ -513,7 +519,11 @@ export default function AddPlantModal({
               {loading ? (
                 <div className="w-5 h-5 border-2 border-current/30 border-t-current animate-spin rounded-full"></div>
               ) : hasChanges() ? (
-                plantToEdit ? "Salvar alterações" : "Adicionar ao jardim"
+                plantToEdit ? (
+                  "Salvar alterações"
+                ) : (
+                  "Adicionar ao jardim"
+                )
               ) : (
                 "Fechar"
               )}

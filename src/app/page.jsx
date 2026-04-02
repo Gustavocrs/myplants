@@ -1,20 +1,19 @@
 "use client";
 
-import {useState, useEffect, useRef} from "react";
-import {useRouter} from "next/navigation";
-import {useAuth} from "../context/AuthContext";
-import {api} from "../services/api";
-import PlantCard from "../components/PlantCard";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { FiSearch, FiWind } from "react-icons/fi";
 import AddPlantModal from "../components/AddPlantModal";
-import PlantDetailsModal from "../components/PlantDetailsModal";
 import FloatingMenu from "../components/FloatingMenu";
-import SettingsModal from "../components/SettingsModal";
-import {FiSearch, FiWind} from "react-icons/fi";
 import LandingPage from "../components/landing/LandingPage";
-
+import PlantCard from "../components/PlantCard";
+import PlantDetailsModal from "../components/PlantDetailsModal";
+import SettingsModal from "../components/SettingsModal";
+import { useAuth } from "../context/AuthContext";
+import { api } from "../services/api";
 
 export default function Home() {
-  const {user, loading: authLoading, logout, loginGoogle} = useAuth();
+  const { user, loading: authLoading, logout, loginGoogle } = useAuth();
   const router = useRouter();
   const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -71,7 +70,7 @@ export default function Home() {
       isOpen: true,
       message: "Tem certeza que deseja excluir esta planta?",
       onConfirm: async () => {
-        setConfirmDialog({isOpen: false, message: "", onConfirm: null});
+        setConfirmDialog({ isOpen: false, message: "", onConfirm: null });
         try {
           await api.deletePlant(id);
           setShowAddModal(false);
@@ -115,7 +114,7 @@ export default function Home() {
       reader.onload = async (event) => {
         const base64 = event.target.result;
         // Envia para o modal preenchido parcialmente
-        setInitialAiData({imagemUrl: base64});
+        setInitialAiData({ imagemUrl: base64 });
         setAiLoading(false);
         setShowAddModal(true);
       };
@@ -230,7 +229,6 @@ export default function Home() {
     return <LandingPage onLogin={loginGoogle} />;
   }
 
-
   return (
     <div className="min-h-screen bg-neutral-50 pb-24 relative overflow-hidden font-body">
       {/* Background Ornaments */}
@@ -245,7 +243,10 @@ export default function Home() {
           </h1>
 
           <div className="relative flex-1 max-w-md group">
-            <FiSearch className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-primary-400 group-focus-within:text-primary-600 transition-colors" size={18} />
+            <FiSearch
+              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-primary-400 group-focus-within:text-primary-600 transition-colors"
+              size={18}
+            />
             <input
               type="text"
               placeholder="Buscar em seu jardim..."
@@ -260,7 +261,9 @@ export default function Home() {
       <div className="mx-auto max-w-5xl p-6">
         {/* Resumo / Status */}
         <div className="mb-8 flex items-center justify-between animate-fade-in">
-          <h2 className="text-2xl sm:text-3xl font-black text-neutral-900 font-heading tracking-tight">Meu Jardim</h2>
+          <h2 className="text-2xl sm:text-3xl font-black text-neutral-900 font-heading tracking-tight">
+            Meu Jardim
+          </h2>
           <div className="text-sm font-bold text-primary-700 bg-primary-100/50 px-4 py-2 rounded-xl shadow-sm border border-primary-200 backdrop-blur-sm">
             {plants.length} {plants.length === 1 ? "planta" : "plantas"}
           </div>
@@ -348,7 +351,8 @@ export default function Home() {
                   <span className="w-2 h-8 bg-primary-500 rounded-full inline-block shadow-sm shadow-primary-500/20"></span>
                   {groupName}
                   <span className="text-xs font-bold text-primary-600 ml-auto bg-primary-100 px-3 py-1 rounded-xl">
-                    {groupPlants.length} {groupPlants.length === 1 ? 'item' : 'itens'}
+                    {groupPlants.length}{" "}
+                    {groupPlants.length === 1 ? "item" : "itens"}
                   </span>
                 </h3>
                 <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
@@ -386,7 +390,7 @@ export default function Home() {
         type="file"
         ref={fileInputRef}
         onChange={handleAiImageSelect}
-        accept="image/*"
+        accept="image/*,.heif,.heic"
         className="hidden"
       />
 

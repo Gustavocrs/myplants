@@ -1,25 +1,36 @@
-const {GoogleGenAI, Type} = require("@google/genai");
+const { GoogleGenAI, Type } = require("@google/genai");
 const Settings = require("../models/Settings");
-const {decrypt} = require("../utils/crypto");
+const { decrypt } = require("../utils/crypto");
 const fs = require("fs");
 const path = require("path");
+const sharp = require("sharp");
 
 const MODEL_NAME = process.env.GEMINI_MODEL
   ? process.env.GEMINI_MODEL.trim()
   : "gemini-2.5-flash";
 
+async function convertHeicToJpeg(buffer) {
+  return await sharp(buffer).jpeg({ quality: 85 }).toBuffer();
+}
+
+function isHeicFormat(mimeType, filename) {
+  const heicMimes = ["image/heic", "image/heif", "image/x-heic"];
+  const ext = path.extname(filename || "").toLowerCase();
+  return heicMimes.includes(mimeType) || ext === ".heic" || ext === ".heif";
+}
+
 const responseSchema = {
   type: Type.OBJECT,
   properties: {
-    nome: {type: Type.STRING},
-    nomeCientifico: {type: Type.STRING},
+    nome: { type: Type.STRING },
+    nomeCientifico: { type: Type.STRING },
     luz: {
       type: Type.STRING,
       enum: ["Sombra", "Meia-sombra", "Luz Difusa", "Sol Pleno"],
     },
-    intervaloRega: {type: Type.INTEGER},
-    petFriendly: {type: Type.BOOLEAN},
-    observacoes: {type: Type.STRING},
+    intervaloRega: { type: Type.INTEGER },
+    petFriendly: { type: Type.BOOLEAN },
+    observacoes: { type: Type.STRING },
   },
   required: [
     "nome",
@@ -41,8 +52,17 @@ exports.identifyPlant = async (req, res) => {
 
     if (req.file) {
       // Caso 1: Upload de nova imagem
-      base64Image = req.file.buffer.toString("base64");
-      mimeType = req.file.mimetype;
+      let imageBuffer = req.file.buffer;
+      const fileName = req.file.originalname;
+
+      if (isHeicFormat(req.file.mimetype, fileName)) {
+        imageBuffer = await convertHeicToJpeg(imageBuffer);
+        mimeType = "image/jpeg";
+      } else {
+        mimeType = req.file.mimetype;
+      }
+
+      base64Image = imageBuffer.toString("base64");
     } else if (req.body.currentImageUrl) {
       // Caso 2: Imagem já existente no servidor (Lê do disco local)
       try {
@@ -72,14 +92,14 @@ exports.identifyPlant = async (req, res) => {
     } else {
       return res
         .status(400)
-        .json({success: false, error: "Envie uma imagem da planta."});
+        .json({ success: false, error: "Envie uma imagem da planta." });
     }
 
     // 1. Determina qual API Key usar
     let apiKey = process.env.GEMINI_API_KEY?.trim();
 
     if (userId) {
-      const userSettings = await Settings.findOne({userId});
+      const userSettings = await Settings.findOne({ userId });
       if (userSettings && userSettings.geminiApiKey) {
         apiKey = decrypt(userSettings.geminiApiKey);
         console.log(`🔑 Usando chave personalizada do usuário ${userId}`);
@@ -89,11 +109,11 @@ exports.identifyPlant = async (req, res) => {
     if (!apiKey) {
       return res
         .status(500)
-        .json({success: false, error: "Chave de API não configurada."});
+        .json({ success: false, error: "Chave de API não configurada." });
     }
 
     // 2. Instancia o cliente com a chave correta
-    const ai = new GoogleGenAI({apiKey});
+    const ai = new GoogleGenAI({ apiKey });
 
     let promptStr =
       "Analise a imagem desta planta e identifique sua espécie. Avalie também o seu estado de saúde visível. Preencha todos os campos do schema solicitado com precisão. Para o campo 'luz', use estritamente um destes valores: 'Sombra', 'Meia-sombra', 'Luz Difusa', 'Sol Pleno'.";
@@ -111,7 +131,7 @@ exports.identifyPlant = async (req, res) => {
         response = await ai.models.generateContent({
           model: MODEL_NAME,
           contents: [
-            {inlineData: {mimeType: mimeType, data: base64Image}},
+            { inlineData: { mimeType: mimeType, data: base64Image } },
             promptStr,
           ],
           config: {
@@ -151,7 +171,7 @@ exports.identifyPlant = async (req, res) => {
     }
     plantData.luz = luzCorrigida;
 
-    return res.json({success: true, ...plantData});
+    return res.json({ success: true, ...plantData });
   } catch (error) {
     console.error("Erro Gemini:", error);
     return res.status(500).json({
