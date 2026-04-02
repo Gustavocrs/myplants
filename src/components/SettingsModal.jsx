@@ -9,7 +9,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
   useEscapeKey(onClose);
   const {user} = useAuth();
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("general"); // general | email | profile
+  const [activeTab, setActiveTab] = useState("general");
   const [showGeminiKey, setShowGeminiKey] = useState(false);
   const [showSmtpPass, setShowSmtpPass] = useState(false);
   const [testingEmail, setTestingEmail] = useState(false);
@@ -107,7 +107,6 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
   const handleTestEmail = async () => {
     try {
       setTestingEmail(true);
-      // Salva antes de testar para garantir que o backend use os dados mais recentes
       await api.saveSettings(user.uid, formData);
       await api.testNotification(user.uid, user.email);
       setAlertDialog({
@@ -169,79 +168,78 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
     });
   };
 
+  const tabs = [
+    { id: "general", label: "IA", icon: "🤖" },
+    { id: "email", label: "Email", icon: "📧" },
+    { id: "profile", label: "Perfil", icon: "🌍" },
+    { id: "watering", label: "Rega", icon: "💧" },
+  ];
+
   return (
-    <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
-      <div className="w-full max-w-4xl bg-white/90 backdrop-blur-2xl rounded-[1.5rem] sm:rounded-[2.5rem] shadow-2xl border border-white/50 h-[95vh] sm:h-[90vh] flex flex-col font-body overflow-hidden animate-in zoom-in-95 duration-300">
-        <div className="p-6 sm:p-8 md:p-10 border-b border-neutral-100 flex justify-between items-center bg-white/50">
-          <h2 className="text-2xl sm:text-3xl font-black text-neutral-900 font-heading tracking-tight">Configurações</h2>
+    <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl h-[90vh] sm:h-[85vh] flex flex-col font-body overflow-hidden animate-in zoom-in-95 duration-300">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
+          <h2 className="text-xl font-semibold text-neutral-900 font-heading">Configurações</h2>
           <button
             onClick={onClose}
-            className="text-neutral-900 hover:text-primary-600 p-3 hover:bg-neutral-100 rounded-2xl transition-all"
+            className="text-neutral-400 hover:text-neutral-600 p-2 hover:bg-neutral-100 rounded-lg transition-all"
           >
-            <span className="text-xl font-bold">✕</span>
+            <span className="text-lg font-bold">✕</span>
           </button>
         </div>
 
-        <div className="flex bg-neutral-50/50 p-2 gap-2 overflow-x-auto no-scrollbar">
-          <button
-            className={`flex-1 min-w-[100px] py-3 px-3 sm:py-4 sm:px-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === "general" ? "bg-white text-primary-900 shadow-premium" : "text-neutral-400 hover:text-neutral-600 hover:bg-white/50"}`}
-            onClick={() => setActiveTab("general")}
-          >
-            <span>🤖 IA</span>
-          </button>
-          <button
-            className={`flex-1 min-w-[100px] py-3 px-3 sm:py-4 sm:px-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === "email" ? "bg-white text-primary-900 shadow-premium" : "text-neutral-400 hover:text-neutral-600 hover:bg-white/50"}`}
-            onClick={() => setActiveTab("email")}
-          >
-            <span>📧 Email</span>
-          </button>
-          <button
-            className={`flex-1 min-w-[100px] py-3 px-3 sm:py-4 sm:px-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === "profile" ? "bg-white text-primary-900 shadow-premium" : "text-neutral-400 hover:text-neutral-600 hover:bg-white/50"}`}
-            onClick={() => setActiveTab("profile")}
-          >
-            <span>🌍 Perfil</span>
-          </button>
-          <button
-            className={`flex-1 min-w-[100px] py-3 px-3 sm:py-4 sm:px-4 rounded-2xl font-bold text-xs uppercase tracking-widest transition-all ${activeTab === "watering" ? "bg-white text-primary-900 shadow-premium" : "text-neutral-400 hover:text-neutral-600 hover:bg-white/50"}`}
-            onClick={() => setActiveTab("watering")}
-          >
-            <span>💧 Rega</span>
-          </button>
+        {/* Tabs */}
+        <div className="flex bg-neutral-50 px-4 pt-3 gap-1 overflow-x-auto no-scrollbar">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              className={`flex-1 min-w-[80px] py-2.5 px-3 rounded-lg text-sm font-medium transition-all ${
+                activeTab === tab.id
+                  ? "bg-white text-primary-600 shadow-sm"
+                  : "text-neutral-500 hover:text-neutral-700 hover:bg-white/50"
+              }`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              <span>{tab.icon}</span> {tab.label}
+            </button>
+          ))}
         </div>
 
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
+        {/* Content */}
+        <div className="p-6 overflow-y-auto flex-1">
           {activeTab === "general" && (
-            <div className="space-y-6 max-w-2xl animate-fade-in">
-              <div className="space-y-1.5">
-                <label className="text-xs font-black text-neutral-400 uppercase tracking-widest ml-1">
+            <div className="space-y-6 max-w-xl animate-fade-in">
+              <div>
+                <label className="block text-sm font-medium text-neutral-700 mb-2">
                   Chave da API do Gemini (Google AI)
                 </label>
-                <div className="relative group">
+                <div className="relative">
                   <input
                     type={showGeminiKey ? "text" : "password"}
                     value={formData.geminiApiKey}
                     onChange={(e) =>
                       setFormData({...formData, geminiApiKey: e.target.value})
                     }
-                    className="w-full bg-white border border-neutral-100 rounded-2xl px-5 py-4 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium pr-12"
+                    className="w-full bg-white border border-neutral-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all pr-12 placeholder:text-neutral-400"
                     placeholder="AIzaSy..."
                   />
                   <button
                     type="button"
                     onClick={() => setShowGeminiKey(!showGeminiKey)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-primary-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
                   >
                     {showGeminiKey ? "🙈" : "👁️"}
                   </button>
                 </div>
-                <div className="bg-primary-50 p-4 rounded-2xl border border-primary-100 mt-4">
-                  <p className="text-xs text-primary-800 font-medium leading-relaxed">
+                <div className="bg-primary-50 p-4 rounded-lg border border-primary-100 mt-4">
+                  <p className="text-sm text-primary-800 leading-relaxed">
                     Personalize o motor de inteligência artificial. Deixe em branco para usar a infraestrutura padrão do MyPlants.
                     <br />
                     <a
                       href="https://aistudio.google.com/app/apikey"
                       target="_blank"
-                      className="inline-block mt-2 font-bold hover:underline"
+                      className="inline-block mt-2 font-medium text-primary-600 hover:underline"
                     >
                       Gerar minha própria chave gratuita ↗
                     </a>
@@ -252,14 +250,15 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
           )}
 
           {activeTab === "email" && (
-            <div className="space-y-8 animate-fade-in max-w-2xl">
-              <div className="bg-neutral-50/50 p-6 rounded-[2rem] border border-neutral-100">
+            <div className="space-y-6 animate-fade-in max-w-xl">
+              {/* Toggle notifications */}
+              <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-neutral-900 font-bold block">
+                    <span className="text-neutral-900 font-medium block">
                       Notificações Ativas
                     </span>
-                    <span className="text-xs text-neutral-400">Receba avisos de rega diretamente no seu e-mail.</span>
+                    <span className="text-xs text-neutral-500">Receba avisos de rega diretamente no seu e-mail.</span>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -273,14 +272,15 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-14 h-8 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-500 shadow-inner"></div>
+                    <div className="w-10 h-6 bg-neutral-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-500"></div>
                   </label>
                 </div>
               </div>
 
+              {/* SMTP fields */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
                     Servidor SMTP (Host)
                   </label>
                   <input
@@ -292,12 +292,12 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                         smtp: {...formData.smtp, host: e.target.value},
                       })
                     }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 outline-none"
+                    className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all placeholder:text-neutral-400"
                     placeholder="smtp.gmail.com"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
                     Porta
                   </label>
                   <input
@@ -309,7 +309,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                         smtp: {...formData.smtp, port: Number(e.target.value)},
                       })
                     }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 outline-none"
+                    className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all"
                     placeholder="587"
                   />
                 </div>
@@ -324,17 +324,17 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                         smtp: {...formData.smtp, secure: e.target.checked},
                       })
                     }
-                    className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+                    className="w-4 h-4 text-primary-500 rounded focus:ring-primary-500"
                   />
                   <label
                     htmlFor="secure"
-                    className="ml-2 text-sm text-gray-700"
+                    className="ml-2 text-sm text-neutral-700"
                   >
                     Usar SSL/TLS
                   </label>
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
                     Email do Remetente
                   </label>
                   <input
@@ -346,12 +346,12 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                         smtp: {...formData.smtp, fromEmail: e.target.value},
                       })
                     }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 outline-none"
+                    className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all placeholder:text-neutral-400"
                     placeholder="seu-email@gmail.com"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
                     Usuário SMTP
                   </label>
                   <input
@@ -363,11 +363,11 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                         smtp: {...formData.smtp, user: e.target.value},
                       })
                     }
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 outline-none"
+                    className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
                     Senha SMTP
                   </label>
                   <div className="relative">
@@ -380,12 +380,12 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                           smtp: {...formData.smtp, pass: e.target.value},
                         })
                       }
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 outline-none pr-10"
+                      className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all pr-10"
                     />
                     <button
                       type="button"
                       onClick={() => setShowSmtpPass(!showSmtpPass)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
                       title={showSmtpPass ? "Ocultar senha" : "Exibir senha"}
                     >
                       {showSmtpPass ? "🙈" : "👁️"}
@@ -393,25 +393,27 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-gray-500 bg-yellow-50 p-2 rounded border border-yellow-100">
-                ⚠️ Nota: Para Gmail, é necessário usar uma "Senha de App" para
-                garantir a segurança e o funcionamento correto.
-                <br />
-                <a
-                  href="https://myaccount.google.com/apppasswords"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-green-600 hover:underline font-medium"
-                >
-                  Gerar Senha de App aqui ↗
-                </a>
-              </p>
 
-              <div className="pt-2 border-t border-gray-100">
+              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                <p className="text-sm text-yellow-800">
+                  ⚠️ Para Gmail, é necessário usar uma "Senha de App".
+                  <br />
+                  <a
+                    href="https://myaccount.google.com/apppasswords"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-yellow-700 hover:underline font-medium"
+                  >
+                    Gerar Senha de App aqui ↗
+                  </a>
+                </p>
+              </div>
+
+              <div className="pt-2 border-t border-neutral-100">
                 <button
                   onClick={handleTestEmail}
                   disabled={testingEmail || loading}
-                  className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2 disabled:opacity-50"
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-2 disabled:opacity-50"
                 >
                   {testingEmail
                     ? "Enviando..."
@@ -432,7 +434,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-gray-700 font-medium">
+                <span className="text-neutral-700 font-medium">
                   Ativar Perfil Público
                 </span>
                 <label className="relative inline-flex items-center cursor-pointer">
@@ -444,14 +446,14 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                     }
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                  <div className="w-10 h-6 bg-neutral-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-500"></div>
                 </label>
               </div>
 
               {formData.isPublic && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-neutral-700 mb-1.5">
                       Nome de Exibição
                     </label>
                     <input
@@ -460,17 +462,17 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                       onChange={(e) =>
                         setFormData({...formData, displayName: e.target.value})
                       }
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 outline-none"
+                      className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all placeholder:text-neutral-400"
                       placeholder="Ex: Jardim do Gustavo"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-neutral-700 mb-1.5">
                       Link do Perfil (Slug)
                     </label>
                     <div className="flex items-center">
-                      <span className="bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg px-3 py-2 text-gray-500 text-sm">
+                      <span className="bg-neutral-100 border border-r-0 border-neutral-200 rounded-l-lg px-3 py-2.5 text-neutral-500 text-sm">
                         {hostName}/
                       </span>
                       <input
@@ -484,11 +486,11 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                               .replace(/[^a-z0-9-]/g, ""),
                           })
                         }
-                        className="w-full border border-gray-300 rounded-r-lg px-3 py-2 focus:ring-2 focus:ring-green-500 outline-none"
+                        className="w-full border border-neutral-200 rounded-r-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all"
                         placeholder="meu-jardim"
                       />
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-neutral-500 mt-1.5">
                       Apenas letras minúsculas, números e hífens.
                     </p>
                   </div>
@@ -498,110 +500,12 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                       <a
                         href={`/${formData.slug}`}
                         target="_blank"
-                        className="text-green-600 hover:underline text-sm flex items-center gap-1"
+                        className="text-primary-600 hover:underline text-sm flex items-center gap-1"
                       >
                         🔗 Visualizar meu perfil público
                       </a>
                     </div>
                   )}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* {activeTab === "plants" && (
-            <div className="space-y-6">
-              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100 text-sm text-yellow-800">
-                <p>
-                  ⚠️ <strong>Atenção:</strong> As ações abaixo aplicam
-                  configurações para <strong>todas</strong> as suas plantas de
-                  uma vez. Esta ação não pode ser desfeita facilmente.
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="font-medium text-gray-800">Notificações</h3>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => handleMassUpdate("lembretesAtivos", true)}
-                    disabled={massUpdateLoading}
-                    className="flex-1 bg-green-100 text-green-700 py-2 rounded-lg hover:bg-green-200 transition-colors text-sm font-medium"
-                  >
-                    🔔 Ativar para todas
-                  </button>
-                  <button
-                    onClick={() => handleMassUpdate("lembretesAtivos", false)}
-                    disabled={massUpdateLoading}
-                    className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
-                  >
-                    🔕 Desativar para todas
-                  </button>
-                </div>
-
-                <h3 className="font-medium text-gray-800 pt-4">
-                  Outras Configurações
-                </h3>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => handleMassUpdate("petFriendly", true)}
-                    disabled={massUpdateLoading}
-                    className="flex-1 bg-blue-50 text-blue-700 py-2 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
-                  >
-                    🐶 Marcar todas como Pet Friendly
-                  </button>
-                </div>
-              </div>
-            </div>
-          )} */}
-
-          {activeTab === "views" && (
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600">
-                Gerencie seus modos de visualização salvos. Você pode criar
-                novos modos na tela inicial aplicando filtros e clicando em
-                "Salvar Filtros".
-              </p>
-
-              {formData.savedViews.length === 0 ? (
-                <div className="text-center py-8 text-gray-400 italic bg-gray-50 rounded-lg">
-                  Nenhum modo de visualização salvo.
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {formData.savedViews.map((view, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between items-center bg-gray-50 p-3 rounded-lg border border-gray-200"
-                    >
-                      <div>
-                        <span className="font-medium text-gray-800">
-                          {view.name}
-                        </span>
-                        <div className="text-xs text-gray-500 mt-1">
-                          {[
-                            view.filters.luz,
-                            view.filters.rega,
-                            view.filters.pet,
-                          ]
-                            .filter(Boolean)
-                            .join(" • ") || "Sem filtros"}
-                        </div>
-                      </div>
-                      <button
-                        onClick={() =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            savedViews: prev.savedViews.filter(
-                              (_, i) => i !== index,
-                            ),
-                          }))
-                        }
-                        className="text-red-500 hover:text-red-700 text-sm px-2"
-                      >
-                        Excluir
-                      </button>
-                    </div>
-                  ))}
                 </div>
               )}
             </div>
@@ -634,30 +538,31 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
           )}
         </div>
 
-        <div className="p-4 sm:p-6 md:p-8 border-t border-neutral-100 flex flex-col sm:flex-row justify-end gap-4 bg-white/50">
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 px-6 py-4 bg-neutral-50 border-t border-neutral-100">
           <button
             onClick={onClose}
-            className="px-8 py-4 text-neutral-400 font-bold hover:text-neutral-600 transition-all text-sm uppercase tracking-widest w-full sm:w-auto"
+            className="px-5 py-2.5 text-neutral-600 hover:text-neutral-800 transition-all text-sm font-medium"
           >
             Cancelar
           </button>
           <button
             onClick={handleSave}
             disabled={loading}
-            className="px-10 py-4 bg-primary-900 text-white rounded-2xl shadow-xl shadow-primary-900/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 font-bold text-sm border-2 border-white/10 w-full sm:w-auto"
+            className="px-6 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-all disabled:opacity-50 text-sm font-medium shadow-sm"
           >
             {loading ? "Processando..." : "Salvar Configurações"}
           </button>
         </div>
 
-        {/* Modal Customizado de Confirmação */}
+        {/* Confirmation Modal */}
         {confirmDialog.isOpen && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-neutral-900/40 backdrop-blur-sm">
             <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full mx-4 animate-in zoom-in-95 duration-200">
-              <h3 className="text-lg font-bold text-gray-800 mb-2">
+              <h3 className="text-lg font-semibold text-neutral-900 mb-2">
                 Confirmar Ação
               </h3>
-              <p className="text-gray-600 mb-6">{confirmDialog.message}</p>
+              <p className="text-neutral-600 mb-6">{confirmDialog.message}</p>
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() =>
@@ -667,13 +572,13 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                       onConfirm: null,
                     })
                   }
-                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+                  className="px-4 py-2 text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors font-medium"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={confirmDialog.onConfirm}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
                 >
                   Confirmar
                 </button>
@@ -682,16 +587,16 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
           </div>
         )}
 
-        {/* Modal Customizado de Alerta (Sucesso/Erro) */}
+        {/* Alert Modal */}
         {alertDialog.isOpen && (
-          <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[70] flex items-center justify-center bg-neutral-900/40 backdrop-blur-sm">
             <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full mx-4 animate-in zoom-in-95 duration-200">
               <h3
-                className={`text-lg font-bold mb-2 ${alertDialog.isError ? "text-red-600" : "text-gray-800"}`}
+                className={`text-lg font-semibold mb-2 ${alertDialog.isError ? "text-red-600" : "text-neutral-900"}`}
               >
                 {alertDialog.isError ? "Erro" : "Sucesso"}
               </h3>
-              <p className="text-gray-600 mb-6">{alertDialog.message}</p>
+              <p className="text-neutral-600 mb-6">{alertDialog.message}</p>
               <div className="flex justify-end">
                 <button
                   onClick={() => {
@@ -704,7 +609,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                     });
                     if (callback) callback();
                   }}
-                  className={`px-4 py-2 text-white rounded-lg transition-colors font-medium ${alertDialog.isError ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}`}
+                  className={`px-4 py-2 text-white rounded-lg transition-colors font-medium ${alertDialog.isError ? "bg-red-500 hover:bg-red-600" : "bg-primary-500 hover:bg-primary-600"}`}
                 >
                   OK
                 </button>

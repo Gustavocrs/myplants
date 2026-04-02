@@ -12,7 +12,6 @@ import {
   FiSun,
   FiDroplet,
   FiEye,
-  FiSmile,
 } from "react-icons/fi";
 
 export default function FloatingMenu({
@@ -33,7 +32,6 @@ export default function FloatingMenu({
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Bloqueia o scroll da página quando o menu está aberto
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -56,84 +54,82 @@ export default function FloatingMenu({
     setViewMode(null);
   };
 
-  // Componente auxiliar para Chips de Filtro
   const FilterChip = ({
     active,
     onClick,
     icon,
     label,
-    colorClass = "bg-green-100 text-green-800 border-green-200",
+    colorClass = "bg-primary-50 text-primary-700 border-primary-200",
   }) => (
     <button
       onClick={onClick}
       className={`
-        flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all border
+        flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all border
         ${
           active
             ? `${colorClass} shadow-sm`
-            : "bg-gray-50 text-gray-600 border-gray-100 hover:bg-gray-100"
+            : "bg-neutral-50 text-neutral-600 border-neutral-200 hover:bg-neutral-100"
         }
       `}
     >
-      <span className="text-lg">{icon}</span>
+      <span className="text-base">{icon}</span>
       <span>{label}</span>
     </button>
   );
 
-  // Componente auxiliar para Seções
   const SectionTitle = ({icon: Icon, title}) => (
-    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2 mt-6 first:mt-0">
+    <h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-3 flex items-center gap-2 mt-6 first:mt-0">
       <Icon size={14} /> {title}
     </h3>
   );
 
   return (
     <>
-      {/* Backdrop (Fundo Escuro) */}
+      {/* Backdrop */}
       <div
         className={`
-          fixed inset-0 bg-neutral-900/40 backdrop-blur-md z-40 transition-opacity duration-500
+          fixed inset-0 bg-neutral-900/30 backdrop-blur-sm z-40 transition-opacity duration-300
           ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}
         `}
         onClick={() => setIsOpen(false)}
       />
 
-      {/* Sidebar (Drawer) */}
+      {/* Sidebar */}
       <div
         className={`
-          fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white/90 backdrop-blur-2xl shadow-2xl z-50 
-          transform transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) flex flex-col font-body
+          fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-xl z-50 
+          transform transition-transform duration-300 ease-out flex flex-col font-body
           ${isOpen ? "translate-x-0" : "translate-x-full"}
-          border-l border-white/50
+          border-l border-neutral-100
         `}
       >
-        {/* Header do Menu */}
-        <div className="p-6 sm:p-8 border-b border-neutral-100 flex justify-between items-center bg-white/50">
-          <h2 className="text-xl sm:text-2xl font-black text-neutral-900 font-heading tracking-tight">Menu</h2>
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-100">
+          <h2 className="text-lg font-semibold text-neutral-900 font-heading">Menu</h2>
           <button
             onClick={() => setIsOpen(false)}
-            className="p-2 hover:bg-gray-100 rounded-full text-gray-500 transition-colors"
+            className="text-neutral-400 hover:text-neutral-600 p-2 hover:bg-neutral-100 rounded-lg transition-colors"
           >
-            <FiX size={24} />
+            <FiX size={20} />
           </button>
         </div>
 
-        {/* Conteúdo Scrollável */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-5">
           {/* Ações Principais */}
           <SectionTitle icon={FiPlus} title="Adicionar" />
-          <div className="grid grid-cols-2 gap-3 mb-8">
+          <div className="grid grid-cols-2 gap-3 mb-6">
             <button
               onClick={() => {
                 setIsOpen(false);
                 onAddAI();
               }}
-              className="flex flex-col items-center justify-center p-4 bg-purple-50 border border-purple-100 rounded-2xl hover:bg-purple-100 transition-colors group"
+              className="flex flex-col items-center justify-center p-4 bg-purple-50 border border-purple-100 rounded-xl hover:bg-purple-100 transition-colors group"
             >
-              <div className="w-10 h-10 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 bg-white text-purple-600 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-sm">
                 <FiCpu size={20} />
               </div>
-              <span className="text-sm font-bold text-purple-900">IA Scan</span>
+              <span className="text-sm font-medium text-purple-900">IA Scan</span>
             </button>
 
             <button
@@ -141,12 +137,12 @@ export default function FloatingMenu({
                 setIsOpen(false);
                 onAddPlant();
               }}
-              className="flex flex-col items-center justify-center p-4 bg-green-50 border border-green-100 rounded-2xl hover:bg-green-100 transition-colors group"
+              className="flex flex-col items-center justify-center p-4 bg-primary-50 border border-primary-100 rounded-xl hover:bg-primary-100 transition-colors group"
             >
-              <div className="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+              <div className="w-10 h-10 bg-white text-primary-600 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-sm">
                 <FiEdit3 size={20} />
               </div>
-              <span className="text-sm font-bold text-green-900">Manual</span>
+              <span className="text-sm font-medium text-primary-900">Manual</span>
             </button>
           </div>
 
@@ -156,9 +152,9 @@ export default function FloatingMenu({
             {hasFilters && (
               <button
                 onClick={clearFilters}
-                className="text-xs text-red-500 flex items-center gap-1 hover:underline"
+                className="text-xs text-red-500 hover:text-red-600 hover:underline flex items-center gap-1"
               >
-                <FiTrash2 /> Limpar
+                <FiTrash2 size={12} /> Limpar
               </button>
             )}
           </div>
@@ -173,7 +169,7 @@ export default function FloatingMenu({
                     icon={luz === "Sol Pleno" ? "☀️" : "☁️"}
                     active={filterLuz === luz}
                     onClick={() => setFilterLuz(filterLuz === luz ? "" : luz)}
-                    colorClass="bg-yellow-100 text-yellow-800 border-yellow-200"
+                    colorClass="bg-yellow-50 text-yellow-800 border-yellow-200"
                   />
                 ),
               )}
@@ -187,7 +183,7 @@ export default function FloatingMenu({
                 onClick={() =>
                   setFilterRega(filterRega === "cacto" ? "" : "cacto")
                 }
-                colorClass="bg-blue-100 text-blue-800 border-blue-200"
+                colorClass="bg-blue-50 text-blue-800 border-blue-200"
               />
               <FilterChip
                 label="Moderada"
@@ -196,7 +192,7 @@ export default function FloatingMenu({
                 onClick={() =>
                   setFilterRega(filterRega === "1gota" ? "" : "1gota")
                 }
-                colorClass="bg-blue-100 text-blue-800 border-blue-200"
+                colorClass="bg-blue-50 text-blue-800 border-blue-200"
               />
               <FilterChip
                 label="Frequente"
@@ -205,7 +201,7 @@ export default function FloatingMenu({
                 onClick={() =>
                   setFilterRega(filterRega === "2gotas" ? "" : "2gotas")
                 }
-                colorClass="bg-blue-100 text-blue-800 border-blue-200"
+                colorClass="bg-blue-50 text-blue-800 border-blue-200"
               />
             </div>
 
@@ -215,7 +211,7 @@ export default function FloatingMenu({
                 icon="🚨"
                 active={filterAtrasada}
                 onClick={() => setFilterAtrasada(!filterAtrasada)}
-                colorClass="bg-red-100 text-red-800 border-red-200"
+                colorClass="bg-red-50 text-red-800 border-red-200"
               />
             </div>
 
@@ -231,72 +227,71 @@ export default function FloatingMenu({
                 icon="🚫"
                 active={filterPet === "nao"}
                 onClick={() => setFilterPet(filterPet === "nao" ? "" : "nao")}
-                colorClass="bg-red-100 text-red-800 border-red-200"
+                colorClass="bg-red-50 text-red-800 border-red-200"
               />
             </div>
           </div>
 
           {/* Visualização */}
           <SectionTitle icon={FiEye} title="Agrupar Por" />
-          <div className="flex flex-wrap gap-2 mb-8">
+          <div className="flex flex-wrap gap-2 mb-6">
             <FilterChip
               label="Luminosidade"
               icon="💡"
               active={viewMode === "luz"}
               onClick={() => setViewMode(viewMode === "luz" ? null : "luz")}
-              colorClass="bg-purple-100 text-purple-800 border-purple-200"
+              colorClass="bg-purple-50 text-purple-800 border-purple-200"
             />
             <FilterChip
               label="Rega"
               icon="💧"
               active={viewMode === "rega"}
               onClick={() => setViewMode(viewMode === "rega" ? null : "rega")}
-              colorClass="bg-purple-100 text-purple-800 border-purple-200"
+              colorClass="bg-purple-50 text-purple-800 border-purple-200"
             />
             <FilterChip
               label="Pet"
               icon="🐶"
               active={viewMode === "pet"}
               onClick={() => setViewMode(viewMode === "pet" ? null : "pet")}
-              colorClass="bg-purple-100 text-purple-800 border-purple-200"
+              colorClass="bg-purple-50 text-purple-800 border-purple-200"
             />
           </div>
         </div>
 
-        {/* Footer (Configurações) */}
-        <div className="p-6 border-t border-neutral-100 bg-neutral-50/50 space-y-3">
+        {/* Footer */}
+        <div className="p-4 border-t border-neutral-100 bg-neutral-50 space-y-2">
           <button
             onClick={() => {
               setIsOpen(false);
               onOpenSettings();
             }}
-            className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-neutral-600 hover:bg-white hover:text-primary-600 hover:shadow-premium transition-all font-bold text-sm"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-neutral-700 hover:bg-white hover:text-primary-600 hover:shadow-sm transition-all text-sm font-medium"
           >
-            <FiSettings size={20} className="animate-spin-slow" />
+            <FiSettings size={18} />
             <span>Configurações</span>
           </button>
           <button
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl text-red-500 hover:bg-red-50 transition-all font-bold text-sm"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-all text-sm font-medium"
           >
-            <FiLogOut size={20} />
+            <FiLogOut size={18} />
             <span>Sair da conta</span>
           </button>
         </div>
       </div>
 
-      {/* Botão Flutuante Principal (Trigger) */}
-      <div className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-40">
+      {/* FAB Trigger */}
+      <div className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40">
         <button
           onClick={() => setIsOpen(true)}
-          className="w-14 h-14 sm:w-16 sm:h-16 bg-primary-900 text-white rounded-[1.5rem] shadow-2xl shadow-primary-900/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-all group border-2 border-white/10"
+          className="w-14 h-14 bg-primary-500 text-white rounded-2xl shadow-lg shadow-primary-500/25 flex items-center justify-center hover:bg-primary-600 active:scale-95 transition-all"
         >
-          <FiMenu size={24} className="sm:w-7 sm:h-7 group-hover:rotate-12 transition-transform" />
+          <FiMenu size={22} />
         </button>
 
-        {/* Indicador de Filtros Ativos (Bolinha) */}
         {hasFilters && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary-500 border-4 border-white rounded-full shadow-lg animate-bounce"></span>
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 border-2 border-white rounded-full shadow-sm"></span>
         )}
       </div>
     </>

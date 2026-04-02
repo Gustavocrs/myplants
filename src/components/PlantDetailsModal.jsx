@@ -13,7 +13,7 @@ export default function PlantDetailsModal({
   hasPrev,
 }) {
   useEscapeKey(onClose);
-  // Bloqueia o scroll do corpo da página quando o modal abre
+  
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -23,22 +23,37 @@ export default function PlantDetailsModal({
 
   if (!plant) return null;
 
+  const luzIcon = (luz) => {
+    switch (luz) {
+      case "Sol Pleno": return "☀️";
+      case "Sombra": return "☁️";
+      case "Luz Difusa": return "🌤️";
+      default: return "⛅";
+    }
+  };
+
+  const waterIcon = (interval) => {
+    if (interval <= 3) return "💧";
+    if (interval <= 7) return "💧💧";
+    return "🌵";
+  };
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/60 backdrop-blur-md p-0 md:p-6 animate-in fade-in duration-300 font-body"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/50 backdrop-blur-sm p-0 md:p-6 animate-in fade-in duration-300 font-body"
       onClick={onClose}
     >
-      {/* Setas de Navegação (Desktop) */}
+      {/* Navigation arrows (desktop) */}
       {hasPrev && (
         <button
           onClick={(e) => {
             e.stopPropagation();
             onPrev();
           }}
-          className="hidden md:flex absolute left-8 text-white/50 hover:text-white transition-all p-4 rounded-full hover:bg-white/10 z-50 group hover:scale-110 active:scale-95"
+          className="hidden md:flex absolute left-6 text-white/60 hover:text-white transition-all p-3 rounded-full hover:bg-white/10 z-50"
           title="Anterior"
         >
-          <FiChevronLeft size={48} className="drop-shadow-lg" />
+          <FiChevronLeft size={32} />
         </button>
       )}
 
@@ -48,137 +63,117 @@ export default function PlantDetailsModal({
             e.stopPropagation();
             onNext();
           }}
-          className="hidden md:flex absolute right-8 text-white/50 hover:text-white transition-all p-4 rounded-full hover:bg-white/10 z-50 group hover:scale-110 active:scale-95"
+          className="hidden md:flex absolute right-6 text-white/60 hover:text-white transition-all p-3 rounded-full hover:bg-white/10 z-50"
           title="Próxima"
         >
-          <FiChevronRight size={48} className="drop-shadow-lg" />
+          <FiChevronRight size={32} />
         </button>
       )}
 
       <div
-        className="w-full h-[100dvh] md:h-[85vh] md:max-w-5xl glass bg-white/90 backdrop-blur-2xl shadow-2xl flex flex-col md:flex-row rounded-none md:rounded-[2rem] lg:rounded-[3rem] overflow-hidden relative border border-white/50 animate-in zoom-in-95 duration-300"
+        className="w-full h-[100dvh] md:h-[80vh] md:max-w-4xl bg-white shadow-2xl flex flex-col md:flex-row rounded-none md:rounded-2xl overflow-hidden relative animate-in zoom-in-95 duration-300"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Botão Fechar */}
+        {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 z-20 glass bg-white/80 hover:bg-white text-neutral-900 rounded-2xl p-3 backdrop-blur-md transition-all hover:scale-105 active:scale-95 shadow-xl border border-white/50"
+          className="absolute top-4 right-4 z-20 bg-white/90 hover:bg-white text-neutral-600 rounded-lg p-2 transition-all hover:scale-105 active:scale-95 shadow-md"
         >
-          <FiX size={24} />
+          <FiX size={20} />
         </button>
 
-        {/* Coluna da Esquerda (Imagem) */}
-        <div className="relative h-72 sm:h-80 md:h-full md:w-1/2 shrink-0 bg-neutral-100 overflow-hidden">
+        {/* Image column */}
+        <div className="relative h-64 sm:h-72 md:h-full md:w-2/5 shrink-0 bg-neutral-100 overflow-hidden">
           <img
             src={plant.imagemUrl}
             alt={plant.nome}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
+            className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-          <div className="absolute bottom-10 left-10 right-10 text-white">
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-black leading-tight drop-shadow-lg font-heading tracking-tight">
+          <div className="absolute bottom-6 left-6 right-6 text-white">
+            <h2 className="text-2xl sm:text-3xl font-semibold leading-tight font-heading">
               {plant.nome}
             </h2>
             {plant.nomeCientifico && (
-              <p className="text-white/80 font-bold uppercase tracking-widest text-xs mt-3 drop-shadow-md">
+              <p className="text-white/70 italic text-sm mt-1">
                 {plant.nomeCientifico}
               </p>
             )}
           </div>
         </div>
 
-        {/* Coluna da Direita (Detalhes) */}
-        <div className="flex-1 overflow-y-auto bg-transparent p-6 sm:p-8 md:p-12 flex flex-col no-scrollbar">
-          <div className="space-y-12 flex-1">
-            <div className="grid grid-cols-2 gap-4 sm:gap-6">
-              <div className="bg-accent-50/50 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border border-accent-100 flex flex-col items-center justify-center text-center gap-2 group hover:bg-accent-100/50 transition-colors">
-                <span className="text-4xl group-hover:scale-110 transition-transform">
-                  {plant.luz === "Sol Pleno"
-                    ? "☀️"
-                    : plant.luz === "Sombra"
-                      ? "☁️"
-                      : plant.luz === "Luz Difusa"
-                        ? "🌤️"
-                        : "⛅"}
-                </span>
-                <span className="font-bold text-accent-900 text-xs uppercase tracking-widest">
+        {/* Details column */}
+        <div className="flex-1 overflow-y-auto p-6 md:p-8 flex flex-col">
+          <div className="space-y-6 flex-1">
+            {/* Info grid */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-neutral-50 p-4 rounded-xl text-center">
+                <span className="text-2xl block mb-2">{luzIcon(plant.luz)}</span>
+                <span className="text-xs font-medium text-neutral-600 block">
                   {plant.luz || "Luz"}
                 </span>
               </div>
 
-              <div className="bg-secondary-50/50 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border border-secondary-100 flex flex-col items-center justify-center text-center gap-2 group hover:bg-secondary-100/50 transition-colors">
-                <span className="text-4xl group-hover:scale-110 transition-transform">
-                  {plant.intervaloRega <= 3
-                    ? "💧"
-                    : plant.intervaloRega <= 7
-                      ? "💧💧"
-                      : "🌵"}
-                </span>
-                <span className="font-bold text-secondary-900 text-xs uppercase tracking-widest">
-                  {plant.intervaloRega} dias
+              <div className="bg-neutral-50 p-4 rounded-xl text-center">
+                <span className="text-2xl block mb-2">{waterIcon(plant.intervaloRega)}</span>
+                <span className="text-xs font-medium text-neutral-600 block">
+                  A cada {plant.intervaloRega} dias
                 </span>
               </div>
 
               {plant.dataAquisicao && (
-                <div className="bg-neutral-50/50 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border border-neutral-100 flex flex-col items-center justify-center text-center gap-2 group hover:bg-neutral-100 transition-colors">
-                  <span className="text-4xl group-hover:scale-110 transition-transform">📅</span>
-                  <span className="font-bold text-neutral-700 text-xs uppercase tracking-widest">
+                <div className="bg-neutral-50 p-4 rounded-xl text-center">
+                  <span className="text-2xl block mb-2">📅</span>
+                  <span className="text-xs font-medium text-neutral-600 block">
                     {new Date(plant.dataAquisicao).toLocaleDateString("pt-BR")}
                   </span>
                 </div>
               )}
 
-              <div
-                className={`p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border flex flex-col items-center justify-center text-center gap-2 group transition-colors ${plant.petFriendly ? "bg-primary-50/50 border-primary-100 hover:bg-primary-100/50" : "bg-red-50/50 border-red-100 hover:bg-red-100/50"}`}
-              >
-                <span className="text-4xl group-hover:scale-110 transition-transform">
-                  {plant.petFriendly ? "🐶" : "🚫"}
-                </span>
-                <span
-                  className={`font-bold text-xs uppercase tracking-widest ${plant.petFriendly ? "text-primary-900" : "text-red-900"}`}
-                >
+              <div className={`p-4 rounded-xl text-center ${plant.petFriendly ? "bg-primary-50" : "bg-red-50"}`}>
+                <span className="text-2xl block mb-2">{plant.petFriendly ? "🐶" : "🚫"}</span>
+                <span className={`text-xs font-medium block ${plant.petFriendly ? "text-primary-700" : "text-red-700"}`}>
                   {plant.petFriendly ? "Pet Friendly" : "Tóxica"}
                 </span>
               </div>
             </div>
 
+            {/* Observations */}
             {plant.observacoes && !isPublicView && (
-              <div className="bg-primary-50/30 p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-primary-100 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-primary-100/50 rounded-full blur-2xl -z-10 group-hover:scale-150 transition-transform duration-700"></div>
-                <span className="block text-primary-900 text-[10px] uppercase tracking-widest font-black mb-4 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-primary-500 rounded-full animate-pulse"></span>
-                  Observações & Diagnóstico
+              <div className="bg-neutral-50 p-5 rounded-xl">
+                <span className="block text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-3">
+                  Observações
                 </span>
-                <p className="text-neutral-700 whitespace-pre-wrap leading-relaxed text-sm font-medium">
+                <p className="text-neutral-700 whitespace-pre-wrap leading-relaxed text-sm">
                   {plant.observacoes}
                 </p>
               </div>
             )}
           </div>
 
-          {/* Navegação Mobile */}
-          <div className="flex justify-between mt-10 md:hidden pt-8 border-t border-neutral-100">
+          {/* Mobile navigation */}
+          <div className="flex justify-between mt-6 md:hidden pt-6 border-t border-neutral-100">
             <button
               disabled={!hasPrev}
               onClick={(e) => {
                 e.stopPropagation();
                 onPrev();
               }}
-              className="flex-1 py-4 text-xs font-black uppercase tracking-widest text-neutral-400 disabled:opacity-20 flex items-center justify-center gap-2 active:scale-95 transition-all"
+              className="flex-1 py-3 text-sm font-medium text-neutral-500 disabled:opacity-30 flex items-center justify-center gap-1"
             >
-              <FiChevronLeft className="text-lg" /> Anterior
+              <FiChevronLeft /> Anterior
             </button>
-            <div className="w-px h-8 bg-neutral-100"></div>
+            <div className="w-px h-6 bg-neutral-100"></div>
             <button
               disabled={!hasNext}
               onClick={(e) => {
                 e.stopPropagation();
                 onNext();
               }}
-              className="flex-1 py-4 text-xs font-black uppercase tracking-widest text-primary-600 disabled:opacity-20 flex items-center justify-center gap-2 active:scale-95 transition-all"
+              className="flex-1 py-3 text-sm font-medium text-primary-600 disabled:opacity-30 flex items-center justify-center gap-1"
             >
-              Próxima <FiChevronRight className="text-lg" />
+              Próxima <FiChevronRight />
             </button>
           </div>
         </div>

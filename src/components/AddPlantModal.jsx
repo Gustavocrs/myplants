@@ -254,45 +254,58 @@ export default function AddPlantModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-md z-50 overflow-y-auto animate-in fade-in duration-300 flex justify-center p-4 sm:p-8">
-      <div className="w-full max-w-3xl lg:max-w-4xl bg-white/90 backdrop-blur-2xl rounded-[1.5rem] sm:rounded-[2rem] shadow-2xl border border-white/50 overflow-hidden font-body animate-in zoom-in-95 duration-300 my-auto h-fit flex flex-col">
-        <div className="p-5 md:p-8 relative text-left flex flex-col gap-5 text-sm">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl sm:text-2xl font-black text-neutral-900 font-heading tracking-tight">
+    <div className="fixed inset-0 bg-neutral-900/50 backdrop-blur-sm z-50 overflow-y-auto animate-in fade-in duration-300 flex items-start justify-center p-4 sm:p-6 md:p-8">
+      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden font-body animate-in zoom-in-95 duration-300 my-8">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
+          <div>
+            <h2 className="text-xl font-semibold text-neutral-900 font-heading">
               {plantToEdit ? "Editar Planta" : "Nova Planta"}
             </h2>
-            <button
-              onClick={onClose}
-              className="text-neutral-900 hover:text-primary-600 p-1.5 hover:bg-neutral-100/50 rounded-xl transition-all"
-            >
-              <span className="text-xl font-bold">✕</span>
-            </button>
+            <p className="text-sm text-neutral-500 mt-0.5">
+              {plantToEdit ? "Atualize as informações da sua planta" : "Adicione uma nova planta ao seu jardim"}
+            </p>
           </div>
+          <button
+            onClick={onClose}
+            className="text-neutral-400 hover:text-neutral-600 p-2 hover:bg-neutral-100 rounded-lg transition-all"
+          >
+            <span className="text-lg font-bold">✕</span>
+          </button>
+        </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-            {/* Coluna da Esquerda (Upload e IA) */}
-            <div className="col-span-1 lg:col-span-5 flex flex-col gap-4">
-              {/* Área de Upload Clicável */}
+        {/* Content */}
+        <div className="p-6 md:p-8">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 md:gap-8">
+            {/* Coluna da Esquerda - Upload e IA */}
+            <div className="md:col-span-2 flex flex-col gap-4">
+              {/* Área de Upload */}
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="aspect-video lg:aspect-square bg-neutral-100/50 border-2 border-dashed border-neutral-300 rounded-[1.5rem] flex flex-col items-center justify-center text-neutral-400 cursor-pointer hover:bg-primary-50/50 hover:border-primary-400 transition-all relative overflow-hidden group shadow-inner min-h-[120px] sm:min-h-[160px]"
+                className="aspect-square bg-neutral-50 border-2 border-dashed border-neutral-200 rounded-xl flex flex-col items-center justify-center text-neutral-400 cursor-pointer hover:bg-primary-50/30 hover:border-primary-300 transition-all relative overflow-hidden group min-h-[200px]"
               >
                 {preview ? (
-                  <img
-                    src={preview}
-                    alt="Preview"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className="text-center group-hover:scale-110 transition-transform duration-300">
-                    <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm text-xl group-hover:bg-primary-500 group-hover:text-white transition-all">
-                      📸
+                  <>
+                    <img
+                      src={preview}
+                      alt="Preview"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all flex items-center justify-center">
+                      <span className="opacity-0 group-hover:opacity-100 text-white text-sm font-medium bg-black/50 px-3 py-1.5 rounded-lg transition-all">
+                        Trocar foto
+                      </span>
                     </div>
-                    <p className="font-bold text-xs text-neutral-500">Toque para selecionar</p>
-                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">Upload de Foto</span>
+                  </>
+                ) : (
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm text-primary-500 group-hover:scale-110 transition-transform">
+                      📷
+                    </div>
+                    <p className="text-sm font-medium text-neutral-600">Selecionar foto</p>
+                    <p className="text-xs text-neutral-400 mt-1">JPG, PNG até 5MB</p>
                   </div>
                 )}
-                {/* Input invisível */}
                 <input
                   type="file"
                   hidden
@@ -302,197 +315,211 @@ export default function AddPlantModal({
                 />
               </div>
 
-              {/* Botão de IA */}
+              {/* Botão IA */}
               {imagemUrl && (
                 <button
                   onClick={handleAiFill}
                   disabled={loading}
-                  className="w-full py-3 bg-primary-900 text-white rounded-xl shadow-xl shadow-primary-900/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 font-bold text-sm border-2 border-white/10"
+                  className="w-full py-2.5 bg-neutral-900 text-white rounded-lg hover:bg-neutral-800 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-sm font-medium disabled:opacity-60"
                 >
-                  {loading
-                    ? "✨ Analisando com IA..."
-                    : "✨ Preencher dados com IA"}
+                  {loading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white animate-spin rounded-full"></div>
+                      Analisando...
+                    </>
+                  ) : (
+                    <>✨ Identificar com IA</>
+                  )}
                 </button>
               )}
             </div>
 
-            {/* Coluna da Direita (Formulário) */}
-            <div className="col-span-1 lg:col-span-7 flex flex-col gap-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
-                    Nome Popular *
-                  </label>
-                  <input
-                    type="text"
-                    value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                    className="w-full bg-white border border-neutral-100 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium text-sm"
-                    placeholder="Ex: Samambaia"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
-                    Nome Científico
-                  </label>
-                  <input
-                    type="text"
-                    value={nomeCientifico}
-                    onChange={(e) => setNomeCientifico(e.target.value)}
-                    className="w-full bg-white border border-neutral-100 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium text-sm"
-                    placeholder="Ex: Nephrolepis exaltata"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
-                    Luz
-                  </label>
-                  <select
-                    value={luz}
-                    onChange={(e) => setLuz(e.target.value)}
-                    className="w-full bg-white border border-neutral-100 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium appearance-none text-sm"
-                  >
-                    <option value="Sombra">Sombra</option>
-                    <option value="Meia-sombra">Meia-sombra</option>
-                    <option value="Luz Difusa">Luz Difusa</option>
-                    <option value="Sol Pleno">Sol Pleno</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
-                    Rega a cada (dias)
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={intervaloRega}
-                    onChange={(e) => setIntervaloRega(e.target.value)}
-                    className="w-full bg-white border border-neutral-100 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium text-sm"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
-                    Última Rega
-                  </label>
-                  <input
-                    type="date"
-                    value={ultimaRega}
-                    onChange={(e) => setUltimaRega(e.target.value)}
-                    className="w-full bg-white border border-neutral-100 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium text-sm"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
-                    Próxima Rega
-                  </label>
-                  <input
-                    type="date"
-                    value={proximaRega}
-                    onChange={handleProximaRegaChange}
-                    className="w-full bg-secondary-50 border border-secondary-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-4 focus:ring-secondary-100 focus:border-secondary-300 transition-all shadow-sm font-bold text-secondary-900 text-sm"
-                  />
-                </div>
-
-                <div className="space-y-1.5 sm:col-span-2 md:col-span-1">
-                  <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
-                    Data de Aquisição
-                  </label>
-                  <input
-                    type="date"
-                    value={dataAquisicao}
-                    onChange={(e) => setDataAquisicao(e.target.value)}
-                    className="w-full bg-white border border-neutral-100 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium text-sm"
-                  />
-                </div>
-                
-                <div className="flex flex-col gap-3 justify-center sm:col-span-2 md:col-span-1">
-                  <div className="flex items-center gap-3">
+            {/* Coluna da Direita - Formulário */}
+            <div className="md:col-span-3">
+              <div className="space-y-4">
+                {/* Nome */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-neutral-600 mb-1.5">
+                      Nome Popular <span className="text-red-400">*</span>
+                    </label>
                     <input
-                      type="checkbox"
-                      id="lembretesAtivos"
-                      checked={lembretesAtivos}
-                      onChange={(e) => setLembretesAtivos(e.target.checked)}
-                      className="w-4 h-4 text-primary-500 border-neutral-300 rounded focus:ring-primary-500 transition-all cursor-pointer"
+                      type="text"
+                      value={nome}
+                      onChange={(e) => setNome(e.target.value)}
+                      className="w-full bg-white border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all placeholder:text-neutral-400"
+                      placeholder="Ex: Samambaia"
                     />
-                    <label
-                      htmlFor="lembretesAtivos"
-                      className="text-xs text-neutral-700 font-bold cursor-pointer"
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-neutral-600 mb-1.5">
+                      Nome Científico
+                    </label>
+                    <input
+                      type="text"
+                      value={nomeCientifico}
+                      onChange={(e) => setNomeCientifico(e.target.value)}
+                      className="w-full bg-white border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all placeholder:text-neutral-400 italic"
+                      placeholder="Ex: Nephrolepis exaltata"
+                    />
+                  </div>
+                </div>
+
+                {/* Luz e Rega */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-neutral-600 mb-1.5">
+                      ☀️ Luz
+                    </label>
+                    <select
+                      value={luz}
+                      onChange={(e) => setLuz(e.target.value)}
+                      className="w-full bg-white border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all appearance-none"
                     >
-                      🔔 Receber lembretes
-                    </label>
+                      <option value="Sombra">Sombra</option>
+                      <option value="Meia-sombra">Meia-sombra</option>
+                      <option value="Luz Difusa">Luz Difusa</option>
+                      <option value="Sol Pleno">Sol Pleno</option>
+                    </select>
                   </div>
-
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      id="petFriendly"
-                      checked={petFriendly}
-                      onChange={(e) => setPetFriendly(e.target.checked)}
-                      className="w-4 h-4 text-primary-500 border-neutral-300 rounded focus:ring-primary-500 transition-all cursor-pointer"
-                    />
-                    <label htmlFor="petFriendly" className="text-xs text-neutral-700 font-medium cursor-pointer">
-                      🐾 Pet Friendly
+                  <div>
+                    <label className="block text-xs font-medium text-neutral-600 mb-1.5">
+                      💧 Rega (dias)
                     </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={intervaloRega}
+                      onChange={(e) => setIntervaloRega(e.target.value)}
+                      className="w-full bg-white border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-neutral-600 mb-1.5">
+                      📅 Aquisição
+                    </label>
+                    <input
+                      type="date"
+                      value={dataAquisicao}
+                      onChange={(e) => setDataAquisicao(e.target.value)}
+                      className="w-full bg-white border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all"
+                    />
                   </div>
                 </div>
-              </div>
 
-              <div className="space-y-1.5 flex-1 flex flex-col">
-                <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
-                  Avaliação Botânica & Observações
-                </label>
-                <textarea
-                  value={observacoes}
-                  onChange={(e) => setObservacoes(e.target.value)}
-                  className="w-full bg-white border border-neutral-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-primary-100 focus:border-primary-300 transition-all shadow-sm font-medium resize-none flex-1 min-h-[60px] text-sm"
-                  placeholder="Cuidados especiais, história da planta..."
-                />
+                {/* Datas de Rega */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-neutral-600 mb-1.5">
+                      Última rega
+                    </label>
+                    <input
+                      type="date"
+                      value={ultimaRega}
+                      onChange={(e) => setUltimaRega(e.target.value)}
+                      className="w-full bg-white border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-neutral-600 mb-1.5">
+                      Próxima rega
+                    </label>
+                    <input
+                      type="date"
+                      value={proximaRega}
+                      onChange={handleProximaRegaChange}
+                      className="w-full bg-primary-50/50 border border-primary-200 rounded-lg px-3.5 py-2.5 text-sm font-medium text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all"
+                    />
+                  </div>
+                </div>
+
+                {/* Observações */}
+                <div>
+                  <label className="block text-xs font-medium text-neutral-600 mb-1.5">
+                    Observações
+                  </label>
+                  <textarea
+                    value={observacoes}
+                    onChange={(e) => setObservacoes(e.target.value)}
+                    rows={3}
+                    className="w-full bg-white border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all resize-none placeholder:text-neutral-400"
+                    placeholder="Cuidados especiais, história da planta..."
+                  />
+                </div>
+
+                {/* Toggles */}
+                <div className="flex flex-wrap gap-4 pt-1">
+                  <label className="flex items-center gap-2.5 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={lembretesAtivos}
+                        onChange={(e) => setLembretesAtivos(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-9 h-5 bg-neutral-200 rounded-full peer-checked:bg-primary-500 transition-colors"></div>
+                      <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm peer-checked:translate-x-4 transition-transform"></div>
+                    </div>
+                    <span className="text-sm text-neutral-700 font-medium group-hover:text-neutral-900 transition-colors">
+                      Lembretes de rega
+                    </span>
+                  </label>
+
+                  <label className="flex items-center gap-2.5 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={petFriendly}
+                        onChange={(e) => setPetFriendly(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-9 h-5 bg-neutral-200 rounded-full peer-checked:bg-primary-500 transition-colors"></div>
+                      <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm peer-checked:translate-x-4 transition-transform"></div>
+                    </div>
+                    <span className="text-sm text-neutral-700 font-medium group-hover:text-neutral-900 transition-colors">
+                      Pet friendly
+                    </span>
+                  </label>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex justify-between items-center bg-neutral-50 p-4 sm:p-5 border-t border-neutral-100 mt-auto">
-          {/* Botão de Excluir */}
-            <div>
-              {plantToEdit && (
-                <button
-                  onClick={() => onDelete(plantToEdit._id)}
-                  className="text-red-500 hover:text-red-700 text-xs font-black uppercase tracking-widest px-3 py-2 hover:bg-red-50 rounded-lg transition-all flex items-center gap-2"
-                >
-                  <FiTrash2 className="text-base" />
-                  <span className="hidden md:inline">Excluir</span>
-                </button>
-              )}
-            </div>
-
-            <div className="flex gap-4">
+        {/* Footer */}
+        <div className="flex items-center justify-between px-6 py-4 bg-neutral-50 border-t border-neutral-100">
+          <div>
+            {plantToEdit && (
               <button
-                onClick={hasChanges() ? handleSave : onClose}
-                disabled={loading || (hasChanges() && (!nome || !imagemUrl))}
-                className={`px-6 py-3 rounded-xl transition-all shadow-xl disabled:opacity-50 flex items-center gap-2 font-bold text-sm hover:scale-105 active:scale-95 w-full sm:w-auto justify-center ${
-                  hasChanges()
-                    ? "bg-primary-500 text-white shadow-primary-500/25"
-                    : "bg-white text-neutral-700 border border-neutral-200"
-                }`}
+                onClick={() => onDelete(plantToEdit._id)}
+                className="text-red-500 hover:text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg transition-all flex items-center gap-2 text-sm font-medium"
               >
-                {loading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white animate-spin rounded-full"></div>
-                ) : hasChanges() ? (
-                  <>
-                    <span>{plantToEdit ? "Salvar Alterações" : "Adicionar ao Jardim"}</span>
-                  </>
-                ) : (
-                  <span>Fechar</span>
-                )}
+                <FiTrash2 className="text-base" />
+                Excluir
               </button>
-            </div>
+            )}
           </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={hasChanges() ? handleSave : onClose}
+              disabled={loading || (hasChanges() && (!nome || !imagemUrl))}
+              className={`px-5 py-2.5 rounded-lg transition-all text-sm font-medium disabled:opacity-50 ${
+                hasChanges()
+                  ? "bg-primary-500 text-white hover:bg-primary-600 shadow-sm"
+                  : "bg-white text-neutral-700 border border-neutral-200 hover:bg-neutral-50"
+              }`}
+            >
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-current/30 border-t-current animate-spin rounded-full"></div>
+              ) : hasChanges() ? (
+                plantToEdit ? "Salvar alterações" : "Adicionar ao jardim"
+              ) : (
+                "Fechar"
+              )}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
