@@ -1,13 +1,17 @@
 "use client";
-import {useState, useEffect} from "react";
-import {api} from "../services/api";
-import {useAuth} from "@/context/AuthContext";
-import WateringStatus from "./WateringStatus";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
+import { api } from "../services/api";
+import WateringStatus from "./WateringStatus";
 
-export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
+export default function SettingsModal({
+  onClose,
+  plants = [],
+  onPlantsUpdate,
+}) {
   useEscapeKey(onClose);
-  const {user} = useAuth();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("general");
   const [showGeminiKey, setShowGeminiKey] = useState(false);
@@ -130,7 +134,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
       isOpen: true,
       message: "Tem certeza? Isso afetará TODAS as suas plantas.",
       onConfirm: async () => {
-        setConfirmDialog({isOpen: false, message: "", onConfirm: null});
+        setConfirmDialog({ isOpen: false, message: "", onConfirm: null });
         try {
           setMassUpdateLoading(true);
           const token = await user.getIdToken();
@@ -144,7 +148,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
               },
               body: JSON.stringify({
                 userId: user.uid,
-                updates: {[field]: value},
+                updates: { [field]: value },
               }),
             },
           );
@@ -176,11 +180,13 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
   ];
 
   return (
-    <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl h-[90vh] sm:h-[85vh] flex flex-col font-body overflow-hidden animate-in zoom-in-95 duration-300">
+    <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300">
+      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl h-[95vh] sm:h-[85vh] max-h-[800px] flex flex-col font-body overflow-hidden animate-in zoom-in-95 duration-300">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
-          <h2 className="text-xl font-semibold text-neutral-900 font-heading">Configurações</h2>
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-neutral-100 shrink-0">
+          <h2 className="text-lg sm:text-xl font-semibold text-neutral-900 font-heading">
+            Configurações
+          </h2>
           <button
             onClick={onClose}
             className="text-neutral-400 hover:text-neutral-600 p-2 hover:bg-neutral-100 rounded-lg transition-all"
@@ -190,11 +196,11 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
         </div>
 
         {/* Tabs */}
-        <div className="flex bg-neutral-50 px-4 pt-3 gap-1 overflow-x-auto no-scrollbar">
+        <div className="flex bg-neutral-50 px-2 sm:px-4 pt-2 sm:pt-3 gap-1 overflow-x-auto no-scrollbar shrink-0">
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              className={`flex-1 min-w-[80px] py-2.5 px-3 rounded-lg text-sm font-medium transition-all ${
+              className={`flex-1 min-w-[70px] sm:min-w-[80px] py-2 px-2 sm:px-3 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
                 activeTab === tab.id
                   ? "bg-white text-primary-600 shadow-sm"
                   : "text-neutral-500 hover:text-neutral-700 hover:bg-white/50"
@@ -207,7 +213,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto flex-1">
+        <div className="p-3 sm:p-6 overflow-y-auto flex-1 min-h-0">
           {activeTab === "general" && (
             <div className="space-y-6 max-w-xl animate-fade-in">
               <div>
@@ -219,7 +225,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                     type={showGeminiKey ? "text" : "password"}
                     value={formData.geminiApiKey}
                     onChange={(e) =>
-                      setFormData({...formData, geminiApiKey: e.target.value})
+                      setFormData({ ...formData, geminiApiKey: e.target.value })
                     }
                     className="w-full bg-white border border-neutral-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all pr-12 placeholder:text-neutral-400"
                     placeholder="AIzaSy..."
@@ -234,12 +240,14 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                 </div>
                 <div className="bg-primary-50 p-4 rounded-lg border border-primary-100 mt-4">
                   <p className="text-sm text-primary-800 leading-relaxed">
-                    Personalize o motor de inteligência artificial. Deixe em branco para usar a infraestrutura padrão do MyPlants.
+                    Personalize o motor de inteligência artificial. Deixe em
+                    branco para usar a infraestrutura padrão do MyPlants.
                     <br />
                     <a
                       href="https://aistudio.google.com/app/apikey"
                       target="_blank"
                       className="inline-block mt-2 font-medium text-primary-600 hover:underline"
+                      rel="noopener"
                     >
                       Gerar minha própria chave gratuita ↗
                     </a>
@@ -258,7 +266,9 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                     <span className="text-neutral-900 font-medium block">
                       Notificações Ativas
                     </span>
-                    <span className="text-xs text-neutral-500">Receba avisos de rega diretamente no seu e-mail.</span>
+                    <span className="text-xs text-neutral-500">
+                      Receba avisos de rega diretamente no seu e-mail.
+                    </span>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -289,7 +299,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        smtp: {...formData.smtp, host: e.target.value},
+                        smtp: { ...formData.smtp, host: e.target.value },
                       })
                     }
                     className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all placeholder:text-neutral-400"
@@ -306,7 +316,10 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        smtp: {...formData.smtp, port: Number(e.target.value)},
+                        smtp: {
+                          ...formData.smtp,
+                          port: Number(e.target.value),
+                        },
                       })
                     }
                     className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all"
@@ -321,7 +334,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        smtp: {...formData.smtp, secure: e.target.checked},
+                        smtp: { ...formData.smtp, secure: e.target.checked },
                       })
                     }
                     className="w-4 h-4 text-primary-500 rounded focus:ring-primary-500"
@@ -343,7 +356,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        smtp: {...formData.smtp, fromEmail: e.target.value},
+                        smtp: { ...formData.smtp, fromEmail: e.target.value },
                       })
                     }
                     className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all placeholder:text-neutral-400"
@@ -360,7 +373,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        smtp: {...formData.smtp, user: e.target.value},
+                        smtp: { ...formData.smtp, user: e.target.value },
                       })
                     }
                     className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all"
@@ -377,7 +390,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                       onChange={(e) =>
                         setFormData({
                           ...formData,
-                          smtp: {...formData.smtp, pass: e.target.value},
+                          smtp: { ...formData.smtp, pass: e.target.value },
                         })
                       }
                       className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all pr-10"
@@ -442,7 +455,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                     type="checkbox"
                     checked={formData.isPublic}
                     onChange={(e) =>
-                      setFormData({...formData, isPublic: e.target.checked})
+                      setFormData({ ...formData, isPublic: e.target.checked })
                     }
                     className="sr-only peer"
                   />
@@ -460,7 +473,10 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                       type="text"
                       value={formData.displayName}
                       onChange={(e) =>
-                        setFormData({...formData, displayName: e.target.value})
+                        setFormData({
+                          ...formData,
+                          displayName: e.target.value,
+                        })
                       }
                       className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all placeholder:text-neutral-400"
                       placeholder="Ex: Jardim do Gustavo"
@@ -501,6 +517,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                         href={`/${formData.slug}`}
                         target="_blank"
                         className="text-primary-600 hover:underline text-sm flex items-center gap-1"
+                        rel="noopener"
                       >
                         🔗 Visualizar meu perfil público
                       </a>
@@ -539,31 +556,33 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 bg-neutral-50 border-t border-neutral-100">
+        <div className="flex items-center justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-neutral-50 border-t border-neutral-100 shrink-0">
           <button
             onClick={onClose}
-            className="px-5 py-2.5 text-neutral-600 hover:text-neutral-800 transition-all text-sm font-medium"
+            className="px-4 sm:px-5 py-2 sm:py-2.5 text-neutral-600 hover:text-neutral-800 transition-all text-sm font-medium"
           >
             Cancelar
           </button>
           <button
             onClick={handleSave}
             disabled={loading}
-            className="px-6 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-all disabled:opacity-50 text-sm font-medium shadow-sm"
+            className="px-5 sm:px-6 py-2 sm:py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-all disabled:opacity-50 text-sm font-medium shadow-sm"
           >
-            {loading ? "Processando..." : "Salvar Configurações"}
+            {loading ? "Processando..." : "Salvar"}
           </button>
         </div>
 
         {/* Confirmation Modal */}
         {confirmDialog.isOpen && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-neutral-900/40 backdrop-blur-sm">
-            <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full mx-4 animate-in zoom-in-95 duration-200">
-              <h3 className="text-lg font-semibold text-neutral-900 mb-2">
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-neutral-900/40 backdrop-blur-sm p-4">
+            <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg max-w-sm w-full animate-in zoom-in-95 duration-200">
+              <h3 className="text-base sm:text-lg font-semibold text-neutral-900 mb-2">
                 Confirmar Ação
               </h3>
-              <p className="text-neutral-600 mb-6">{confirmDialog.message}</p>
-              <div className="flex justify-end gap-3">
+              <p className="text-neutral-600 text-sm mb-4 sm:mb-6">
+                {confirmDialog.message}
+              </p>
+              <div className="flex justify-end gap-2 sm:gap-3">
                 <button
                   onClick={() =>
                     setConfirmDialog({
@@ -572,13 +591,13 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                       onConfirm: null,
                     })
                   }
-                  className="px-4 py-2 text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors font-medium"
+                  className="px-3 sm:px-4 py-2 text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors text-sm font-medium"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={confirmDialog.onConfirm}
-                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
+                  className="px-3 sm:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
                 >
                   Confirmar
                 </button>
@@ -589,14 +608,16 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
 
         {/* Alert Modal */}
         {alertDialog.isOpen && (
-          <div className="fixed inset-0 z-[70] flex items-center justify-center bg-neutral-900/40 backdrop-blur-sm">
-            <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full mx-4 animate-in zoom-in-95 duration-200">
+          <div className="fixed inset-0 z-[70] flex items-center justify-center bg-neutral-900/40 backdrop-blur-sm p-4">
+            <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg max-w-sm w-full animate-in zoom-in-95 duration-200">
               <h3
-                className={`text-lg font-semibold mb-2 ${alertDialog.isError ? "text-red-600" : "text-neutral-900"}`}
+                className={`text-base sm:text-lg font-semibold mb-2 ${alertDialog.isError ? "text-red-600" : "text-neutral-900"}`}
               >
                 {alertDialog.isError ? "Erro" : "Sucesso"}
               </h3>
-              <p className="text-neutral-600 mb-6">{alertDialog.message}</p>
+              <p className="text-neutral-600 text-sm mb-4 sm:mb-6">
+                {alertDialog.message}
+              </p>
               <div className="flex justify-end">
                 <button
                   onClick={() => {
@@ -609,7 +630,7 @@ export default function SettingsModal({onClose, plants = [], onPlantsUpdate}) {
                     });
                     if (callback) callback();
                   }}
-                  className={`px-4 py-2 text-white rounded-lg transition-colors font-medium ${alertDialog.isError ? "bg-red-500 hover:bg-red-600" : "bg-primary-500 hover:bg-primary-600"}`}
+                  className={`px-4 py-2 text-white rounded-lg transition-colors text-sm font-medium ${alertDialog.isError ? "bg-red-500 hover:bg-red-600" : "bg-primary-500 hover:bg-primary-600"}`}
                 >
                   OK
                 </button>
