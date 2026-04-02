@@ -27,4 +27,4 @@ services:
 
 networks:
   myplants-network:
-    driver: bridge
+    external: true
