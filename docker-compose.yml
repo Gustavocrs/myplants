@@ -50,4 +50,5 @@ networks:
 
 volumes:
   mongo_data:
-    external: false
+    name: myplants_mongo_data
+    external: true
