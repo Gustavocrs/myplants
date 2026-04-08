@@ -1,13 +1,12 @@
 node_modules
-npm-debug.log
 .git
 .next
 .DS_Store
 *.log
 .env*
 public
-src/app/api/*
-!src/app/api/package*.json
+src
+!src/app/api
 next.config.mjs
 postcss.config.mjs
 biome.json
@@ -15,3 +14,5 @@ jsconfig.json
 README.md
 .gitignore
 .vercelignore
+package.json
+package-lock.json
