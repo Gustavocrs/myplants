@@ -87,15 +87,10 @@ async function migrate() {
       }
 
       const existing = await Plant.findOne({ userId, nome: data.name });
-      if (existing) {
-        console.log(`⏭️ Pulando ${data.name} - já existe no MongoDB`);
-        skipped++;
-        continue;
-      }
-
+      
       let imagemUrl = data.imageUrl;
       if (imagemUrl && imagemUrl.startsWith("data:image")) {
-        console.log(`🖼️ Convertendo imagem para ${data.name}...`);
+        console.log(`🖼️  Convertendo imagem para ${data.name}...`);
         imagemUrl = await convertBase64ToFile(imagemUrl);
       }
 
@@ -110,15 +105,20 @@ async function migrate() {
         createdAt: (data.createdAt && data.createdAt.toDate) ? data.createdAt.toDate() : (data.createdAt ? new Date(data.createdAt) : new Date()),
       };
 
-      // Se por algum motivo a data ainda for inválida, usa a data atual
       if (isNaN(plantData.createdAt.getTime())) {
         plantData.createdAt = new Date();
       }
 
-      await Plant.create(plantData);
-      console.log(`✅ Migrado: ${plantData.nome} (userId: ${userId})`);
+      if (existing) {
+        console.log(`🔄 Atualizando: ${data.name}...`);
+        await Plant.findByIdAndUpdate(existing._id, plantData);
+      } else {
+        await Plant.create(plantData);
+        console.log(`✅ Criado: ${plantData.nome} (userId: ${userId})`);
+      }
       migrated++;
     }
+
 
     console.log("\n📈 RESUMO DA MIGRAÇÃO:");
     console.log(`   - Total processado: ${snapshot.size}`);
