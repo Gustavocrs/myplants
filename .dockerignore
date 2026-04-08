@@ -4,3 +4,14 @@ node_modules
 .DS_Store
 *.log
 .env
+src/
+public/
+package.json
+package-lock.json
+next.config.mjs
+postcss.config.mjs
+biome.json
+jsconfig.json
+README.md
+.gitignore
+.vercelignore
