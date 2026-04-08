@@ -1,8 +1,8 @@
 services:
   myplants:
     build:
-      context: .
-      dockerfile: src/app/api/Dockerfile
+      context: ./api
+      dockerfile: Dockerfile
     image: myplants-api
     container_name: myplants-api
     ports:
