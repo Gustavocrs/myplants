@@ -5,10 +5,8 @@ npm-debug.log
 .DS_Store
 *.log
 .env*
-!.env
 public
-src
-package*.json
+src/app/api/*
 !src/app/api/package*.json
 next.config.mjs
 postcss.config.mjs
