@@ -53,12 +53,7 @@ async function migrate() {
     console.log("✅ Firebase conectado!");
 
     console.log("🔌 Conectando no MongoDB...");
-    const mongoUri = process.env.MONGO_URI.includes("localhost")
-      ? process.env.MONGO_URI
-      : process.env.MONGO_URI.replace(
-          "mongodb://admin:secret@mongodb:",
-          "mongodb://admin:secret@localhost:",
-        );
+    const mongoUri = process.env.MONGO_URI;
 
     await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 5000,
