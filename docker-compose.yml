@@ -19,6 +19,9 @@ services:
       - API_URL
       - TZ
       - FIREBASE_SERVICE_ACCOUNT
+    volumes:
+      - ./api/public/uploads:/app/public/uploads
+
 
     networks:
       - myplants-network
