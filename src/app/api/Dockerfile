@@ -3,8 +3,7 @@ WORKDIR /app
 RUN apk add --no-cache dumb-init
 COPY src/app/api/package*.json ./
 RUN npm install --omit=dev
-COPY src/app/api/* ./
-COPY src/app/api/.dockerignore ./
+COPY src/app/api/ ./
 RUN addgroup -g 1001 -S nodejs && adduser -S nodeapi -u 1001
 RUN chown -R nodeapi:nodejs /app
 USER nodeapi

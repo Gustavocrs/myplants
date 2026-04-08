@@ -3,16 +3,4 @@ node_modules
 .next
 .DS_Store
 *.log
-.env*
-public
-src
-!src/app/api
-next.config.mjs
-postcss.config.mjs
-biome.json
-jsconfig.json
-README.md
-.gitignore
-.vercelignore
-package.json
-package-lock.json
+.env
