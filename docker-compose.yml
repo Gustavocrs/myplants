@@ -1,6 +1,6 @@
 services:
   myplants:
-    build: ./api
+    build: ./src/app/api
     image: myplants-api
     container_name: myplants-api
     ports:
@@ -16,6 +16,7 @@ services:
       - EMAIL_PASS=${EMAIL_PASS}
       - API_URL=${API_URL}
       - TZ=${TZ}
+      - FIREBASE_SERVICE_ACCOUNT=${FIREBASE_SERVICE_ACCOUNT}
     networks:
       - myplants-network
     healthcheck:
