@@ -5,6 +5,7 @@ node_modules
 *.log
 .env
 src/
+!src/app/api
 public/
 package.json
 package-lock.json
