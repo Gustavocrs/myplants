@@ -4,6 +4,7 @@ const nodemailer = require("nodemailer");
 const Plant = require("../models/Plant");
 const Settings = require("../models/Settings");
 const {decrypt} = require("../utils/crypto");
+const { backupMongoToFirebase } = require("./backupService");
 
 // Cache simples de transporters para não recriar a cada loop (opcional)
 const transporters = {};
@@ -168,7 +169,13 @@ const startScheduler = () => {
   cron.schedule("0 * * * *", () => {
     checkPlantsAndNotify();
   });
-  console.log("📅 Serviço de agendamento de rega iniciado.");
+
+  // Agendamento de Backup Semanal: Todo Domingo às 00:00
+  cron.schedule("0 0 * * 0", () => {
+    backupMongoToFirebase();
+  });
+
+  console.log("📅 Serviço de agendamento de rega e backup iniciado.");
 };
 
 module.exports = {startScheduler, sendTestEmail};
