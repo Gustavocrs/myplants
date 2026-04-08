@@ -4,10 +4,12 @@ npm-debug.log
 .next
 .DS_Store
 *.log
-.env
+.env*
+!.env
 public
 src
 package*.json
+!src/app/api/package*.json
 next.config.mjs
 postcss.config.mjs
 biome.json
