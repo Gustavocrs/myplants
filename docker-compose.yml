@@ -8,9 +8,6 @@ services:
     ports:
       - "${PORT}:${PORT}"
     restart: unless-stopped
-    depends_on:
-      mongodb:
-        condition: service_healthy
     environment:
       - NODE_ENV=production
       - PORT=${PORT}
@@ -25,30 +22,6 @@ services:
     networks:
       - myplants-network
 
-  mongodb:
-    image: mongo:6.0
-    container_name: myplants-mongodb
-    restart: unless-stopped
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=secret
-    volumes:
-      - mongo_data:/data/db
-    ports:
-      - "27017:27017"
-    networks:
-      - myplants-network
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
 networks:
   myplants-network:
-    driver: bridge
-
-volumes:
-  mongo_data:
-    name: myplants_mongo_data
     external: true
