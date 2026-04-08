@@ -6,7 +6,7 @@ const fs = require("fs");
 
 const Plant = require("../models/Plant");
 
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+// Inicialização será feita dentro da função migrate
 
 async function convertBase64ToFile(base64String) {
   if (!base64String || !base64String.startsWith("data:image")) {
@@ -46,6 +46,14 @@ async function convertBase64ToFile(base64String) {
 
 async function migrate() {
   try {
+    let saRaw = process.env.FIREBASE_SERVICE_ACCOUNT;
+    if (!saRaw) throw new Error("A variável FIREBASE_SERVICE_ACCOUNT não está definida.");
+    
+    saRaw = saRaw.trim();
+    if (saRaw.startsWith("'") && saRaw.endsWith("'")) saRaw = saRaw.slice(1, -1);
+    
+    const serviceAccount = JSON.parse(saRaw);
+
     console.log("🔌 Conectando no Firebase...");
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),

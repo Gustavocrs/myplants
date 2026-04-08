@@ -10,7 +10,15 @@ const Settings = require("../models/Settings");
 // A inicialização do Firebase deve ser protegida para não ocorrer duplicidade
 if (!admin.apps.length) {
   try {
-    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    let saRaw = process.env.FIREBASE_SERVICE_ACCOUNT;
+    if (!saRaw) throw new Error("A variável FIREBASE_SERVICE_ACCOUNT não está definida.");
+    
+    // Remove aspas extras que podem vir da VPS (shell quotes)
+    saRaw = saRaw.trim();
+    if (saRaw.startsWith("'") && saRaw.endsWith("'")) saRaw = saRaw.slice(1, -1);
+    // Mas não removemos aspas duplas se for um JSON válido (que deve começar com {)
+    
+    const serviceAccount = JSON.parse(saRaw);
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
@@ -20,12 +28,18 @@ if (!admin.apps.length) {
   }
 }
 
-const db = admin.firestore();
-
 /**
  * Função principal que realiza o backup das coleções
  */
 const backupMongoToFirebase = async () => {
+  let db;
+  try {
+    db = admin.firestore();
+  } catch (err) {
+    console.error("❌ [BackupService] Não foi possível acessar o Firestore. Verifique as chaves do Firebase.");
+    return;
+  }
+
   console.log("📡 [BackupService] Iniciando sincronização semanal para o Firebase...");
   const stats = { plants: 0, settings: 0, errors: 0 };
 
