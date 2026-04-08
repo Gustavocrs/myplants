@@ -1,4 +1,5 @@
-require("dotenv").config(); // Carrega o .env se estiver rodando localmente, caso contrário usa as envs do Docker
+const path = require("path");
+require("dotenv").config();
 const admin = require("firebase-admin");
 const mongoose = require("mongoose");
 const fs = require("fs");
@@ -98,8 +99,13 @@ async function migrate() {
         petFriendly: false,
         lembretesAtivos: true,
         imagemUrl: imagemUrl || "",
-        createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+        createdAt: (data.createdAt && data.createdAt.toDate) ? data.createdAt.toDate() : (data.createdAt ? new Date(data.createdAt) : new Date()),
       };
+
+      // Se por algum motivo a data ainda for inválida, usa a data atual
+      if (isNaN(plantData.createdAt.getTime())) {
+        plantData.createdAt = new Date();
+      }
 
       await Plant.create(plantData);
       console.log(`✅ Migrado: ${plantData.nome} (userId: ${userId})`);
