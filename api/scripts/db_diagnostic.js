@@ -22,9 +22,13 @@ const dbDiagnostic = async () => {
       const uniqueUserIds = await plantsCollection.distinct("userId");
       console.log(`👤 UserIDs proprietários dos itens:`, uniqueUserIds);
       
-      const firstItems = await plantsCollection.find({}).limit(3).toArray();
-      console.log(`📝 Amostra de nomes das plantas no banco:`, firstItems.map(p => p.nome).join(", "));
+      const sample = await plantsCollection.find({}).limit(5).toArray();
+      console.log(`\n🖼️  Amostra de Links de Imagens:`);
+      sample.forEach(p => {
+        console.log(`   - ${p.nome}: ${p.imagemUrl || 'Vazio'}`);
+      });
     }
+
 
     process.exit(0);
   } catch (err) {
