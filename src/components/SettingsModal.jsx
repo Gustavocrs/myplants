@@ -1,5 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
+import {
+  FiAlertCircle,
+  FiCheckCircle,
+  FiCpu,
+  FiDroplet,
+  FiExternalLink,
+  FiEye,
+  FiEyeOff,
+  FiGlobe,
+  FiMail,
+  FiSettings,
+  FiX,
+} from "react-icons/fi";
 import { useAuth } from "@/context/AuthContext";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { api } from "../services/api";
@@ -17,7 +30,6 @@ export default function SettingsModal({
   const [showGeminiKey, setShowGeminiKey] = useState(false);
   const [showSmtpPass, setShowSmtpPass] = useState(false);
   const [testingEmail, setTestingEmail] = useState(false);
-  const [massUpdateLoading, setMassUpdateLoading] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     message: "",
@@ -49,10 +61,8 @@ export default function SettingsModal({
   });
 
   useEffect(() => {
-    if (user) {
-      loadSettings();
-    }
-    setHostName(globalThis.location?.host || "");
+    if (user) loadSettings();
+    setHostName(globalThis.location?.host || "myplants.link");
   }, [user]);
 
   const loadSettings = async () => {
@@ -93,16 +103,12 @@ export default function SettingsModal({
       await api.saveSettings(user.uid, formData);
       setAlertDialog({
         isOpen: true,
-        message: "Configurações salvas com sucesso!",
+        message: "As configurações do seu jardim foram atualizadas!",
         isError: false,
         onCloseAlert: () => onClose(),
       });
     } catch (error) {
-      setAlertDialog({
-        isOpen: true,
-        message: "Erro ao salvar: " + error.message,
-        isError: true,
-      });
+      setAlertDialog({ isOpen: true, message: error.message, isError: true });
     } finally {
       setLoading(false);
     }
@@ -115,160 +121,132 @@ export default function SettingsModal({
       await api.testNotification(user.uid, user.email);
       setAlertDialog({
         isOpen: true,
-        message: `E-mail de teste enviado para ${user.email}! Verifique sua caixa de entrada (e spam).`,
+        message: `E-mail de teste enviado para ${user.email}`,
         isError: false,
       });
     } catch (error) {
-      setAlertDialog({
-        isOpen: true,
-        message: "Erro no teste: " + error.message,
-        isError: true,
-      });
+      setAlertDialog({ isOpen: true, message: error.message, isError: true });
     } finally {
       setTestingEmail(false);
     }
   };
 
-  const handleMassUpdate = (field, value) => {
-    setConfirmDialog({
-      isOpen: true,
-      message: "Tem certeza? Isso afetará TODAS as suas plantas.",
-      onConfirm: async () => {
-        setConfirmDialog({ isOpen: false, message: "", onConfirm: null });
-        try {
-          setMassUpdateLoading(true);
-          const token = await user.getIdToken();
-
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/plants/batch`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                userId: user.uid,
-                updates: { [field]: value },
-              }),
-            },
-          );
-
-          if (!response.ok) throw new Error("Falha na atualização em massa");
-          setAlertDialog({
-            isOpen: true,
-            message: "Plantas atualizadas com sucesso!",
-            isError: false,
-          });
-        } catch (error) {
-          setAlertDialog({
-            isOpen: true,
-            message: "Erro: " + error.message,
-            isError: true,
-          });
-        } finally {
-          setMassUpdateLoading(false);
-        }
-      },
-    });
-  };
-
   const tabs = [
-    { id: "general", label: "IA", icon: "🤖" },
-    { id: "email", label: "Email", icon: "📧" },
-    { id: "profile", label: "Perfil", icon: "🌍" },
-    { id: "watering", label: "Rega", icon: "💧" },
+    { id: "general", label: "Inteligência IA", icon: <FiCpu /> },
+    { id: "email", label: "Notificações", icon: <FiMail /> },
+    { id: "profile", label: "Perfil Público", icon: <FiGlobe /> },
+    { id: "watering", label: "Gestão Global", icon: <FiDroplet /> },
   ];
 
   return (
-    <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-300">
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl h-[95vh] sm:h-[85vh] max-h-[800px] flex flex-col font-body overflow-hidden animate-in zoom-in-95 duration-300">
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-neutral-100 shrink-0">
-          <h2 className="text-lg sm:text-xl font-semibold text-neutral-900 font-heading">
-            Configurações
-          </h2>
+    <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-md z-[100] flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+      <div className="w-full max-w-5xl bg-white dark:bg-neutral-900 rounded-[2.5rem] shadow-premium h-[90vh] md:h-[750px] flex flex-col md:flex-row overflow-hidden animate-slide-up border border-white/20 dark:border-neutral-800/40">
+        {/* Sidebar Navigation */}
+        <aside className="w-full md:w-64 bg-neutral-50 dark:bg-neutral-900/20 border-r border-neutral-100 dark:border-neutral-800/50 flex flex-col p-6 shrink-0">
+          <div className="mb-10 flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+              <FiSettings size={22} />
+            </div>
+            <h2 className="text-xl font-black font-heading tracking-tight dark:text-white">
+              Ajustes
+            </h2>
+          </div>
+
+          <nav className="space-y-2 flex-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all ${
+                  activeTab === tab.id
+                    ? "bg-white dark:bg-neutral-800 text-primary-600 shadow-md scale-105"
+                    : "text-neutral-400 hover:bg-white/50 dark:hover:bg-neutral-800/50"
+                }`}
+              >
+                <span className="text-lg">{tab.icon}</span>
+                <span className="tracking-tight">{tab.label}</span>
+              </button>
+            ))}
+          </nav>
+
           <button
             onClick={onClose}
-            className="text-neutral-400 hover:text-neutral-600 p-2 hover:bg-neutral-100 rounded-lg transition-all"
+            className="mt-10 w-full py-4 text-xs font-black uppercase tracking-widest text-neutral-400 hover:text-neutral-600 transition-colors"
           >
-            <span className="text-lg font-bold">✕</span>
+            Fechar Painel
           </button>
-        </div>
+        </aside>
 
-        {/* Tabs */}
-        <div className="flex bg-neutral-50 px-2 sm:px-4 pt-2 sm:pt-3 gap-1 overflow-x-auto no-scrollbar shrink-0">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              className={`flex-1 min-w-[70px] sm:min-w-[80px] py-2 px-2 sm:px-3 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
-                activeTab === tab.id
-                  ? "bg-white text-primary-600 shadow-sm"
-                  : "text-neutral-500 hover:text-neutral-700 hover:bg-white/50"
-              }`}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              <span>{tab.icon}</span> {tab.label}
-            </button>
-          ))}
-        </div>
+        {/* Content Area */}
+        <main className="flex-1 flex flex-col min-w-0 bg-white dark:bg-neutral-900">
+          <header className="px-10 py-8 flex items-center justify-between border-b border-neutral-50 dark:border-neutral-800/40">
+            <div>
+              <h3 className="text-2xl font-black font-heading tracking-tight dark:text-white capitalize">
+                {activeTab}
+              </h3>
+              <p className="text-xs text-neutral-400 font-medium mt-1">
+                Gerencie as preferências do seu sistema botânico.
+              </p>
+            </div>
+          </header>
 
-        {/* Content */}
-        <div className="p-3 sm:p-6 overflow-y-auto flex-1 min-h-0">
-          {activeTab === "general" && (
-            <div className="space-y-6 max-w-xl animate-fade-in">
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-2">
-                  Chave da API do Gemini (Google AI)
-                </label>
-                <div className="relative">
-                  <input
-                    type={showGeminiKey ? "text" : "password"}
-                    value={formData.geminiApiKey}
-                    onChange={(e) =>
-                      setFormData({ ...formData, geminiApiKey: e.target.value })
-                    }
-                    className="w-full bg-white border border-neutral-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all pr-12 placeholder:text-neutral-400"
-                    placeholder="AIzaSy..."
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowGeminiKey(!showGeminiKey)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
-                  >
-                    {showGeminiKey ? "🙈" : "👁️"}
-                  </button>
-                </div>
-                <div className="bg-primary-50 p-4 rounded-lg border border-primary-100 mt-4">
-                  <p className="text-sm text-primary-800 leading-relaxed">
-                    Personalize o motor de inteligência artificial. Deixe em
-                    branco para usar a infraestrutura padrão do MyPlants.
-                    <br />
+          <div className="flex-1 overflow-y-auto p-10 space-y-8 no-scrollbar">
+            {activeTab === "general" && (
+              <div className="max-w-xl animate-fade-in space-y-8">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
+                    Google Gemini API KEY
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showGeminiKey ? "text" : "password"}
+                      value={formData.geminiApiKey}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          geminiApiKey: e.target.value,
+                        })
+                      }
+                      className="w-full bg-neutral-50 dark:bg-neutral-800 border-none rounded-2xl px-5 py-4 text-sm font-bold focus:ring-4 focus:ring-primary-500/10 placeholder:text-neutral-300 transition-all pr-12"
+                      placeholder="AIzaSy..."
+                    />
+                    <button
+                      onClick={() => setShowGeminiKey(!showGeminiKey)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400"
+                    >
+                      {showGeminiKey ? <FiEyeOff /> : <FiEye />}
+                    </button>
+                  </div>
+
+                  <div className="p-6 bg-primary-50 dark:bg-primary-900/10 rounded-3xl border border-primary-100 dark:border-primary-800/40">
+                    <p className="text-sm text-primary-800 dark:text-primary-300 leading-relaxed font-medium">
+                      Este é o motor de visão computacional da planta. Se
+                      preferir, você pode usar sua própria chave para maior
+                      performance e limites customizados.
+                    </p>
                     <a
                       href="https://aistudio.google.com/app/apikey"
                       target="_blank"
-                      className="inline-block mt-2 font-medium text-primary-600 hover:underline"
+                      className="inline-flex items-center gap-2 mt-4 text-sm font-black text-primary-600 dark:text-primary-400 hover:underline"
                       rel="noopener"
                     >
-                      Gerar minha própria chave gratuita ↗
+                      Obter chave gratuita <FiExternalLink />
                     </a>
-                  </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {activeTab === "email" && (
-            <div className="space-y-6 animate-fade-in max-w-xl">
-              {/* Toggle notifications */}
-              <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-100">
-                <div className="flex items-center justify-between">
+            {activeTab === "email" && (
+              <div className="max-w-2xl animate-fade-in space-y-8">
+                <div className="flex items-center justify-between p-6 bg-neutral-50 dark:bg-neutral-800/40 rounded-[2rem] border border-neutral-100 dark:border-neutral-800">
                   <div>
-                    <span className="text-neutral-900 font-medium block">
-                      Notificações Ativas
-                    </span>
-                    <span className="text-xs text-neutral-500">
-                      Receba avisos de rega diretamente no seu e-mail.
-                    </span>
+                    <h4 className="font-bold text-neutral-900 dark:text-white">
+                      Lembretes por E-mail
+                    </h4>
+                    <p className="text-xs text-neutral-500 font-medium">
+                      Receba alertas de rega automáticos.
+                    </p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -282,33 +260,30 @@ export default function SettingsModal({
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-10 h-6 bg-neutral-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-500"></div>
+                    <div className="w-12 h-6 bg-neutral-200 dark:bg-neutral-700 rounded-full peer-checked:bg-primary-500 transition-all"></div>
+                    <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-6"></div>
                   </label>
                 </div>
-              </div>
 
-              {/* SMTP fields */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-                    Servidor SMTP (Host)
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.smtp.host}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        smtp: { ...formData.smtp, host: e.target.value },
-                      })
-                    }
-                    className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all placeholder:text-neutral-400"
-                    placeholder="smtp.gmail.com"
-                  />
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium text-neutral-700 mb-1.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="space-y-2 col-span-2">
+                    <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
+                      Servidor SMTP
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.smtp.host}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          smtp: { ...formData.smtp, host: e.target.value },
+                        })
+                      }
+                      className="w-full bg-neutral-50 dark:bg-neutral-800 border-none rounded-2xl px-5 py-4 text-sm font-bold"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
                       Porta
                     </label>
                     <input
@@ -323,320 +298,193 @@ export default function SettingsModal({
                           },
                         })
                       }
-                      className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all"
-                      placeholder="587"
+                      className="w-full bg-neutral-50 dark:bg-neutral-800 border-none rounded-2xl px-5 py-4 text-sm font-bold"
                     />
                   </div>
                   <div className="flex items-center pt-6">
-                    <input
-                      type="checkbox"
-                      id="secure"
-                      checked={formData.smtp.secure}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          smtp: { ...formData.smtp, secure: e.target.checked },
-                        })
-                      }
-                      className="w-4 h-4 text-primary-500 rounded focus:ring-primary-500"
-                    />
-                    <label
-                      htmlFor="secure"
-                      className="ml-2 text-sm text-neutral-700"
-                    >
-                      Usar SSL/TLS
-                    </label>
-                  </div>
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-                    Email do Remetente
-                  </label>
-                  <input
-                    type="email"
-                    value={formData.smtp.fromEmail}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        smtp: { ...formData.smtp, fromEmail: e.target.value },
-                      })
-                    }
-                    className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all placeholder:text-neutral-400"
-                    placeholder="seu-email@gmail.com"
-                  />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-                    Usuário SMTP
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.smtp.user}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        smtp: { ...formData.smtp, user: e.target.value },
-                      })
-                    }
-                    className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all"
-                  />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-                    Senha SMTP
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showSmtpPass ? "text" : "password"}
-                      value={formData.smtp.pass}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          smtp: { ...formData.smtp, pass: e.target.value },
-                        })
-                      }
-                      className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowSmtpPass(!showSmtpPass)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
-                      title={showSmtpPass ? "Ocultar senha" : "Exibir senha"}
-                    >
-                      {showSmtpPass ? "🙈" : "👁️"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
-                <p className="text-sm text-yellow-800">
-                  ⚠️ Para Gmail, é necessário usar uma{" "}
-                  <span className="font-semibold">Senha de App</span>.
-                </p>
-                <a
-                  href="https://myaccount.google.com/apppasswords"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-2 text-yellow-700 hover:underline text-sm font-medium"
-                >
-                  Gerar Senha de App aqui ↗
-                </a>
-              </div>
-
-              <div className="pt-2 border-t border-neutral-100">
-                <button
-                  onClick={handleTestEmail}
-                  disabled={testingEmail || loading}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-2 disabled:opacity-50"
-                >
-                  {testingEmail
-                    ? "Enviando..."
-                    : "📨 Enviar e-mail de teste para mim"}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {activeTab === "profile" && (
-            <div className="space-y-6">
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 text-sm text-blue-800">
-                <p>
-                  Compartilhe sua coleção de plantas com amigos! Ao ativar o
-                  perfil público, qualquer pessoa com o link poderá ver suas
-                  plantas (apenas leitura).
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-neutral-700 font-medium">
-                  Ativar Perfil Público
-                </span>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.isPublic}
-                    onChange={(e) =>
-                      setFormData({ ...formData, isPublic: e.target.checked })
-                    }
-                    className="sr-only peer"
-                  />
-                  <div className="w-10 h-6 bg-neutral-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-500"></div>
-                </label>
-              </div>
-
-              {formData.isPublic && (
-                <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-                      Nome de Exibição
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.displayName}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          displayName: e.target.value,
-                        })
-                      }
-                      className="w-full border border-neutral-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all placeholder:text-neutral-400"
-                      placeholder="Ex: Jardim do Gustavo"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 mb-1.5">
-                      Link do Perfil (Slug)
-                    </label>
-                    <div className="flex items-center">
-                      <span className="bg-neutral-100 border border-r-0 border-neutral-200 rounded-l-lg px-3 py-2.5 text-neutral-500 text-sm">
-                        {hostName}/
-                      </span>
+                    <label className="flex items-center gap-3 cursor-pointer">
                       <input
-                        type="text"
-                        value={formData.slug}
+                        type="checkbox"
+                        checked={formData.smtp.secure}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
-                            slug: e.target.value
-                              .toLowerCase()
-                              .replace(/[^a-z0-9-]/g, ""),
+                            smtp: {
+                              ...formData.smtp,
+                              secure: e.target.checked,
+                            },
                           })
                         }
-                        className="w-full border border-neutral-200 rounded-r-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-400 transition-all"
-                        placeholder="meu-jardim"
+                        className="w-5 h-5 rounded-lg text-primary-600"
                       />
-                    </div>
-                    <p className="text-xs text-neutral-500 mt-1.5">
-                      Apenas letras minúsculas, números e hífens.
-                    </p>
+                      <span className="text-xs font-bold text-neutral-400 uppercase lg:tracking-widest">
+                        SSL Seguro
+                      </span>
+                    </label>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleTestEmail}
+                  disabled={testingEmail}
+                  className="py-4 px-8 border border-neutral-200 dark:border-neutral-700 rounded-2xl text-sm font-bold text-neutral-500 hover:bg-neutral-50 transition-all"
+                >
+                  {testingEmail ? "Enviando..." : "📧 Testar Conexão de E-mail"}
+                </button>
+              </div>
+            )}
+
+            {activeTab === "profile" && (
+              <div className="max-w-xl animate-fade-in space-y-8">
+                <div className="p-8 bg-blue-50 dark:bg-blue-900/10 rounded-[2.5rem] border border-blue-100 dark:border-blue-800/40">
+                  <h4 className="text-blue-800 dark:text-blue-300 font-bold mb-2">
+                    Seu Jardim para o Mundo
+                  </h4>
+                  <p className="text-sm text-blue-700 dark:text-blue-400 leading-relaxed font-medium">
+                    Ao ativar o perfil público, você gera um link único para
+                    compartilhar sua coleção e progresso de cultivo.
+                  </p>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-neutral-800 dark:text-neutral-200">
+                      Exibir Perfil Público
+                    </span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.isPublic}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            isPublic: e.target.checked,
+                          })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-12 h-6 bg-neutral-200 dark:bg-neutral-700 rounded-full peer-checked:bg-primary-500 transition-all"></div>
+                      <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-6 shadow-md"></div>
+                    </label>
                   </div>
 
-                  {formData.slug && (
-                    <div className="pt-2">
-                      <a
-                        href={`/${formData.slug}`}
-                        target="_blank"
-                        className="text-primary-600 hover:underline text-sm flex items-center gap-1"
-                        rel="noopener"
-                      >
-                        🔗 Visualizar meu perfil público
-                      </a>
+                  {formData.isPublic && (
+                    <div className="space-y-6 pt-4 animate-slide-up">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
+                          Identidade do Jardim (URL)
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <span className="text-neutral-300 font-mono text-sm">
+                            {hostName}/
+                          </span>
+                          <input
+                            type="text"
+                            value={formData.slug}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                slug: e.target.value
+                                  .toLowerCase()
+                                  .replace(/[^a-z0-9-]/g, ""),
+                              })
+                            }
+                            className="flex-1 bg-neutral-50 dark:bg-neutral-800 border-none rounded-2xl px-5 py-4 text-sm font-black text-primary-600"
+                          />
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-          )}
+              </div>
+            )}
 
-          {activeTab === "watering" && (
-            <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-              <WateringStatus
-                plants={plants}
-                onUpdateWatering={async (plantId, novaData) => {
-                  try {
+            {activeTab === "watering" && (
+              <div className="animate-fade-in">
+                <WateringStatus
+                  plants={plants}
+                  onUpdateWatering={async (id, data) => {
                     setLoading(true);
-                    await api.updatePlant(plantId, {
-                      ultimaRega: novaData,
+                    await api.updatePlant(id, {
+                      ultimaRega: data,
                       notificationSent: false,
                     });
-                    if (onPlantsUpdate) onPlantsUpdate();
-                  } catch (error) {
-                    setAlertDialog({
-                      isOpen: true,
-                      message: "Erro ao atualizar a rega.",
-                      isError: true,
-                    });
-                  } finally {
+                    onPlantsUpdate && onPlantsUpdate();
                     setLoading(false);
-                  }
-                }}
-              />
-            </div>
-          )}
-        </div>
+                  }}
+                />
+              </div>
+            )}
+          </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-neutral-50 border-t border-neutral-100 shrink-0">
-          <button
-            onClick={onClose}
-            className="px-4 sm:px-5 py-2 sm:py-2.5 text-neutral-600 hover:text-neutral-800 transition-all text-sm font-medium"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={loading}
-            className="px-5 sm:px-6 py-2 sm:py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-all disabled:opacity-50 text-sm font-medium shadow-sm"
-          >
-            {loading ? "Processando..." : "Salvar"}
-          </button>
-        </div>
+          <footer className="p-10 border-t border-neutral-50 dark:border-neutral-800/40 bg-neutral-50 dark:bg-neutral-900/10 flex justify-end gap-4">
+            <button
+              onClick={onClose}
+              className="px-8 py-4 text-sm font-bold text-neutral-400 uppercase tracking-widest hover:text-neutral-600 transition-colors"
+            >
+              Voltar
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={loading}
+              className="px-12 py-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
+            >
+              {loading ? "Gravando..." : "Salvar Sistema"}
+            </button>
+          </footer>
+        </main>
 
-        {/* Confirmation Modal */}
+        {/* Floating Modals UI */}
         {confirmDialog.isOpen && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-neutral-900/40 backdrop-blur-sm p-4">
-            <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg max-w-sm w-full animate-in zoom-in-95 duration-200">
-              <h3 className="text-base sm:text-lg font-semibold text-neutral-900 mb-2">
-                Confirmar Ação
+          <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-6">
+            <div className="bg-white dark:bg-neutral-900 p-8 rounded-[2.5rem] shadow-2xl max-w-sm w-full animate-in zoom-in-95">
+              <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
+                <FiAlertCircle className="text-red-500" /> Confirmação
               </h3>
-              <p className="text-neutral-600 text-sm mb-4 sm:mb-6">
+              <p className="text-neutral-500 text-sm font-medium mb-8 leading-relaxed">
                 {confirmDialog.message}
               </p>
-              <div className="flex justify-end gap-2 sm:gap-3">
+              <div className="flex gap-4">
                 <button
-                  onClick={() =>
-                    setConfirmDialog({
-                      isOpen: false,
-                      message: "",
-                      onConfirm: null,
-                    })
-                  }
-                  className="px-3 sm:px-4 py-2 text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors text-sm font-medium"
+                  onClick={() => setConfirmDialog({ isOpen: false })}
+                  className="flex-1 py-4 bg-neutral-100 dark:bg-neutral-800 rounded-2xl font-bold text-sm"
                 >
-                  Cancelar
+                  Não
                 </button>
                 <button
                   onClick={confirmDialog.onConfirm}
-                  className="px-3 sm:px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                  className="flex-1 py-4 bg-red-600 text-white rounded-2xl font-bold text-sm shadow-lg shadow-red-600/20"
                 >
-                  Confirmar
+                  Sim, Confirmar
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Alert Modal */}
         {alertDialog.isOpen && (
-          <div className="fixed inset-0 z-[70] flex items-center justify-center bg-neutral-900/40 backdrop-blur-sm p-4">
-            <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg max-w-sm w-full animate-in zoom-in-95 duration-200">
-              <h3
-                className={`text-base sm:text-lg font-semibold mb-2 ${alertDialog.isError ? "text-red-600" : "text-neutral-900"}`}
+          <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-6">
+            <div className="bg-white dark:bg-neutral-900 p-8 rounded-[2.5rem] shadow-2xl max-w-sm w-full animate-fade-in text-center">
+              <div
+                className={`w-16 h-16 mx-auto mb-6 rounded-3xl flex items-center justify-center text-3xl ${alertDialog.isError ? "bg-red-50 text-red-500" : "bg-primary-50 text-primary-500"}`}
               >
-                {alertDialog.isError ? "Erro" : "Sucesso"}
+                {alertDialog.isError ? <FiAlertCircle /> : <FiCheckCircle />}
+              </div>
+              <h3 className="text-xl font-bold mb-3">
+                {alertDialog.isError ? "Algo deu errado" : "Missão Cumprida"}
               </h3>
-              <p className="text-neutral-600 text-sm mb-4 sm:mb-6">
+              <p className="text-neutral-500 text-sm font-medium mb-8">
                 {alertDialog.message}
               </p>
-              <div className="flex justify-end">
-                <button
-                  onClick={() => {
-                    const callback = alertDialog.onCloseAlert;
-                    setAlertDialog({
-                      isOpen: false,
-                      message: "",
-                      isError: false,
-                      onCloseAlert: null,
-                    });
-                    if (callback) callback();
-                  }}
-                  className={`px-4 py-2 text-white rounded-lg transition-colors text-sm font-medium ${alertDialog.isError ? "bg-red-500 hover:bg-red-600" : "bg-primary-500 hover:bg-primary-600"}`}
-                >
-                  OK
-                </button>
-              </div>
+              <button
+                onClick={() => {
+                  alertDialog.onCloseAlert?.();
+                  setAlertDialog({ isOpen: false });
+                }}
+                className="w-full py-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-2xl font-bold text-sm uppercase tracking-widest"
+              >
+                OK
+              </button>
             </div>
           </div>
         )}

@@ -1,0 +1,61 @@
+{
+  "colors": {
+    "primary": {
+      "50":  "hsl(161, 75%, 95%)",
+      "100": "hsl(161, 75%, 90%)",
+      "200": "hsl(161, 71%, 80%)",
+      "300": "hsl(161, 67%, 70%)",
+      "400": "hsl(161, 80%, 60%)",
+      "500": "hsl(161, 84%, 39%)",
+      "600": "hsl(161, 88%, 33%)",
+      "700": "hsl(161, 92%, 27%)",
+      "800": "hsl(161, 92%, 21%)",
+      "900": "hsl(161, 96%, 15%)"
+    },
+    "secondary": {
+      "400": "hsl(341, 70%, 60%)",
+      "500": "hsl(341, 84%, 39%)",
+      "600": "hsl(341, 92%, 33%)"
+    },
+    "accent": {
+      "400": "hsl(191, 70%, 60%)",
+      "500": "hsl(191, 84%, 39%)",
+      "600": "hsl(191, 92%, 33%)"
+    },
+    "neutral": {
+      "50":  "hsl(150, 10%, 98%)",
+      "100": "hsl(150, 8%, 94%)",
+      "200": "hsl(150, 6%, 88%)",
+      "300": "hsl(150, 5%, 75%)",
+      "400": "hsl(150, 4%, 60%)",
+      "500": "hsl(150, 3%, 45%)",
+      "600": "hsl(150, 4%, 35%)",
+      "700": "hsl(150, 5%, 25%)",
+      "800": "hsl(150, 6%, 15%)",
+      "900": "hsl(150, 10%, 8%)"
+    },
+    "semantic": {
+      "success": "hsl(142, 72%, 42%)",
+      "warning": "hsl(38,  90%, 52%)",
+      "error":   "hsl(4,   82%, 54%)",
+      "info":    "hsl(210, 76%, 52%)"
+    }
+  },
+  "typography": {
+    "heading": "Outfit",
+    "body": "Inter"
+  },
+  "project": {
+    "name": "MyPlants",
+    "description": "Gerenciamento inteligente de plantas com IA: Identificação, Saúde e Notificações de Rega.",
+    "productionUrl": "https://myplants.vercel.app",
+    "authorName": "Gustavo",
+    "email": "gustavo@systechdev.com.br",
+    "github": "https://github.com/Gustavocrs"
+  },
+  "layout": {
+    "radiusButton": "8",
+    "radiusCard": "12",
+    "shadow": "0 10px 40px -10px rgba(16, 185, 129, 0.15), 0 4px 20px -12px rgba(16, 185, 129, 0.1)"
+  }
+}

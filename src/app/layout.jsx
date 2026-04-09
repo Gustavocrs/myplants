@@ -1,26 +1,37 @@
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 
-const inter = Inter({ 
-  subsets: ["latin"], 
+const inter = Inter({
+  subsets: ["latin"],
   variable: "--font-inter",
-  display: 'swap',
+  display: "swap",
 });
 
-const outfit = Outfit({ 
-  subsets: ["latin"], 
+const outfit = Outfit({
+  subsets: ["latin"],
   variable: "--font-outfit",
-  display: 'swap',
+  display: "swap",
 });
 
 export const metadata = {
+  metadataBase: new URL("https://myplants.vercel.app"),
   title: {
     default: "MyPlants | Inteligência Artificial para seu Jardim",
     template: "%s | MyPlants",
   },
-  description: "O sistema gerencia, avalia saúde com IA e lembra sobre regas das plantas! Cultive o futuro com a inteligência MyPlants.",
-  keywords: ["plantas", "jardim", "inteligência artificial", "cuidado de plantas", "rega", "myplants", "botânica"],
+  description:
+    "Gerenciamento inteligente de plantas com IA. Identificação, diagnóstico de saúde e lembretes de rega automáticos.",
+  keywords: [
+    "plantas",
+    "jardim",
+    "inteligência artificial",
+    "cuidado de plantas",
+    "rega",
+    "myplants",
+    "botânica",
+  ],
   authors: [{ name: "MyPlants Team" }],
   creator: "MyPlants",
   openGraph: {
@@ -29,7 +40,8 @@ export const metadata = {
     url: "https://myplants.app",
     siteName: "MyPlants",
     title: "MyPlants | Inteligência Artificial para seu Jardim",
-    description: "Cuidado inteligente para o seu jardim urbano. Diagnóstico por IA e lembretes automáticos.",
+    description:
+      "Cuidado inteligente para o seu jardim urbano. Diagnóstico por IA e lembretes automáticos.",
     images: [
       {
         url: "/og-image.png",
@@ -52,7 +64,7 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: "#166534",
+  themeColor: "#10B981",
   width: "device-width",
   initialScale: 1,
 };
@@ -61,9 +73,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pt-BR" className={`${inter.variable} ${outfit.variable}`}>
       <body className="antialiased font-body">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

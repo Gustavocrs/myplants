@@ -103,6 +103,9 @@ exports.identifyPlant = async (req, res) => {
       if (userSettings && userSettings.geminiApiKey) {
         apiKey = decrypt(userSettings.geminiApiKey);
         console.log(`🔑 Usando chave personalizada do usuário ${userId}`);
+        console.log(
+          `🔑 Chave descriptografada: ${apiKey ? "OK" : "VAZIA/NULA"}`,
+        );
       }
     }
 
@@ -113,6 +116,9 @@ exports.identifyPlant = async (req, res) => {
     }
 
     // 2. Instancia o cliente com a chave correta
+    console.log(
+      `🔑 API Key sendo usada: ${apiKey ? apiKey.substring(0, 20) + "..." : "NULA"}`,
+    );
     const ai = new GoogleGenAI({ apiKey });
 
     let promptStr =
