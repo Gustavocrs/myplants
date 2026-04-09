@@ -213,7 +213,7 @@ export default function AddPlantModal({
 
   return (
     <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-md z-[100] overflow-y-auto flex items-center justify-center p-4 sm:p-6 animate-fade-in">
-      <div className="w-full max-w-4xl bg-white dark:bg-neutral-900 rounded-[2.5rem] shadow-premium overflow-hidden font-body animate-slide-up relative">
+      <div className="w-full max-w-6xl bg-white dark:bg-neutral-900 rounded-[2.5rem] shadow-premium overflow-hidden font-body animate-slide-up relative">
         {/* Close Button UI */}
         <button
           onClick={onClose}
@@ -222,9 +222,9 @@ export default function AddPlantModal({
           <FiX size={20} />
         </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-12">
+        <div className="grid grid-cols-1 md:grid-cols-5 max-h-[85vh]">
           {/* Left Column - Media & AI */}
-          <div className="md:col-span-4 bg-neutral-50 dark:bg-neutral-900/20 p-8 border-r border-neutral-100 dark:border-neutral-800/50 flex flex-col gap-6">
+          <div className="md:col-span-2 bg-neutral-50 dark:bg-neutral-900/20 p-4 md:p-6 border-r border-neutral-100 dark:border-neutral-800/50 flex flex-col gap-4 h-full overflow-y-auto">
             <h2 className="text-3xl font-black font-heading tracking-tight mb-2 dark:text-white">
               {plantToEdit ? "Redefinir" : "Cultivar"}
             </h2>
@@ -290,20 +290,11 @@ export default function AddPlantModal({
                 )}
               </button>
             )}
-
-            {plantToEdit && (
-              <button
-                onClick={() => onDelete(plantToEdit._id)}
-                className="w-full py-4 bg-red-50 text-red-500 rounded-2xl font-bold text-sm hover:bg-red-100 transition-all flex items-center justify-center gap-2"
-              >
-                <FiTrash2 /> Excluir Planta
-              </button>
-            )}
           </div>
 
           {/* Right Column - Form */}
-          <div className="md:col-span-8 p-8 md:p-12 overflow-y-auto max-h-[85vh]">
-            <div className="space-y-8">
+          <div className="md:col-span-3 p-4 md:p-6 overflow-y-auto max-h-[85vh]">
+            <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
@@ -331,7 +322,7 @@ export default function AddPlantModal({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
                     Luminosidade
@@ -361,20 +352,6 @@ export default function AddPlantModal({
                       value={intervaloRega}
                       onChange={(e) => setIntervaloRega(e.target.value)}
                       className="w-full bg-neutral-50 dark:bg-neutral-800 border-none rounded-2xl pl-12 pr-5 py-4 text-sm font-bold focus:ring-4 focus:ring-primary-500/10 transition-all"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
-                    Aquisição
-                  </label>
-                  <div className="relative">
-                    <FiCalendar className="absolute left-5 top-1/2 -translate-y-1/2 text-primary-500" />
-                    <input
-                      type="date"
-                      value={dataAquisicao}
-                      onChange={(e) => setDataAquisicao(e.target.value)}
-                      className="w-full bg-neutral-50 dark:bg-neutral-800 border-none rounded-2xl pl-12 pr-5 py-4 text-[11px] font-bold focus:ring-4 focus:ring-primary-500/10 transition-all"
                     />
                   </div>
                 </div>
@@ -452,7 +429,30 @@ export default function AddPlantModal({
                 </label>
               </div>
 
-              <div className="pt-8 flex justify-end">
+              <div className="pt-8 flex flex-wrap justify-end gap-3">
+                {plantToEdit && (
+                  <button
+                    onClick={() => onDelete(plantToEdit._id)}
+                    className="px-6 py-4 bg-red-50 text-red-500 rounded-2xl font-bold text-sm hover:bg-red-100 transition-all flex items-center justify-center gap-2"
+                  >
+                    <FiTrash2 /> Excluir
+                  </button>
+                )}
+                {plantToEdit && imagemUrl && (
+                  <button
+                    onClick={handleAiFill}
+                    disabled={loading}
+                    className="px-6 py-4 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-2xl font-bold text-sm hover:bg-primary-100 dark:hover:bg-primary-900/40 transition-all flex items-center justify-center gap-2"
+                  >
+                    {loading ? (
+                      <div className="w-5 h-5 border-2 border-primary-400/30 border-t-primary-400 animate-spin rounded-full"></div>
+                    ) : (
+                      <>
+                        <FiZap /> Avaliar IA
+                      </>
+                    )}
+                  </button>
+                )}
                 <button
                   onClick={handleSave}
                   disabled={loading || !nome || !imagemUrl}
