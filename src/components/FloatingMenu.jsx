@@ -234,11 +234,6 @@ export default function FloatingMenu({
 
       {/* FAB - Floating Action Button Premium */}
       <div className="fixed bottom-8 right-8 z-[50] group select-none">
-        {/* Counter Badge */}
-        {hasFilters && (
-          <span className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 border-4 border-white dark:border-neutral-900 rounded-full z-10 animate-pulse"></span>
-        )}
-
         <button
           onClick={() => setIsOpen(true)}
           className="w-16 h-16 bg-primary-600 text-white rounded-[1.75rem] shadow-premium flex items-center justify-center hover:bg-primary-700 hover:scale-110 active:scale-95 transition-all duration-300 group-hover:shadow-2xl"

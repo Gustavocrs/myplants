@@ -10,10 +10,16 @@ export const api = {
     return response.json();
   },
 
+  getPlant: async (id) => {
+    const response = await fetch(`${API_URL}/plants/${id}`);
+    if (!response.ok) throw new Error("Planta não encontrada");
+    return response.json();
+  },
+
   createPlant: async (plantData) => {
     const response = await fetch(`${API_URL}/plants`, {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(plantData),
     });
     if (!response.ok) {
@@ -29,7 +35,7 @@ export const api = {
   updatePlant: async (id, plantData) => {
     const response = await fetch(`${API_URL}/plants/${id}`, {
       method: "PUT",
-      headers: {"Content-Type": "application/json"},
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(plantData),
     });
     if (!response.ok) {
@@ -43,7 +49,9 @@ export const api = {
   },
 
   deletePlant: async (id) => {
-    const response = await fetch(`${API_URL}/plants/${id}`, {method: "DELETE"});
+    const response = await fetch(`${API_URL}/plants/${id}`, {
+      method: "DELETE",
+    });
     if (!response.ok) throw new Error("Erro ao excluir planta");
     return response.json();
   },
@@ -85,7 +93,7 @@ export const api = {
   saveSettings: async (userId, settings) => {
     const response = await fetch(`${API_URL}/settings/${userId}`, {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(settings),
     });
     if (!response.ok) throw new Error("Erro ao salvar configurações");
@@ -100,15 +108,15 @@ export const api = {
 
   getStorageUsage: async (userId) => {
     const response = await fetch(`${API_URL}/plants/storage?userId=${userId}`);
-    if (!response.ok) return {sizeMB: 0};
+    if (!response.ok) return { sizeMB: 0 };
     return response.json();
   },
 
   testNotification: async (userId, email) => {
     const response = await fetch(`${API_URL}/settings/${userId}/test`, {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({targetEmail: email}),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ targetEmail: email }),
     });
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));

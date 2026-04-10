@@ -6,7 +6,10 @@ const plantsController = require("../controllers/plantsController");
 // GET - Listar todas as plantas
 router.get("/", plantsController.getAllPlants);
 
-// GET - Consultar uso de armazenamento (Antes de /:id)
+// GET - Buscar planta por ID (Antes de /storage para não conflitar)
+router.get("/:id", plantsController.getPlant);
+
+// GET - Consultar uso de armazenamento
 router.get("/storage", plantsController.getStorageUsage);
 
 // POST - Criar nova planta
@@ -33,8 +36,8 @@ router.get("/:id/water", async (req, res) => {
     // findByIdAndUpdate atualiza atomicamente apenas os campos especificados.
     const plant = await Plant.findByIdAndUpdate(
       req.params.id,
-      {$set: {ultimaRega: new Date(), notificationSent: false}},
-      {new: false}, // Retorna o documento original para usar os dados na resposta
+      { $set: { ultimaRega: new Date(), notificationSent: false } },
+      { new: false }, // Retorna o documento original para usar os dados na resposta
     );
 
     if (!plant) return res.status(404).send("Planta não encontrada");

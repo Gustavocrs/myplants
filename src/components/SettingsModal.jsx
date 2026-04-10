@@ -139,10 +139,10 @@ export default function SettingsModal({
   ];
 
   return (
-    <div className="fixed inset-0 bg-neutral-900/40 backdrop-blur-md z-[100] flex items-center justify-center p-4 sm:p-6 animate-fade-in">
-      <div className="w-full max-w-5xl bg-white dark:bg-neutral-900 rounded-[2.5rem] shadow-premium h-[90vh] md:h-[750px] flex flex-col md:flex-row overflow-hidden animate-slide-up border border-white/20 dark:border-neutral-800/40">
+    <div className="fixed inset-0 bg-neutral-900 z-[100] animate-fade-in">
+      <div className="w-full h-screen bg-white dark:bg-neutral-900 flex flex-col md:flex-row">
         {/* Sidebar Navigation */}
-        <aside className="w-full md:w-64 bg-neutral-50 dark:bg-neutral-900/20 border-r border-neutral-100 dark:border-neutral-800/50 flex flex-col p-6 shrink-0">
+        <aside className="w-full md:w-72 bg-neutral-50 dark:bg-neutral-900/20 border-r border-neutral-100 dark:border-neutral-800/50 flex flex-col p-6 shrink-0">
           <div className="mb-10 flex items-center gap-3">
             <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg">
               <FiSettings size={22} />
@@ -168,13 +168,6 @@ export default function SettingsModal({
               </button>
             ))}
           </nav>
-
-          <button
-            onClick={onClose}
-            className="mt-10 w-full py-4 text-xs font-black uppercase tracking-widest text-neutral-400 hover:text-neutral-600 transition-colors"
-          >
-            Fechar Painel
-          </button>
         </aside>
 
         {/* Content Area */}
@@ -192,7 +185,7 @@ export default function SettingsModal({
 
           <div className="flex-1 overflow-y-auto p-10 space-y-8 no-scrollbar">
             {activeTab === "general" && (
-              <div className="max-w-xl animate-fade-in space-y-8">
+              <div className="animate-fade-in space-y-8">
                 <div className="space-y-4">
                   <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
                     Google Gemini API KEY

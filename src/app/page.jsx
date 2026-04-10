@@ -17,7 +17,6 @@ import AddPlantModal from "../components/AddPlantModal";
 import FloatingMenu from "../components/FloatingMenu";
 import LandingPage from "../components/landing/LandingPage";
 import PlantCard from "../components/PlantCard";
-import PlantDetailsModal from "../components/PlantDetailsModal";
 import SettingsModal from "../components/SettingsModal";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
@@ -75,21 +74,41 @@ export default function Home() {
     setShowAddModal(true);
   };
 
-  const handleDelete = (id) => {
-    setConfirmDialog({
-      isOpen: true,
-      message: "Tem certeza que deseja excluir esta planta?",
-      onConfirm: async () => {
-        setConfirmDialog({ isOpen: false, message: "", onConfirm: null });
-        try {
-          await api.deletePlant(id);
-          setShowAddModal(false);
-          loadPlants();
-        } catch (error) {
-          alert("Erro ao excluir planta");
-        }
-      },
-    });
+  const handleAiAnalyze = async (plant) => {
+    if (!plant.imagemUrl) return;
+    setAiLoading(true);
+    try {
+      let payload = plant.imagemUrl;
+      if (plant.imagemUrl.startsWith("data:")) {
+        const arr = plant.imagemUrl.split(",");
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) u8arr[n] = bstr.charCodeAt(n);
+        payload = new File([u8arr], "plant.jpg", { type: mime });
+      }
+      const data = await api.identifyPlant(payload, user.uid, plant.nome);
+      if (data) {
+        const updated = await api.updatePlant(plant._id, data);
+        setSelectedPlant(updated);
+        loadPlants();
+      }
+    } catch (error) {
+      console.error("Erro IA:", error);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await api.deletePlant(id);
+      setSelectedPlant(null);
+      loadPlants();
+    } catch (error) {
+      alert("Erro ao excluir planta");
+    }
   };
 
   const handleQuickWater = async (id) => {
@@ -298,9 +317,6 @@ export default function Home() {
         {/* Hero Section / Greeting */}
         <section className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 animate-slide-up">
           <div>
-            <span className="inline-block px-4 py-1.5 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 text-[10px] font-bold uppercase tracking-widest mb-4">
-              Dashboard Principal
-            </span>
             <h2 className="text-4xl sm:text-5xl font-black font-heading tracking-tighter">
               Seu{" "}
               <span className="text-primary-600 dark:text-primary-400">
@@ -397,8 +413,11 @@ export default function Home() {
                     <PlantCard
                       key={plant._id}
                       plant={plant}
-                      onClick={setSelectedPlant}
-                      onEdit={handleEdit}
+                      onClick={(p) => router.push(`/plant/${p._id}`)}
+                      onEdit={(p) => {
+                        setPlantToEdit(p);
+                        setShowAddModal(true);
+                      }}
                       onWater={handleQuickWater}
                     />
                   ))}
@@ -412,8 +431,11 @@ export default function Home() {
               <PlantCard
                 key={plant._id}
                 plant={plant}
-                onClick={setSelectedPlant}
-                onEdit={handleEdit}
+                onClick={(p) => router.push(`/plant/${p._id}`)}
+                onEdit={(p) => {
+                  setPlantToEdit(p);
+                  setShowAddModal(true);
+                }}
                 onWater={handleQuickWater}
               />
             ))}
@@ -462,17 +484,6 @@ export default function Home() {
           plantToEdit={plantToEdit}
           initialData={initialAiData}
           onDelete={handleDelete}
-        />
-      )}
-
-      {selectedPlant && (
-        <PlantDetailsModal
-          plant={selectedPlant}
-          onClose={() => setSelectedPlant(null)}
-          onNext={handleNext}
-          onPrev={handlePrev}
-          hasNext={getSelectedIndex() < filteredPlants.length - 1}
-          hasPrev={getSelectedIndex() > 0}
         />
       )}
 

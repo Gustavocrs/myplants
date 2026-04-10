@@ -259,6 +259,14 @@ export default function AddPlantModal({
               )}
             </div>
 
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+            />
+
             {imagemUrl && !plantToEdit && (
               <button
                 onClick={handleAiFill}

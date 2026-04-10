@@ -118,7 +118,7 @@ export default function PlantDetailsModal({
         </button>
 
         {/* Media Block (5 columns) */}
-        <div className="relative md:col-span-5 h-[40vh] md:h-[70vh] min-h-[300px] overflow-hidden">
+        <div className="relative md:col-span-5 h-[50vh] md:h-[67vh] min-h-[300px] overflow-hidden">
           <img
             src={plant.imagemUrl}
             alt={plant.nome}

@@ -92,6 +92,24 @@ exports.getAllPlants = async (req, res) => {
   }
 };
 
+exports.getPlant = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "ID inválido" });
+    }
+
+    const plant = await Plant.findById(id);
+    if (!plant) {
+      return res.status(404).json({ error: "Planta não encontrada" });
+    }
+    res.json(plant);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 exports.createPlant = async (req, res) => {
   try {
     const { userId } = req.body;
