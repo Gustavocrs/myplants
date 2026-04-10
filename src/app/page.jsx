@@ -69,7 +69,7 @@ export default function Home() {
     if (v && v !== "list") {
       setActiveView(v);
       if (id) setActivePlantId(id);
-      if (edit === "true") setIsEditing(true);
+      setIsEditing(edit === "true");
     } else {
       setActiveView("list");
       setActivePlantId(null);
@@ -150,6 +150,7 @@ export default function Home() {
         url.searchParams.set("v", view);
         if (id) url.searchParams.set("id", id);
         if (edit) url.searchParams.set("edit", "true");
+        else url.searchParams.delete("edit");
       }
       window.history.pushState({}, "", url);
     }
@@ -305,8 +306,8 @@ export default function Home() {
   };
 
   const handleSavePlant = async () => {
-    await loadPlants();
     closeView();
+    await loadPlants();
   };
 
   const handleUpdatePlant = async () => {
@@ -557,7 +558,9 @@ export default function Home() {
                       key={plant._id}
                       plant={plant}
                       onClick={(p) => handleDetail(p)}
-                      onEdit={(p) => openView("edit", { id: p._id })}
+                      onEdit={(p) =>
+                        openView("detail", { id: p._id, edit: true })
+                      }
                       onWater={handleQuickWater}
                     />
                   ))}
@@ -572,7 +575,7 @@ export default function Home() {
                 key={plant._id}
                 plant={plant}
                 onClick={(p) => handleDetail(p)}
-                onEdit={(p) => openView("edit", { id: p._id })}
+                onEdit={(p) => openView("detail", { id: p._id, edit: true })}
                 onWater={handleQuickWater}
               />
             ))}
@@ -612,7 +615,9 @@ export default function Home() {
           plantId={activePlantId}
           isEditing={isEditing}
           onClose={closeView}
-          onEdit={() => openView("edit", { id: activePlantId, edit: true })}
+          onEdit={(edit = true) =>
+            openView("detail", { id: activePlantId, edit })
+          }
           onDelete={handleDeleteFromView}
           onUpdate={handleUpdatePlant}
           plants={plants}

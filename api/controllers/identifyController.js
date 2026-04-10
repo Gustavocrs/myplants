@@ -174,13 +174,34 @@ exports.identifyPlant = async (req, res) => {
   } catch (error) {
     console.error("Erro Gemini:", error);
 
-    // Detectar erros específicos da API do Gemini
-    const errorMessage = error.message || "";
+    let errorMessage = error.message || "";
+    let retryAfter = null;
+
+    try {
+      const parsed = JSON.parse(errorMessage);
+      if (parsed.error?.message) {
+        errorMessage = parsed.error.message;
+        if (parsed.error.status === "RESOURCE_EXHAUSTED") {
+          const details = parsed.error.details;
+          const retryInfo = details?.find((d) =>
+            d["@type"]?.includes("RetryInfo"),
+          );
+          if (retryInfo?.retryDelay) {
+            const delaySeconds = parseInt(
+              retryInfo.retryDelay.replace("s", ""),
+            );
+            retryAfter = delaySeconds;
+          }
+        }
+      }
+    } catch (e) {}
+
+    const msgLower = errorMessage.toLowerCase();
 
     if (
-      errorMessage.includes("API key expired") ||
-      errorMessage.includes("API_KEY_INVALID") ||
-      errorMessage.includes("API key")
+      msgLower.includes("api key expired") ||
+      msgLower.includes("api_key_invalid") ||
+      msgLower.includes("api key")
     ) {
       return res.status(403).json({
         success: false,
@@ -192,19 +213,24 @@ exports.identifyPlant = async (req, res) => {
     }
 
     if (
-      errorMessage.includes("quota") ||
-      errorMessage.includes("rate limit") ||
-      errorMessage.includes("RESOURCE_EXHAUSTED")
+      msgLower.includes("quota") ||
+      msgLower.includes("rate limit") ||
+      msgLower.includes("resource_exhausted") ||
+      msgLower.includes("429")
     ) {
+      const msg = retryAfter
+        ? `Limite de uso da IA atingido. Tente novamente em ~${retryAfter}s.`
+        : "Limite de uso da IA atingido. Tente novamente mais tarde.";
       return res.status(429).json({
         success: false,
         error: "api_quota_exceeded",
-        message: "Limite de uso da IA atingido. Tente novamente mais tarde.",
+        message: msg,
         action: "wait_or_upgrade",
+        retryAfter,
       });
     }
 
-    if (errorMessage.includes("network") || errorMessage.includes("fetch")) {
+    if (msgLower.includes("network") || msgLower.includes("fetch")) {
       return res.status(503).json({
         success: false,
         error: "network_error",

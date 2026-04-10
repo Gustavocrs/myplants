@@ -147,7 +147,7 @@ export default function AddView({ initialData, onClose, onSave }) {
       };
       await api.createPlant(plantData);
       showSuccess("Planta cadastrada!");
-      onSave();
+      await onSave();
     } catch (error) {
       console.error("Erro ao salvar:", error);
       showError(error);
@@ -215,7 +215,7 @@ export default function AddView({ initialData, onClose, onSave }) {
             <button
               onClick={handleAiFill}
               disabled={loading}
-              className="w-full py-4 bg-primary-600 text-white rounded-2xl font-bold text-sm shadow-lg shadow-primary-600/20 hover:bg-primary-700 transition-all flex items-center justify-center gap-2"
+              className="w-full py-4 bg-purple-600 text-white rounded-2xl font-bold text-sm shadow-lg shadow-purple-600/20 hover:bg-purple-700 transition-all flex items-center justify-center gap-2"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white animate-spin rounded-full"></div>

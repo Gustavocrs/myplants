@@ -35,6 +35,15 @@ export default function DetailView({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
 
+  const mapPlantToFormData = (data) => ({
+    nome: data?.nome || "",
+    nomeCientifico: data?.nomeCientifico || "",
+    luz: data?.luz || "Meia-sombra",
+    intervaloRega: data?.intervaloRega || 7,
+    petFriendly: data?.petFriendly || false,
+    observacoes: data?.observacoes || "",
+  });
+
   useEffect(() => {
     if (plantId) loadPlant();
   }, [plantId]);
@@ -44,14 +53,7 @@ export default function DetailView({
       setLoading(true);
       const data = await api.getPlant(plantId);
       setPlant(data);
-      setFormData({
-        nome: data.nome || "",
-        nomeCientifico: data.nomeCientifico || "",
-        luz: data.luz || "Meia-sombra",
-        intervaloRega: data.intervaloRega || 7,
-        petFriendly: data.petFriendly || false,
-        observacoes: data.observacoes || "",
-      });
+      setFormData(mapPlantToFormData(data));
     } catch (err) {
       console.error("Erro ao carregar planta:", err);
     } finally {
@@ -64,9 +66,10 @@ export default function DetailView({
       setSaving(true);
       const updated = await api.updatePlant(plant._id, formData);
       setPlant(updated);
+      setFormData(mapPlantToFormData(updated));
       onUpdate();
       showSuccess("Planta atualizada!");
-      onClose();
+      onEdit(false);
     } catch (err) {
       console.error("Erro ao salvar:", err);
       showError(err);
@@ -93,6 +96,7 @@ export default function DetailView({
       if (data) {
         const updated = await api.updatePlant(plant._id, data);
         setPlant(updated);
+        setFormData(mapPlantToFormData(updated));
         onUpdate();
         showSuccess("Planta atualizada com sucesso!");
       }
@@ -181,14 +185,14 @@ export default function DetailView({
         />
 
         {/* Mobile: Top buttons overlay */}
-        <div className="absolute top-4 left-4 right-4 flex justify-between md:hidden">
+        <div className="absolute top-4 left-4 right-4 z-20 flex justify-between md:hidden">
           <button
             onClick={onClose}
             className="w-12 h-12 bg-white/95 backdrop-blur-sm text-neutral-700 rounded-2xl flex items-center justify-center shadow-xl active:scale-95 transition-transform"
           >
             <FiX size={22} />
           </button>
-          {user && (
+          {user && !isEditing && (
             <button
               onClick={onEdit}
               className="w-12 h-12 bg-primary-600 text-white rounded-2xl flex items-center justify-center shadow-xl active:scale-95 transition-transform"
@@ -211,8 +215,8 @@ export default function DetailView({
           )}
         </div>
 
-        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-neutral-900/30 to-transparent" />
-        <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-8 md:right-8">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-neutral-900/30 to-transparent" />
+        <div className="pointer-events-none absolute bottom-6 left-6 right-6 md:bottom-8 md:left-8 md:right-8">
           <h1 className="text-3xl md:text-4xl font-black text-white font-heading tracking-tight drop-shadow-lg">
             {plant.nome}
           </h1>
@@ -228,7 +232,7 @@ export default function DetailView({
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Actions - Desktop only */}
         <div className="hidden md:flex items-center justify-end gap-3 p-4 border-b border-neutral-100 dark:border-neutral-800">
-          {user && (
+          {user && !isEditing && (
             <button
               onClick={onEdit}
               className="w-10 h-10 bg-primary-600 text-white rounded-xl flex items-center justify-center shadow-lg hover:scale-110 transition-all"
@@ -343,6 +347,30 @@ export default function DetailView({
                     className="w-full bg-neutral-50 dark:bg-neutral-800 rounded-2xl px-4 py-4 text-sm font-bold"
                   />
                 </div>
+                {(() => {
+                  const proximaRega = plant.ultimaRega
+                    ? (() => {
+                        const last = new Date(plant.ultimaRega);
+                        last.setDate(
+                          last.getDate() + Number(formData.intervaloRega || 0),
+                        );
+                        return last.toISOString().split("T")[0];
+                      })()
+                    : null;
+                  return (
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
+                        Próxima Rega
+                      </label>
+                      <input
+                        type="date"
+                        value={proximaRega || ""}
+                        disabled
+                        className="w-full bg-neutral-100 dark:bg-neutral-800/50 rounded-2xl px-4 py-4 text-sm font-bold text-neutral-500 dark:text-neutral-400 cursor-not-allowed"
+                      />
+                    </div>
+                  );
+                })()}
               </div>
 
               <label className="flex items-center gap-3 p-4 bg-neutral-50 dark:bg-neutral-800 rounded-2xl cursor-pointer">

@@ -29,12 +29,14 @@ export function parseError(error) {
 
   const message = error.message || "";
   const status = error.response?.status;
+  const data = error.response?.data;
+  const msgLower = message.toLowerCase();
 
-  // Erros de API (status 403, 429)
   if (
     status === 403 ||
-    message.includes("API key") ||
-    message.includes("API_KEY")
+    msgLower.includes("api key expired") ||
+    msgLower.includes("api_key_invalid") ||
+    msgLower.includes("api key")
   ) {
     return {
       type: ErrorTypes.API_KEY_EXPIRED,
@@ -44,21 +46,22 @@ export function parseError(error) {
 
   if (
     status === 429 ||
-    message.includes("quota") ||
-    message.includes("rate limit")
+    msgLower.includes("quota") ||
+    msgLower.includes("rate limit") ||
+    msgLower.includes("resource_exhausted") ||
+    msgLower.includes("429")
   ) {
     return {
       type: ErrorTypes.API_QUOTA_EXCEEDED,
-      message: ErrorMessages.api_quota_exceeded,
+      message: data?.message || ErrorMessages.api_quota_exceeded,
     };
   }
 
-  // Erros de rede
   if (
     status === 0 ||
-    message.includes("network") ||
-    message.includes("fetch") ||
-    message.includes("Failed to fetch")
+    msgLower.includes("network") ||
+    msgLower.includes("fetch") ||
+    msgLower.includes("failed to fetch")
   ) {
     return {
       type: ErrorTypes.NETWORK_ERROR,
@@ -66,33 +69,29 @@ export function parseError(error) {
     };
   }
 
-  // Erros de autenticação
   if (
     status === 401 ||
-    message.includes("auth") ||
-    message.includes("unauthorized")
+    msgLower.includes("auth") ||
+    msgLower.includes("unauthorized")
   ) {
     return { type: ErrorTypes.AUTH_ERROR, message: ErrorMessages.auth_error };
   }
 
-  // Não encontrado
   if (
     status === 404 ||
-    message.includes("not found") ||
-    message.includes("não encontrado")
+    msgLower.includes("not found") ||
+    msgLower.includes("não encontrado")
   ) {
     return { type: ErrorTypes.NOT_FOUND, message: ErrorMessages.not_found };
   }
 
-  // Erro de validação
-  if (status === 400 || message.includes("validation")) {
+  if (status === 400 || msgLower.includes("validation")) {
     return {
       type: ErrorTypes.VALIDATION_ERROR,
       message: ErrorMessages.validation_error,
     };
   }
 
-  // Erro de servidor
   if (status >= 500) {
     return {
       type: ErrorTypes.SERVER_ERROR,
