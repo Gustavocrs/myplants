@@ -4,6 +4,7 @@ import heic2any from "heic2any";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
+  FiChevronUp,
   FiFilter,
   FiLogOut,
   FiMoon,
@@ -58,6 +59,7 @@ export default function Home() {
   const [activeView, setActiveView] = useState("list"); // list|detail|add|edit|settings
   const [activePlantId, setActivePlantId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const scrollYRef = useRef(0);
   const isNavigatingRef = useRef(false);
 
@@ -125,6 +127,15 @@ export default function Home() {
     } else {
       document.body.style.overflow = "";
     }
+  }, [activeView]);
+
+  // Back to top visibility
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowBackToTop(window.scrollY > 320 && activeView === "list");
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [activeView]);
 
   const openView = (view, options = {}) => {
@@ -630,6 +641,16 @@ export default function Home() {
         viewMode={viewMode}
         setViewMode={setViewMode}
       />
+
+      {/* Back to Top Button */}
+      {showBackToTop && activeView === "list" && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="fixed bottom-28 right-8 z-40 w-12 h-12 bg-white dark:bg-neutral-800 text-primary-600 rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all border border-neutral-100 dark:border-neutral-700"
+        >
+          <FiChevronUp size={24} />
+        </button>
+      )}
 
       {/* Injected Views */}
       {activeView === "detail" && activePlantId && (

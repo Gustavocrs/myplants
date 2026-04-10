@@ -471,11 +471,7 @@ export default function AddPlantModal({
                   disabled={loading || !nome || !imagemUrl}
                   className="px-10 py-5 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-[1.5rem] font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:hover:scale-100"
                 >
-                  {loading
-                    ? "Processando..."
-                    : plantToEdit
-                      ? "Salvar Jardim"
-                      : "Finalizar Cadastro"}
+                  {loading ? "Processando..." : "Salvar"}
                 </button>
               </div>
             </div>

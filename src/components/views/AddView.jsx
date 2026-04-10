@@ -158,9 +158,9 @@ export default function AddView({ initialData, onClose, onSave }) {
 
   return (
     <div className="fixed inset-0 z-[100] bg-white dark:bg-neutral-900 flex flex-col md:flex-row overflow-hidden">
-      <div className="grid grid-cols-1 md:grid-cols-5 w-full max-h-screen">
+      <div className="grid grid-cols-1 md:grid-cols-5 w-full h-full md:h-screen">
         {/* Left Column */}
-        <div className="md:col-span-2 bg-neutral-50 dark:bg-neutral-900/20 p-4 md:p-6 border-r border-neutral-100 dark:border-neutral-800/50 flex flex-col gap-4 h-full overflow-y-auto">
+        <div className="md:col-span-2 bg-neutral-50 dark:bg-neutral-900/20 p-4 md:p-6 border-r border-neutral-100 dark:border-neutral-800/50 flex flex-col gap-4 overflow-y-auto pb-32 md:pb-6 md:overflow-hidden">
           <div className="flex items-center justify-between">
             <h2 className="text-3xl font-black font-heading tracking-tight dark:text-white">
               Cultivar
@@ -229,7 +229,7 @@ export default function AddView({ initialData, onClose, onSave }) {
         </div>
 
         {/* Right Column */}
-        <div className="md:col-span-3 p-4 md:p-6 overflow-y-auto max-h-screen">
+        <div className="md:col-span-3 p-4 md:p-6 overflow-y-auto pb-40 md:pb-6 md:overflow-hidden">
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -377,7 +377,7 @@ export default function AddView({ initialData, onClose, onSave }) {
                 disabled={loading || !nome || !imagemUrl}
                 className="px-10 py-5 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-[1.5rem] font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:hover:scale-100"
               >
-                {loading ? "Processando..." : "Finalizar Cadastro"}
+                {loading ? "Processando..." : "Salvar"}
               </button>
             </div>
           </div>
