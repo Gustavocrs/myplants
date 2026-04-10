@@ -54,14 +54,18 @@ export function parseError(error) {
     msgLower.includes("resource_exhausted") ||
     msgLower.includes("429")
   ) {
+    const quotaType = error.responseData?.quotaType || data?.quotaType;
     const retryAfter = error.retryAfter || data?.retryAfter;
-    const msg = retryAfter
-      ? `Limite de uso da IA atingido. Tente novamente em ~${retryAfter}s.`
-      : data?.message || ErrorMessages.api_quota_exceeded;
+    const msg =
+      data?.message ||
+      (retryAfter && quotaType !== "daily"
+        ? `Limite de uso da IA atingido. Tente novamente em ~${retryAfter}s.`
+        : ErrorMessages.api_quota_exceeded);
     return {
       type: ErrorTypes.API_QUOTA_EXCEEDED,
       message: msg,
-      retryAfter,
+      retryAfter: quotaType === "daily" ? null : retryAfter,
+      quotaType,
     };
   }
 
@@ -110,10 +114,15 @@ export function parseError(error) {
   return { type: ErrorTypes.UNKNOWN, message: ErrorMessages.unknown };
 }
 
-export function getActionForError(type) {
+export function getActionForError(type, extra) {
   switch (type) {
     case ErrorTypes.API_KEY_EXPIRED:
       return { label: "Ir para Configurações", path: "/?settings=true" };
+    case ErrorTypes.API_QUOTA_EXCEEDED:
+      if (extra?.quotaType === "daily") {
+        return { label: "Ir para Configurações", path: "/?settings=true" };
+      }
+      return { label: "Tentar novamente", action: "retry" };
     case ErrorTypes.NETWORK_ERROR:
       return { label: "Tentar novamente", action: "retry" };
     case ErrorTypes.NOT_FOUND:

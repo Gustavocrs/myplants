@@ -218,15 +218,32 @@ exports.identifyPlant = async (req, res) => {
       msgLower.includes("resource_exhausted") ||
       msgLower.includes("429")
     ) {
-      const msg = retryAfter
-        ? `Limite de uso da IA atingido. Tente novamente em ~${retryAfter}s.`
-        : "Limite de uso da IA atingido. Tente novamente mais tarde.";
+      const isDailyLimit =
+        msgLower.includes("GenerateRequestsPerDay") ||
+        msgLower.includes("per day") ||
+        msgLower.includes("daily");
+      const quotaType = isDailyLimit ? "daily" : "burst";
+
+      let msg;
+      let action;
+      if (isDailyLimit) {
+        msg =
+          "Limite diário de uso da IA atingido. Acesse as Configurações para usar outra chave de API.";
+        action = "renew_api_key";
+      } else {
+        msg = retryAfter
+          ? `Limite de uso da IA atingido. Tente novamente em ~${retryAfter}s.`
+          : "Limite de uso da IA atingido. Tente novamente mais tarde.";
+        action = "wait_or_upgrade";
+      }
+
       return res.status(429).json({
         success: false,
         error: "api_quota_exceeded",
         message: msg,
-        action: "wait_or_upgrade",
-        retryAfter,
+        action,
+        quotaType,
+        retryAfter: isDailyLimit ? null : retryAfter,
       });
     }
 
