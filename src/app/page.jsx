@@ -589,6 +589,7 @@ export default function Home() {
         ref={fileInputRef}
         onChange={handleAiImageSelect}
         accept="image/*,.heic,.heif"
+        capture="environment"
         className="hidden"
       />
 
