@@ -28,12 +28,14 @@ export function parseError(error) {
     return { type: ErrorTypes.UNKNOWN, message: ErrorMessages.unknown };
 
   const message = error.message || "";
-  const status = error.response?.status;
-  const data = error.response?.data;
+  const status = error.status || error.response?.status;
+  const data = error.responseData || error.response?.data;
+  const code = error.code || data?.error;
   const msgLower = message.toLowerCase();
 
   if (
     status === 403 ||
+    code === "api_key_expired" ||
     msgLower.includes("api key expired") ||
     msgLower.includes("api_key_invalid") ||
     msgLower.includes("api key")
@@ -46,14 +48,20 @@ export function parseError(error) {
 
   if (
     status === 429 ||
+    code === "api_quota_exceeded" ||
     msgLower.includes("quota") ||
     msgLower.includes("rate limit") ||
     msgLower.includes("resource_exhausted") ||
     msgLower.includes("429")
   ) {
+    const retryAfter = error.retryAfter || data?.retryAfter;
+    const msg = retryAfter
+      ? `Limite de uso da IA atingido. Tente novamente em ~${retryAfter}s.`
+      : data?.message || ErrorMessages.api_quota_exceeded;
     return {
       type: ErrorTypes.API_QUOTA_EXCEEDED,
-      message: data?.message || ErrorMessages.api_quota_exceeded,
+      message: msg,
+      retryAfter,
     };
   }
 

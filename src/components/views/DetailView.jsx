@@ -30,6 +30,7 @@ export default function DetailView({
 
   const [plant, setPlant] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [imageLoading, setImageLoading] = useState(true);
   const [formData, setFormData] = useState({});
   const [saving, setSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -47,6 +48,10 @@ export default function DetailView({
   useEffect(() => {
     if (plantId) loadPlant();
   }, [plantId]);
+
+  useEffect(() => {
+    setImageLoading(true);
+  }, [plantId, plant?.imagemUrl]);
 
   const loadPlant = async () => {
     try {
@@ -178,10 +183,17 @@ export default function DetailView({
     <div className="fixed inset-0 z-[100] bg-white dark:bg-neutral-900 flex flex-col md:flex-row overflow-hidden">
       {/* Left - Image */}
       <div className="w-full md:w-1/2 lg:w-2/5 h-[35vh] md:h-full relative shrink-0">
+        {imageLoading && (
+          <div className="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 z-10 flex items-center justify-center">
+            <div className="w-12 h-12 border-4 border-primary-500/30 border-t-primary-500 animate-spin rounded-full" />
+          </div>
+        )}
         <img
           src={plant.imagemUrl}
           alt={plant.nome}
-          className="w-full h-full object-cover"
+          className={`w-full h-full object-cover ${imageLoading ? "opacity-0" : "opacity-100"}`}
+          onLoad={() => setImageLoading(false)}
+          onError={() => setImageLoading(false)}
         />
 
         {/* Mobile: Top buttons overlay */}
@@ -285,7 +297,7 @@ export default function DetailView({
         )}
 
         {/* Scrollable Content */}
-        <div className="flex-1 p-4 md:p-12 overflow-y-auto pb-28 md:pb-12">
+        <div className="flex-1 p-4 md:p-12 overflow-y-auto pb-36 md:pb-12">
           {isEditing ? (
             <div className="max-w-2xl mx-auto space-y-6">
               <span className="inline-block px-4 py-1 bg-primary-50 dark:bg-primary-900/20 text-primary-600 text-xs font-black uppercase rounded-full">
@@ -323,7 +335,7 @@ export default function DetailView({
                     onChange={(e) =>
                       setFormData({ ...formData, luz: e.target.value })
                     }
-                    className="w-full bg-neutral-50 dark:bg-neutral-800 rounded-2xl px-4 py-4 text-sm font-bold"
+                    className="w-full bg-neutral-50 dark:bg-neutral-800 rounded-2xl px-4 py-3 text-sm font-bold"
                   >
                     <option>Sombra</option>
                     <option>Meia-sombra</option>
@@ -344,7 +356,7 @@ export default function DetailView({
                         intervaloRega: e.target.value,
                       })
                     }
-                    className="w-full bg-neutral-50 dark:bg-neutral-800 rounded-2xl px-4 py-4 text-sm font-bold"
+                    className="w-full bg-neutral-50 dark:bg-neutral-800 rounded-2xl px-4 py-3 text-sm font-bold"
                   />
                 </div>
                 {(() => {
@@ -366,21 +378,21 @@ export default function DetailView({
                         type="date"
                         value={proximaRega || ""}
                         disabled
-                        className="w-full bg-neutral-100 dark:bg-neutral-800/50 rounded-2xl px-4 py-4 text-sm font-bold text-neutral-500 dark:text-neutral-400 cursor-not-allowed"
+                        className="w-full bg-neutral-100 dark:bg-neutral-800/50 rounded-2xl px-4 py-3 text-sm font-bold text-neutral-500 dark:text-neutral-400 cursor-not-allowed"
                       />
                     </div>
                   );
                 })()}
               </div>
 
-              <label className="flex items-center gap-3 p-4 bg-neutral-50 dark:bg-neutral-800 rounded-2xl cursor-pointer">
+              <label className="flex items-center gap-3 p-3 bg-neutral-50 dark:bg-neutral-800 rounded-2xl cursor-pointer">
                 <input
                   type="checkbox"
                   checked={formData.petFriendly}
                   onChange={(e) =>
                     setFormData({ ...formData, petFriendly: e.target.checked })
                   }
-                  className="w-6 h-6 rounded-lg text-primary-600"
+                  className="w-5 h-5 rounded-lg text-primary-600"
                 />
                 <span className="text-sm font-bold dark:text-white">
                   Pet Friendly
@@ -396,52 +408,53 @@ export default function DetailView({
                   onChange={(e) =>
                     setFormData({ ...formData, observacoes: e.target.value })
                   }
-                  rows={4}
-                  className="w-full bg-neutral-50 dark:bg-neutral-800 rounded-2xl px-4 py-4 text-sm"
+                  rows={3}
+                  className="w-full bg-neutral-50 dark:bg-neutral-800 rounded-2xl px-4 py-3 text-sm"
                   placeholder="Cuidados especiais..."
                 />
               </div>
 
-              {/* Botões de ação - apenas no modo edição */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-neutral-100 dark:border-neutral-800">
-                <button
-                  onClick={() => onEdit(false)}
-                  className="flex-1 py-4 bg-neutral-200 dark:bg-neutral-700 rounded-2xl font-bold dark:text-white"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="flex-1 py-4 bg-primary-600 text-white rounded-2xl font-bold"
-                >
-                  {saving ? "Salvando..." : "Salvar"}
-                </button>
-              </div>
-
-              {plant.imagemUrl && user && (
-                <div className="flex gap-3 pt-4 border-t border-neutral-100 dark:border-neutral-800">
+              {/* Sticky Footer de Ações */}
+              <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 bg-white dark:bg-neutral-900 border-t border-neutral-100 dark:border-neutral-800 md:relative md:border-0 md:p-0 md:bg-transparent md:dark:bg-transparent md:pb-0">
+                <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
+                  {plant.imagemUrl && user && (
+                    <>
+                      <button
+                        onClick={() => setShowDeleteConfirm(true)}
+                        className="py-3 w-full bg-red-50 text-red-500 rounded-2xl font-bold text-sm flex items-center justify-center gap-1 active:scale-95 transition-transform"
+                      >
+                        <FiTrash2 size={16} /> Excluir
+                      </button>
+                      <button
+                        onClick={handleAiAnalyze}
+                        disabled={aiLoading}
+                        className="py-3 w-full bg-purple-600 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
+                      >
+                        {aiLoading ? (
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white animate-spin rounded-full" />
+                        ) : (
+                          <>
+                            <FiZap /> IA
+                          </>
+                        )}
+                      </button>
+                    </>
+                  )}
                   <button
-                    onClick={handleAiAnalyze}
-                    disabled={aiLoading}
-                    className="flex-1 py-4 bg-purple-600 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="py-3 w-full bg-primary-600 text-white rounded-2xl font-bold text-sm"
                   >
-                    {aiLoading ? (
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white animate-spin rounded-full" />
-                    ) : (
-                      <>
-                        <FiZap /> Avaliar com IA
-                      </>
-                    )}
+                    {saving ? "Salvando..." : "Salvar"}
                   </button>
                   <button
-                    onClick={() => setShowDeleteConfirm(true)}
-                    className="py-4 px-5 bg-red-50 text-red-500 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
+                    onClick={() => onEdit(false)}
+                    className="py-3 w-full bg-neutral-200 dark:bg-neutral-700 rounded-2xl font-bold dark:text-white text-sm"
                   >
-                    <FiTrash2 size={18} />
+                    Cancelar
                   </button>
                 </div>
-              )}
+              </div>
             </div>
           ) : (
             <div className="max-w-2xl mx-auto">
@@ -486,8 +499,8 @@ export default function DetailView({
       </div>
 
       {/* Mobile: Bottom fixed pagination */}
-      {plants.length > 1 && (
-        <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm px-5 py-3 rounded-full shadow-xl border border-neutral-100 dark:border-neutral-800 z-50">
+      {plants.length > 1 && !isEditing && (
+        <div className="md:hidden fixed bottom-24 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-sm px-5 py-3 rounded-full shadow-xl border border-neutral-100 dark:border-neutral-800 z-40">
           <button
             onClick={goToPrev}
             disabled={!hasPrev}

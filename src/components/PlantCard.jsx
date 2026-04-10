@@ -1,10 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiImage } from "react-icons/fi";
 
 export default function PlantCard({ plant, onClick, onEdit, onWater }) {
   const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+
+  useEffect(() => {
+    setImageLoading(true);
+    setImageError(false);
+  }, [plant.imagemUrl]);
 
   const isWateringOverdue = () => {
     if (!plant.ultimaRega || !plant.intervaloRega) return false;
@@ -38,12 +44,21 @@ export default function PlantCard({ plant, onClick, onEdit, onWater }) {
       className="bg-white dark:bg-neutral-900 rounded-2xl shadow-premium hover:shadow-xl overflow-hidden transition-all duration-500 group flex flex-col cursor-pointer hover:-translate-y-2 active:scale-[0.98] relative border border-neutral-100 dark:border-neutral-800 animate-fade-in"
     >
       <div className="aspect-[4/5] relative overflow-hidden bg-neutral-100 dark:bg-neutral-800">
+        {imageLoading && (
+          <div className="absolute inset-0 bg-neutral-200 dark:bg-neutral-800 animate-pulse z-10 flex items-center justify-center">
+            <div className="w-8 h-8 border-4 border-primary-500/30 border-t-primary-500 animate-spin rounded-full" />
+          </div>
+        )}
         {!imageError ? (
           <img
             src={plant.imagemUrl}
             alt={plant.nome}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
-            onError={() => setImageError(true)}
+            className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out ${imageLoading ? "opacity-0" : "opacity-100"}`}
+            onLoad={() => setImageLoading(false)}
+            onError={() => {
+              setImageError(true);
+              setImageLoading(false);
+            }}
             loading="lazy"
           />
         ) : (

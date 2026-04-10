@@ -75,11 +75,15 @@ export const api = {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
-      const errorMessage =
-        errorData?.error ||
-        `Erro HTTP ${response.status}: ${response.statusText}`;
-      const errorDetails = errorData?.details ? ` - ${errorData.details}` : "";
-      throw new Error(errorMessage + errorDetails);
+      const error = new Error(
+        errorData?.message ||
+          `Erro HTTP ${response.status}: ${response.statusText}`,
+      );
+      error.status = response.status;
+      error.code = errorData?.error;
+      error.retryAfter = errorData?.retryAfter;
+      error.responseData = errorData;
+      throw error;
     }
     return response.json();
   },

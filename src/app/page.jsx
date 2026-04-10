@@ -30,6 +30,7 @@ export default function Home() {
 
   const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [plantToEdit, setPlantToEdit] = useState(null);
   const [selectedPlant, setSelectedPlant] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({
@@ -177,10 +178,10 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!authLoading && user && activeView === "list") {
+    if (!authLoading && user) {
       loadPlants();
     }
-  }, [user, authLoading, activeView]);
+  }, [user, authLoading]);
 
   const loadPlants = async () => {
     try {
@@ -191,6 +192,7 @@ export default function Home() {
       console.error("Erro ao carregar plantas:", error);
     } finally {
       setLoading(false);
+      setInitialLoading(false);
     }
   };
 
@@ -412,6 +414,25 @@ export default function Home() {
 
   if (!user) {
     return <LandingPage onLogin={loginGoogle} />;
+  }
+
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 flex flex-col items-center justify-center">
+        <div className="relative mb-8">
+          <div className="h-24 w-24 rounded-full border-4 border-primary-500/20 border-t-primary-500 animate-spin"></div>
+          <span className="absolute inset-0 flex items-center justify-center text-4xl animate-pulse">
+            🌱
+          </span>
+        </div>
+        <h2 className="text-2xl font-black font-heading text-neutral-900 dark:text-white mb-2">
+          Carregando seu Jardim
+        </h2>
+        <p className="text-neutral-500 dark:text-neutral-400 font-medium">
+          Buscando suas plantas...
+        </p>
+      </div>
+    );
   }
 
   return (
