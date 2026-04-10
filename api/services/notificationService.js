@@ -3,7 +3,7 @@ const cron = require("node-cron");
 const nodemailer = require("nodemailer");
 const Plant = require("../models/Plant");
 const Settings = require("../models/Settings");
-const {decrypt} = require("../utils/crypto");
+const { decrypt } = require("../utils/crypto");
 const { backupMongoToFirebase } = require("./backupService");
 
 // Cache simples de transporters para não recriar a cada loop (opcional)
@@ -19,7 +19,7 @@ const checkPlantsAndNotify = async () => {
     // Otimização: Filtra no banco em vez de trazer tudo
     const plants = await Plant.find({
       notificationSent: false,
-      lembretesAtivos: {$ne: false}, // Garante que notifica se for true ou undefined (legado)
+      lembretesAtivos: { $ne: false }, // Garante que notifica se for true ou undefined (legado)
     });
     const now = new Date();
 
@@ -46,7 +46,7 @@ const checkPlantsAndNotify = async () => {
       const userPlants = plantsByUser[userId];
 
       // Busca configurações uma vez por usuário
-      const settings = await Settings.findOne({userId});
+      const settings = await Settings.findOne({ userId });
 
       // Verifica se é a hora correta para este usuário
       const frequencia = settings?.frequenciaEnvio || "diario";
@@ -85,7 +85,7 @@ const checkPlantsAndNotify = async () => {
 const getTransporterForUser = async (userId, settings = null) => {
   // Se settings não foi passado, busca no banco
   if (!settings) {
-    settings = await Settings.findOne({userId});
+    settings = await Settings.findOne({ userId });
   }
 
   if (settings && settings.smtp && settings.smtp.user && settings.smtp.pass) {
@@ -144,7 +144,7 @@ const sendReminderEmail = async (plant, transporter) => {
 };
 
 const sendTestEmail = async (userId, targetEmail) => {
-  const settings = await Settings.findOne({userId});
+  const settings = await Settings.findOne({ userId });
   const transporter = await getTransporterForUser(userId, settings);
 
   const mailOptions = {
@@ -170,12 +170,14 @@ const startScheduler = () => {
     checkPlantsAndNotify();
   });
 
-  // Agendamento de Backup Semanal: Todo Domingo às 00:00
-  cron.schedule("0 0 * * 0", () => {
+  // Backup Diário: Todo dia às 03:00
+  cron.schedule("0 3 * * *", () => {
     backupMongoToFirebase();
   });
 
-  console.log("📅 Serviço de agendamento de rega e backup iniciado.");
+  console.log(
+    "📅 Serviço de agendamento de rega e backup diário iniciado (03:00).",
+  );
 };
 
-module.exports = {startScheduler, sendTestEmail};
+module.exports = { startScheduler, sendTestEmail };
