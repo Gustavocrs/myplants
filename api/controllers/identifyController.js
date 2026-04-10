@@ -173,10 +173,52 @@ exports.identifyPlant = async (req, res) => {
     return res.json({ success: true, ...plantData });
   } catch (error) {
     console.error("Erro Gemini:", error);
+
+    // Detectar erros específicos da API do Gemini
+    const errorMessage = error.message || "";
+
+    if (
+      errorMessage.includes("API key expired") ||
+      errorMessage.includes("API_KEY_INVALID") ||
+      errorMessage.includes("API key")
+    ) {
+      return res.status(403).json({
+        success: false,
+        error: "api_key_expired",
+        message:
+          "A chave de acesso à IA expirou. Por favor, renove nas Configurações.",
+        action: "renew_api_key",
+      });
+    }
+
+    if (
+      errorMessage.includes("quota") ||
+      errorMessage.includes("rate limit") ||
+      errorMessage.includes("RESOURCE_EXHAUSTED")
+    ) {
+      return res.status(429).json({
+        success: false,
+        error: "api_quota_exceeded",
+        message: "Limite de uso da IA atingido. Tente novamente mais tarde.",
+        action: "wait_or_upgrade",
+      });
+    }
+
+    if (errorMessage.includes("network") || errorMessage.includes("fetch")) {
+      return res.status(503).json({
+        success: false,
+        error: "network_error",
+        message: "Ops! Problema de conexão. Verifique sua internet.",
+        action: "retry",
+      });
+    }
+
     return res.status(500).json({
       success: false,
       error: "Erro ao consultar IA",
-      details: error.message,
+      message: "Ocorreu um erro ao processar sua solicitação.",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };

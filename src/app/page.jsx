@@ -1,7 +1,7 @@
 "use client";
 
 import heic2any from "heic2any";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
   FiFilter,
@@ -9,15 +9,16 @@ import {
   FiMoon,
   FiPlus,
   FiSearch,
-  FiSettings,
   FiSun,
   FiWind,
 } from "react-icons/fi";
-import AddPlantModal from "../components/AddPlantModal";
 import FloatingMenu from "../components/FloatingMenu";
 import LandingPage from "../components/landing/LandingPage";
 import PlantCard from "../components/PlantCard";
-import SettingsModal from "../components/SettingsModal";
+import AddView from "../components/views/AddView";
+import DetailView from "../components/views/DetailView";
+import EditView from "../components/views/EditView";
+import SettingsView from "../components/views/SettingsView";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { api } from "../services/api";
@@ -25,12 +26,10 @@ import { api } from "../services/api";
 export default function Home() {
   const { user, loading: authLoading, logout, loginGoogle } = useAuth();
   const { theme, toggleTheme, mounted } = useTheme();
-  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [plantToEdit, setPlantToEdit] = useState(null);
   const [selectedPlant, setSelectedPlant] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({
@@ -38,6 +37,9 @@ export default function Home() {
     message: "",
     onConfirm: null,
   });
+
+  // Search
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Filtros
   const [filterLuz, setFilterLuz] = useState("");
@@ -51,11 +53,133 @@ export default function Home() {
   const [aiLoading, setAiLoading] = useState(false);
   const [initialAiData, setInitialAiData] = useState(null);
 
+  // Sistema de navegação (injeção de views)
+  const [activeView, setActiveView] = useState("list"); // list|detail|add|edit|settings
+  const [activePlantId, setActivePlantId] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const scrollYRef = useRef(0);
+  const isNavigatingRef = useRef(false);
+
+  // Sincronizar estado inicial da URL
   useEffect(() => {
-    if (!authLoading && user) {
+    const v = searchParams.get("v");
+    const id = searchParams.get("id");
+    const edit = searchParams.get("edit");
+
+    if (v && v !== "list") {
+      setActiveView(v);
+      if (id) setActivePlantId(id);
+      if (edit === "true") setIsEditing(true);
+    } else {
+      setActiveView("list");
+      setActivePlantId(null);
+      setIsEditing(false);
+    }
+  }, [searchParams]);
+
+  // Hook de ESC
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape" && activeView !== "list") {
+        closeView(true);
+      }
+    };
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, [activeView]);
+
+  // Hook de popstate (botão voltar do navegador)
+  useEffect(() => {
+    const handlePopstate = (e) => {
+      if (isNavigatingRef.current) {
+        isNavigatingRef.current = false;
+        return;
+      }
+
+      const url = new URL(window.location.href);
+      const v = url.searchParams.get("v");
+      const id = url.searchParams.get("id");
+
+      if (!v || v === "list") {
+        setActiveView("list");
+        setActivePlantId(null);
+        setIsEditing(false);
+        window.scrollTo(0, scrollYRef.current);
+      } else {
+        setActiveView(v);
+        setActivePlantId(id || null);
+        setIsEditing(url.searchParams.get("edit") === "true");
+      }
+    };
+
+    window.addEventListener("popstate", handlePopstate);
+    return () => window.removeEventListener("popstate", handlePopstate);
+  }, []);
+
+  // Travar scroll quando view estiver ativa
+  useEffect(() => {
+    if (activeView !== "list") {
+      scrollYRef.current = window.scrollY;
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [activeView]);
+
+  const openView = (view, options = {}) => {
+    const {
+      id = null,
+      edit = false,
+      aiData = null,
+      pushState = true,
+    } = options;
+
+    setActiveView(view);
+    setActivePlantId(id);
+    setIsEditing(edit);
+    if (aiData) setInitialAiData(aiData);
+
+    if (pushState) {
+      isNavigatingRef.current = true;
+      const url = new URL(window.location.href);
+      if (view === "list") {
+        url.searchParams.delete("v");
+        url.searchParams.delete("id");
+        url.searchParams.delete("edit");
+      } else {
+        url.searchParams.set("v", view);
+        if (id) url.searchParams.set("id", id);
+        if (edit) url.searchParams.set("edit", "true");
+      }
+      window.history.pushState({}, "", url);
+    }
+  };
+
+  const closeView = (fromEsc = false) => {
+    if (activeView === "list") return;
+
+    setActiveView("list");
+    setActivePlantId(null);
+    setIsEditing(false);
+    setInitialAiData(null);
+
+    isNavigatingRef.current = true;
+    const url = new URL(window.location.href);
+    url.searchParams.delete("v");
+    url.searchParams.delete("id");
+    url.searchParams.delete("edit");
+    window.history.pushState({}, "", url);
+
+    setTimeout(() => {
+      window.scrollTo(0, scrollYRef.current);
+    }, 10);
+  };
+
+  useEffect(() => {
+    if (!authLoading && user && activeView === "list") {
       loadPlants();
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, activeView]);
 
   const loadPlants = async () => {
     try {
@@ -70,8 +194,11 @@ export default function Home() {
   };
 
   const handleEdit = (plant) => {
-    setPlantToEdit(plant);
-    setShowAddModal(true);
+    openView("detail", { id: plant._id, edit: true });
+  };
+
+  const handleDetail = (plant) => {
+    openView("detail", { id: plant._id });
   };
 
   const handleAiAnalyze = async (plant) => {
@@ -108,6 +235,17 @@ export default function Home() {
       loadPlants();
     } catch (error) {
       alert("Erro ao excluir planta");
+    }
+  };
+
+  const handleDeleteFromView = async () => {
+    if (!activePlantId) return;
+    try {
+      await api.deletePlant(activePlantId);
+      closeView();
+      loadPlants();
+    } catch (error) {
+      console.error("Erro ao excluir:", error);
     }
   };
 
@@ -157,14 +295,22 @@ export default function Home() {
       reader.readAsDataURL(file);
       reader.onload = async (event) => {
         const base64 = event.target.result;
-        setInitialAiData({ imagemUrl: base64 });
+        openView("add", { aiData: { imagemUrl: base64 } });
         setAiLoading(false);
-        setShowAddModal(true);
       };
     } catch (error) {
       console.error("Erro ao processar imagem:", error);
       setAiLoading(false);
     }
+  };
+
+  const handleSavePlant = async () => {
+    await loadPlants();
+    closeView();
+  };
+
+  const handleUpdatePlant = async () => {
+    await loadPlants();
   };
 
   const filteredPlants = plants.filter((plant) => {
@@ -337,10 +483,7 @@ export default function Home() {
               <span className="text-lg">🤖</span> Scan IA
             </button>
             <button
-              onClick={() => {
-                setPlantToEdit(null);
-                setShowAddModal(true);
-              }}
+              onClick={() => openView("add")}
               className="px-6 py-3 bg-primary-600 text-white rounded-2xl font-bold text-sm shadow-lg shadow-primary-600/20 hover:bg-primary-700 hover:shadow-primary-600/40 transition-all flex items-center gap-2 active:scale-95"
             >
               <FiPlus size={20} /> Nova Planta
@@ -389,7 +532,7 @@ export default function Home() {
               resultados.
             </p>
             <button
-              onClick={() => setShowAddModal(true)}
+              onClick={() => openView("add")}
               className="mt-8 px-8 py-3 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-2xl font-bold text-sm transition-all hover:scale-105"
             >
               Começar Coleção
@@ -413,11 +556,8 @@ export default function Home() {
                     <PlantCard
                       key={plant._id}
                       plant={plant}
-                      onClick={(p) => router.push(`/plant/${p._id}`)}
-                      onEdit={(p) => {
-                        setPlantToEdit(p);
-                        setShowAddModal(true);
-                      }}
+                      onClick={(p) => handleDetail(p)}
+                      onEdit={(p) => openView("edit", { id: p._id })}
                       onWater={handleQuickWater}
                     />
                   ))}
@@ -431,11 +571,8 @@ export default function Home() {
               <PlantCard
                 key={plant._id}
                 plant={plant}
-                onClick={(p) => router.push(`/plant/${p._id}`)}
-                onEdit={(p) => {
-                  setPlantToEdit(p);
-                  setShowAddModal(true);
-                }}
+                onClick={(p) => handleDetail(p)}
+                onEdit={(p) => openView("edit", { id: p._id })}
                 onWater={handleQuickWater}
               />
             ))}
@@ -453,13 +590,9 @@ export default function Home() {
       />
 
       <FloatingMenu
-        onAddPlant={() => {
-          setPlantToEdit(null);
-          setInitialAiData(null);
-          setShowAddModal(true);
-        }}
+        onAddPlant={() => openView("add")}
         onAddAI={handleAiScan}
-        onOpenSettings={() => setShowSettingsModal(true)}
+        onOpenSettings={() => openView("settings")}
         onLogout={logout}
         filterLuz={filterLuz}
         setFilterLuz={setFilterLuz}
@@ -473,25 +606,42 @@ export default function Home() {
         setViewMode={setViewMode}
       />
 
-      {/* Modais com Design System Atualizado */}
-      {showAddModal && (
-        <AddPlantModal
-          onClose={() => setShowAddModal(false)}
-          onSuccess={() => {
-            setShowAddModal(false);
-            loadPlants();
-          }}
-          plantToEdit={plantToEdit}
-          initialData={initialAiData}
-          onDelete={handleDelete}
+      {/* Injected Views */}
+      {activeView === "detail" && activePlantId && (
+        <DetailView
+          plantId={activePlantId}
+          isEditing={isEditing}
+          onClose={closeView}
+          onEdit={() => openView("edit", { id: activePlantId, edit: true })}
+          onDelete={handleDeleteFromView}
+          onUpdate={handleUpdatePlant}
+          plants={plants}
+          onNavigate={(id) => openView("detail", { id })}
         />
       )}
 
-      {showSettingsModal && (
-        <SettingsModal
-          onClose={() => setShowSettingsModal(false)}
+      {activeView === "add" && (
+        <AddView
+          initialData={initialAiData}
+          onClose={closeView}
+          onSave={handleSavePlant}
+        />
+      )}
+
+      {activeView === "edit" && activePlantId && (
+        <EditView
+          plantId={activePlantId}
+          onClose={() => openView("detail", { id: activePlantId })}
+          onSave={handleUpdatePlant}
+          onDelete={handleDeleteFromView}
+        />
+      )}
+
+      {activeView === "settings" && (
+        <SettingsView
+          onClose={closeView}
           plants={plants}
-          onPlantsUpdate={loadPlants}
+          onUpdatePlants={loadPlants}
         />
       )}
 

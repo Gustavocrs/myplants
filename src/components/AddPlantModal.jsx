@@ -3,7 +3,6 @@
 import heic2any from "heic2any";
 import { useEffect, useRef, useState } from "react";
 import {
-  FiCalendar,
   FiCamera,
   FiDroplet,
   FiSun,
@@ -11,6 +10,7 @@ import {
   FiX,
   FiZap,
 } from "react-icons/fi";
+import { useToast } from "@/components/Toast";
 import { useAuth } from "@/context/AuthContext";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { api } from "../services/api";
@@ -24,6 +24,7 @@ export default function AddPlantModal({
 }) {
   useEscapeKey(onClose);
   const { user } = useAuth();
+  const { showError, showSuccess } = useToast();
   const [nome, setNome] = useState("");
   const [nomeCientifico, setNomeCientifico] = useState("");
   const [luz, setLuz] = useState("Meia-sombra");
@@ -175,8 +176,10 @@ export default function AddPlantModal({
       if (data.intervaloRega) setIntervaloRega(data.intervaloRega);
       setPetFriendly(!!data.petFriendly);
       if (data.observacoes) setObservacoes(data.observacoes);
+      showSuccess("Planta identificada com sucesso!");
     } catch (error) {
       console.error("Erro IA:", error);
+      showError(error);
     } finally {
       setLoading(false);
     }
@@ -204,8 +207,10 @@ export default function AddPlantModal({
       if (plantToEdit) await api.updatePlant(plantToEdit._id, plantData);
       else await api.createPlant(plantData);
       onSuccess ? onSuccess() : onClose();
+      showSuccess(plantToEdit ? "Planta atualizada!" : "Planta cadastrada!");
     } catch (error) {
       console.error("Erro ao salvar:", error);
+      showError(error);
     } finally {
       setLoading(false);
     }

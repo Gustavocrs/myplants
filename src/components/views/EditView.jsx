@@ -1,0 +1,279 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { FiTrash2, FiZap } from "react-icons/fi";
+import { useToast } from "@/components/Toast";
+import { useAuth } from "@/context/AuthContext";
+import { api } from "@/services/api";
+
+export default function EditView({ plantId, onClose, onSave, onDelete }) {
+  const { user } = useAuth();
+  const { showError, showSuccess } = useToast();
+
+  const [plant, setPlant] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  useEffect(() => {
+    if (plantId) loadPlant();
+  }, [plantId]);
+
+  const loadPlant = async () => {
+    try {
+      setLoading(true);
+      const data = await api.getPlant(plantId);
+      setPlant(data);
+      setFormData({
+        nome: data.nome || "",
+        nomeCientifico: data.nomeCientifico || "",
+        luz: data.luz || "Meia-sombra",
+        intervaloRega: data.intervaloRega || 7,
+        petFriendly: data.petFriendly || false,
+        observacoes: data.observacoes || "",
+      });
+    } catch (err) {
+      console.error("Erro ao carregar planta:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      const updated = await api.updatePlant(plant._id, formData);
+      setPlant(updated);
+      onSave();
+      showSuccess("Planta atualizada!");
+      onClose();
+    } catch (err) {
+      console.error("Erro ao salvar:", err);
+      showError(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAiAnalyze = async () => {
+    if (!plant.imagemUrl) return;
+    setAiLoading(true);
+    try {
+      let payload = plant.imagemUrl;
+      if (plant.imagemUrl.startsWith("data:")) {
+        const arr = plant.imagemUrl.split(",");
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) u8arr[n] = bstr.charCodeAt(n);
+        payload = new File([u8arr], "plant.jpg", { type: mime });
+      }
+      const data = await api.identifyPlant(payload, user.uid, plant.nome);
+      if (data) {
+        const updated = await api.updatePlant(plant._id, data);
+        setPlant(updated);
+        onSave();
+        showSuccess("Planta atualizada com sucesso!");
+      }
+    } catch (error) {
+      console.error("Erro IA:", error);
+      showError(error);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await api.deletePlant(plant._id);
+      onDelete();
+    } catch (error) {
+      console.error("Erro ao excluir:", error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 z-[100] bg-white dark:bg-neutral-900 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary-500/30 border-t-primary-500 animate-spin rounded-full" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-white dark:bg-neutral-900 flex flex-col md:flex-row overflow-hidden">
+      <div className="w-full md:w-1/2 lg:w-2/5 h-[35vh] md:h-full relative shrink-0">
+        <img
+          src={plant.imagemUrl}
+          alt={plant.nome}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-neutral-900/30 to-transparent" />
+        <div className="absolute bottom-6 left-6 right-6">
+          <h1 className="text-3xl md:text-4xl font-black text-white font-heading tracking-tight drop-shadow-lg">
+            Editando
+          </h1>
+        </div>
+      </div>
+
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex items-center justify-between p-4 border-b border-neutral-100 dark:border-neutral-800">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-neutral-500 font-bold"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="px-6 py-2 bg-primary-600 text-white rounded-xl font-bold"
+          >
+            {saving ? "Salvando..." : "Salvar"}
+          </button>
+        </div>
+
+        <div className="flex-1 p-4 md:p-12 overflow-y-auto pb-28">
+          <div className="max-w-2xl mx-auto space-y-6">
+            <div className="space-y-4">
+              <input
+                type="text"
+                value={formData.nome}
+                onChange={(e) =>
+                  setFormData({ ...formData, nome: e.target.value })
+                }
+                className="w-full text-2xl md:text-4xl font-black bg-transparent border-b-2 border-primary-500 py-2 dark:text-white"
+                placeholder="Nome da planta"
+              />
+              <input
+                type="text"
+                value={formData.nomeCientifico}
+                onChange={(e) =>
+                  setFormData({ ...formData, nomeCientifico: e.target.value })
+                }
+                placeholder="Nome científico"
+                className="w-full text-base md:text-lg italic bg-transparent border-b border-neutral-300 py-2 dark:text-neutral-400"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
+                  Luminosidade
+                </label>
+                <select
+                  value={formData.luz}
+                  onChange={(e) =>
+                    setFormData({ ...formData, luz: e.target.value })
+                  }
+                  className="w-full bg-neutral-50 dark:bg-neutral-800 rounded-2xl px-4 py-4 text-sm font-bold"
+                >
+                  <option>Sombra</option>
+                  <option>Meia-sombra</option>
+                  <option>Luz Difusa</option>
+                  <option>Sol Pleno</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
+                  Ciclo de Rega (dias)
+                </label>
+                <input
+                  type="number"
+                  value={formData.intervaloRega}
+                  onChange={(e) =>
+                    setFormData({ ...formData, intervaloRega: e.target.value })
+                  }
+                  className="w-full bg-neutral-50 dark:bg-neutral-800 rounded-2xl px-4 py-4 text-sm font-bold"
+                />
+              </div>
+            </div>
+
+            <label className="flex items-center gap-3 p-4 bg-neutral-50 dark:bg-neutral-800 rounded-2xl cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.petFriendly}
+                onChange={(e) =>
+                  setFormData({ ...formData, petFriendly: e.target.checked })
+                }
+                className="w-6 h-6 rounded-lg text-primary-600"
+              />
+              <span className="text-sm font-bold dark:text-white">
+                Pet Friendly
+              </span>
+            </label>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
+                Observações
+              </label>
+              <textarea
+                value={formData.observacoes}
+                onChange={(e) =>
+                  setFormData({ ...formData, observacoes: e.target.value })
+                }
+                rows={4}
+                className="w-full bg-neutral-50 dark:bg-neutral-800 rounded-2xl px-4 py-4 text-sm"
+                placeholder="Cuidados especiais..."
+              />
+            </div>
+
+            {/* Botões de ação - apenas no modo edição */}
+            <div className="flex gap-3 pt-4 border-t border-neutral-100 dark:border-neutral-800">
+              <button
+                onClick={handleAiAnalyze}
+                disabled={aiLoading}
+                className="flex-1 py-4 bg-purple-600 text-white rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
+              >
+                {aiLoading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white animate-spin rounded-full" />
+                ) : (
+                  <>
+                    <FiZap /> Avaliar com IA
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="py-4 px-5 bg-red-50 text-red-500 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
+              >
+                <FiTrash2 size={18} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 p-4">
+          <div className="bg-white dark:bg-neutral-900 p-8 rounded-[2rem] max-w-sm w-full shadow-2xl">
+            <h3 className="text-xl font-black mb-4 dark:text-white">
+              Excluir?
+            </h3>
+            <p className="text-neutral-600 dark:text-neutral-400 mb-6">
+              Não pode ser desfeito.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 py-4 bg-neutral-200 dark:bg-neutral-700 rounded-2xl font-bold dark:text-white"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDelete}
+                className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-bold"
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

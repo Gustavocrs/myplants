@@ -1,5 +1,6 @@
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
+import { ToastProvider } from "@/components/Toast";
 import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 
@@ -74,7 +75,9 @@ export default function RootLayout({ children }) {
     <html lang="pt-BR" className={`${inter.variable} ${outfit.variable}`}>
       <body className="antialiased font-body">
         <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <ToastProvider>
+            <AuthProvider>{children}</AuthProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>
