@@ -19,7 +19,7 @@
   },
   "backup": {
     "habilitado": true,
-    "diretorio": "/backups/mongo",
+    "diretorio": "/root/projetos/myplants-mongo/backups",
     "frequencia": "diario",
     "horario": "02:00",
     "retencao_dias": 7,
