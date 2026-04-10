@@ -83,6 +83,11 @@ exports.getAllPlants = async (req, res) => {
   try {
     const { userId } = req.query;
     const filter = userId ? { userId } : {};
+
+    // Filtrar documentos inválidos que não têm nome ou userId (proteção contra dado corrupto/invasor)
+    filter.nome = { $exists: true, $ne: "" };
+    if (userId) filter.userId = userId;
+
     const plants = await Plant.find(filter)
       .collation({ locale: "pt", strength: 1 })
       .sort({ nome: 1 });

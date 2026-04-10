@@ -254,12 +254,15 @@ export default function Home() {
 
   const handleDeleteFromView = async () => {
     if (!activePlantId) return;
+    // Exclusão otimista: remove localmente antes de esperar a API
+    setPlants((prev) => prev.filter((p) => p._id !== activePlantId));
+    closeView();
     try {
       await api.deletePlant(activePlantId);
-      closeView();
-      loadPlants();
     } catch (error) {
       console.error("Erro ao excluir:", error);
+      // Se falhar, recarrega para restaurar estado consistente
+      loadPlants();
     }
   };
 
@@ -328,6 +331,9 @@ export default function Home() {
   };
 
   const filteredPlants = plants.filter((plant) => {
+    // Guard: ignora documentos inválidos/corrompidos que não têm nome
+    if (!plant?.nome) return false;
+
     const matchesSearch =
       plant.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (plant.nomeCientifico &&
