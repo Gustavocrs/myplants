@@ -1,0 +1,40 @@
+{
+  "versao": "1.0",
+  "ultima_atualizacao": "2026-04-10",
+  "mongodb": {
+    "autenticacao": {
+      "habilitada": true,
+      "metodo": "SCRAM-SHA-256",
+      "usuario_admin": "admin"
+    },
+    "rede": {
+      "bind_ip": "127.0.0.1",
+      "porta": 27017,
+      "acesso_externo": false
+    },
+    "tls": {
+      "habilitado": false,
+      "nota": "Considerar habilitar em produção"
+    }
+  },
+  "backup": {
+    "habilitado": true,
+    "diretorio": "/backups/mongo",
+    "frequencia": "diario",
+    "horario": "02:00",
+    "retencao_dias": 7,
+    "script": "backup.sh"
+  },
+  "monitoramento": {
+    "log_access": true,
+    "log_auth": true,
+    "audit": false
+  },
+  "politicas_senha": {
+    "min_caracteres": 16,
+    "exigir_maiusculas": true,
+    "exigir_minusculas": true,
+    "exigir_numeros": true,
+    "exigir_especiais": true
+  }
+}
