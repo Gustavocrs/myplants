@@ -7,20 +7,39 @@ import { useAuth } from "@/context/AuthContext";
 import { api } from "@/services/api";
 import Image from "next/image";
 
-export default function EditView({ plantId, onClose, onSave, onDelete }) {
+export default function EditView({
+  plant: initialPlant,
+  plantId,
+  onClose,
+  onSave,
+  onDelete,
+}) {
   const { user } = useAuth();
   const { showError, showSuccess } = useToast();
 
-  const [plant, setPlant] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [plant, setPlant] = useState(initialPlant || null);
+  const [loading, setLoading] = useState(!initialPlant);
   const [formData, setFormData] = useState({});
   const [saving, setSaving] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
-    if (plantId) loadPlant();
-  }, [plantId]);
+    if (initialPlant) {
+      setPlant(initialPlant);
+      setFormData({
+        nome: initialPlant.nome || "",
+        nomeCientifico: initialPlant.nomeCientifico || "",
+        luz: initialPlant.luz || "Meia-sombra",
+        intervaloRega: initialPlant.intervaloRega || 7,
+        petFriendly: initialPlant.petFriendly || false,
+        observacoes: initialPlant.observacoes || "",
+      });
+      setLoading(false);
+    } else if (plantId) {
+      loadPlant();
+    }
+  }, [initialPlant, plantId]);
 
   const loadPlant = async () => {
     try {
@@ -93,6 +112,14 @@ export default function EditView({ plantId, onClose, onSave, onDelete }) {
       onDelete();
     } catch (error) {
       console.error("Erro ao excluir:", error);
+    }
+  };
+
+  const handleDeleteClick = () => {
+    if (onDelete) {
+      onDelete();
+    } else {
+      setShowDeleteConfirm(true);
     }
   };
 
@@ -241,7 +268,7 @@ export default function EditView({ plantId, onClose, onSave, onDelete }) {
                 )}
               </button>
               <button
-                onClick={() => setShowDeleteConfirm(true)}
+                onClick={handleDeleteClick}
                 className="py-4 px-5 bg-red-50 text-red-500 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform"
               >
                 <FiTrash2 size={18} />

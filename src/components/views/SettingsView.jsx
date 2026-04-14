@@ -120,8 +120,8 @@ export default function SettingsView({ onClose, plants = [], onUpdatePlants }) {
     <div className="fixed inset-0 z-[100] bg-neutral-900 animate-fade-in">
       <div className="w-full h-screen bg-white dark:bg-neutral-900 flex flex-col md:flex-row">
         {/* Sidebar Navigation */}
-        <aside className="w-full md:w-72 bg-neutral-50 dark:bg-neutral-900/20 border-r border-neutral-100 dark:border-neutral-800/50 flex flex-col p-6 shrink-0">
-          <div className="mb-10 flex items-center gap-3">
+        <aside className="w-full md:w-72 bg-neutral-50 dark:bg-neutral-900/20 border-b md:border-b-0 md:border-r border-neutral-100 dark:border-neutral-800/50 flex flex-col p-6 shrink-0">
+          <div className="mb-6 md:mb-10 flex items-center gap-3">
             <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg">
               <FiSettings size={22} />
             </div>
@@ -130,26 +130,27 @@ export default function SettingsView({ onClose, plants = [], onUpdatePlants }) {
             </h2>
           </div>
 
-          <nav className="space-y-2 flex-1">
+          <nav className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible no-scrollbar pb-2 md:pb-0 flex-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all ${
+                className={`flex-1 md:flex-none flex items-center justify-center md:justify-start gap-3 px-4 py-3 md:py-3.5 rounded-2xl text-sm font-bold transition-all ${
                   activeTab === tab.id
                     ? "bg-white dark:bg-neutral-800 text-primary-600 shadow-md scale-105"
                     : "text-neutral-400 hover:bg-white/50 dark:hover:bg-neutral-800/50"
                 }`}
+                title={tab.label}
               >
-                <span className="text-lg">{tab.icon}</span>
-                <span className="tracking-tight">{tab.label}</span>
+                <span className="text-xl md:text-lg">{tab.icon}</span>
+                <span className="tracking-tight hidden md:block">{tab.label}</span>
               </button>
             ))}
           </nav>
 
           <button
             onClick={onClose}
-            className="mt-4 flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-neutral-400 hover:bg-white/50 dark:hover:bg-neutral-800/50 transition-all"
+            className="hidden md:flex mt-4 items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-neutral-400 hover:bg-white/50 dark:hover:bg-neutral-800/50 transition-all"
           >
             <FiX size={20} />
             <span className="tracking-tight">Voltar</span>
@@ -158,7 +159,7 @@ export default function SettingsView({ onClose, plants = [], onUpdatePlants }) {
 
         {/* Content Area */}
         <main className="flex-1 flex flex-col min-w-0 bg-white dark:bg-neutral-900">
-          <header className="px-10 py-8 flex items-center justify-between border-b border-neutral-50 dark:border-neutral-800/40">
+          <header className="px-6 py-6 md:px-10 md:py-8 flex items-center justify-between border-b border-neutral-50 dark:border-neutral-800/40">
             <div>
               <h3 className="text-2xl font-black font-heading tracking-tight dark:text-white capitalize">
                 {activeTab}
@@ -169,7 +170,7 @@ export default function SettingsView({ onClose, plants = [], onUpdatePlants }) {
             </div>
           </header>
 
-          <div className="flex-1 overflow-y-auto p-10 space-y-8 no-scrollbar">
+          <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-8 no-scrollbar">
             {activeTab === "general" && (
               <div className="animate-fade-in space-y-8">
                 <div className="space-y-4">
@@ -408,7 +409,7 @@ export default function SettingsView({ onClose, plants = [], onUpdatePlants }) {
               disabled={loading}
               className="px-12 py-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
             >
-              {loading ? "Gravando..." : "Salvar Sistema"}
+              {loading ? "Gravando..." : "Salvar"}
             </button>
           </footer>
         </main>

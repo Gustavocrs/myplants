@@ -142,8 +142,8 @@ export default function SettingsModal({
     <div className="fixed inset-0 bg-neutral-900 z-[100] animate-fade-in">
       <div className="w-full h-screen bg-white dark:bg-neutral-900 flex flex-col md:flex-row">
         {/* Sidebar Navigation */}
-        <aside className="w-full md:w-72 bg-neutral-50 dark:bg-neutral-900/20 border-r border-neutral-100 dark:border-neutral-800/50 flex flex-col p-6 shrink-0">
-          <div className="mb-10 flex items-center gap-3">
+        <aside className="w-full md:w-72 bg-neutral-50 dark:bg-neutral-900/20 border-b md:border-b-0 md:border-r border-neutral-100 dark:border-neutral-800/50 flex flex-col p-6 shrink-0">
+          <div className="mb-6 md:mb-10 flex items-center gap-3">
             <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg">
               <FiSettings size={22} />
             </div>
@@ -152,27 +152,36 @@ export default function SettingsModal({
             </h2>
           </div>
 
-          <nav className="space-y-2 flex-1">
+          <nav className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible no-scrollbar pb-2 md:pb-0 flex-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all ${
+                className={`flex-1 md:flex-none flex items-center justify-center md:justify-start gap-3 px-4 py-3 md:py-3.5 rounded-2xl text-sm font-bold transition-all ${
                   activeTab === tab.id
                     ? "bg-white dark:bg-neutral-800 text-primary-600 shadow-md scale-105"
                     : "text-neutral-400 hover:bg-white/50 dark:hover:bg-neutral-800/50"
                 }`}
+                title={tab.label}
               >
-                <span className="text-lg">{tab.icon}</span>
-                <span className="tracking-tight">{tab.label}</span>
+                <span className="text-xl md:text-lg">{tab.icon}</span>
+                <span className="tracking-tight hidden md:block">{tab.label}</span>
               </button>
             ))}
           </nav>
+
+          <button
+            onClick={onClose}
+            className="hidden md:flex mt-4 items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-bold text-neutral-400 hover:bg-white/50 dark:hover:bg-neutral-800/50 transition-all"
+          >
+            <FiX size={20} />
+            <span className="tracking-tight">Voltar</span>
+          </button>
         </aside>
 
         {/* Content Area */}
         <main className="flex-1 flex flex-col min-w-0 bg-white dark:bg-neutral-900">
-          <header className="px-10 py-8 flex items-center justify-between border-b border-neutral-50 dark:border-neutral-800/40">
+          <header className="px-6 py-6 md:px-10 md:py-8 flex items-center justify-between border-b border-neutral-50 dark:border-neutral-800/40">
             <div>
               <h3 className="text-2xl font-black font-heading tracking-tight dark:text-white capitalize">
                 {activeTab}
@@ -183,7 +192,7 @@ export default function SettingsModal({
             </div>
           </header>
 
-          <div className="flex-1 overflow-y-auto p-10 space-y-8 no-scrollbar">
+          <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-8 no-scrollbar">
             {activeTab === "general" && (
               <div className="animate-fade-in space-y-8">
                 <div className="space-y-4">
@@ -410,22 +419,81 @@ export default function SettingsModal({
             )}
           </div>
 
-          <footer className="p-10 border-t border-neutral-50 dark:border-neutral-800/40 bg-neutral-50 dark:bg-neutral-900/10 flex justify-end gap-4">
+          <footer className="p-6 md:p-10 border-t border-neutral-50 dark:border-neutral-800/40 bg-neutral-50 dark:bg-neutral-900/10 flex justify-end gap-4">
             <button
               onClick={onClose}
-              className="px-8 py-4 text-sm font-bold text-neutral-400 uppercase tracking-widest hover:text-neutral-600 transition-colors"
+              className="px-6 md:px-8 py-3 md:py-4 text-sm font-bold text-neutral-400 uppercase tracking-widest hover:text-neutral-600 transition-colors"
             >
               Voltar
             </button>
             <button
               onClick={handleSave}
               disabled={loading}
-              className="px-12 py-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
+              className="px-8 md:px-12 py-3 md:py-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
             >
               {loading ? "Gravando..." : "Salvar Sistema"}
             </button>
           </footer>
         </main>
+
+        {/* Floating Modals UI */}
+        {confirmDialog.isOpen && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-6">
+            <div className="bg-white dark:bg-neutral-900 p-8 rounded-[2.5rem] shadow-2xl max-w-sm w-full animate-in zoom-in-95">
+              <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
+                <FiAlertCircle className="text-red-500" /> Confirmação
+              </h3>
+              <p className="text-neutral-500 text-sm font-medium mb-8 leading-relaxed">
+                {confirmDialog.message}
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setConfirmDialog({ isOpen: false })}
+                  className="flex-1 py-4 bg-neutral-100 dark:bg-neutral-800 rounded-2xl font-bold text-sm"
+                >
+                  Não
+                </button>
+                <button
+                  onClick={confirmDialog.onConfirm}
+                  className="flex-1 py-4 bg-red-600 text-white rounded-2xl font-bold text-sm shadow-lg shadow-red-600/20"
+                >
+                  Sim, Confirmar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {alertDialog.isOpen && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/60 backdrop-blur-sm p-6">
+            <div className="bg-white dark:bg-neutral-900 p-8 rounded-[2.5rem] shadow-2xl max-w-sm w-full animate-fade-in text-center">
+              <div
+                className={`w-16 h-16 mx-auto mb-6 rounded-3xl flex items-center justify-center text-3xl ${alertDialog.isError ? "bg-red-50 text-red-500" : "bg-primary-50 text-primary-500"}`}
+              >
+                {alertDialog.isError ? <FiAlertCircle /> : <FiCheckCircle />}
+              </div>
+              <h3 className="text-xl font-bold mb-3">
+                {alertDialog.isError ? "Algo deu errado" : "Missão Cumprida"}
+              </h3>
+              <p className="text-neutral-500 text-sm font-medium mb-8">
+                {alertDialog.message}
+              </p>
+              <button
+                onClick={() => {
+                  alertDialog.onCloseAlert?.();
+                  setAlertDialog({ isOpen: false });
+                }}
+                className="w-full py-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-2xl font-bold text-sm uppercase tracking-widest"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
         {/* Floating Modals UI */}
         {confirmDialog.isOpen && (

@@ -254,16 +254,22 @@ export default function Home() {
 
   const handleDeleteFromView = async () => {
     if (!activePlantId) return;
-    // Exclusão otimista: remove localmente antes de esperar a API
     setPlants((prev) => prev.filter((p) => p._id !== activePlantId));
     closeView();
     try {
       await api.deletePlant(activePlantId);
     } catch (error) {
       console.error("Erro ao excluir:", error);
-      // Se falhar, recarrega para restaurar estado consistente
       loadPlants();
     }
+  };
+
+  const handleDeleteRequest = () => {
+    setConfirmDialog({
+      isOpen: true,
+      message: "Excluir Planta?",
+      onConfirm: handleDeleteFromView,
+    });
   };
 
   const handleQuickWater = async (id) => {
@@ -659,20 +665,22 @@ export default function Home() {
       )}
 
       {/* Injected Views */}
-      {activeView === "detail" && activePlantId && (
-        <DetailView
-          plantId={activePlantId}
-          isEditing={isEditing}
-          onClose={closeView}
-          onEdit={(edit = true) =>
-            openView("detail", { id: activePlantId, edit })
-          }
-          onDelete={handleDeleteFromView}
-          onUpdate={handleUpdatePlant}
-          plants={plants}
-          onNavigate={(id) => openView("detail", { id })}
-        />
-      )}
+      {activeView === "detail" &&
+        activePlantId &&
+        plants.find((p) => p._id === activePlantId) && (
+          <DetailView
+            plant={plants.find((p) => p._id === activePlantId)}
+            isEditing={isEditing}
+            onClose={closeView}
+            onEdit={(edit = true) =>
+              openView("detail", { id: activePlantId, edit })
+            }
+            onDelete={handleDeleteRequest}
+            onUpdate={handleUpdatePlant}
+            plants={plants}
+            onNavigate={(id) => openView("detail", { id })}
+          />
+        )}
 
       {activeView === "add" && (
         <AddView
@@ -682,14 +690,22 @@ export default function Home() {
         />
       )}
 
-      {activeView === "edit" && activePlantId && (
-        <EditView
-          plantId={activePlantId}
-          onClose={() => openView("detail", { id: activePlantId })}
-          onSave={handleUpdatePlant}
-          onDelete={handleDeleteFromView}
-        />
-      )}
+      {(activeView === "edit" || (activeView === "detail" && isEditing)) &&
+        activePlantId &&
+        plants.find((p) => p._id === activePlantId) && (
+          <EditView
+            plant={plants.find((p) => p._id === activePlantId)}
+            onClose={() => openView("detail", { id: activePlantId })}
+            onSave={handleUpdatePlant}
+            onDelete={() => {
+              setConfirmDialog({
+                isOpen: true,
+                message: "Excluir Planta?",
+                onConfirm: handleDeleteFromView,
+              });
+            }}
+          />
+        )}
 
       {activeView === "settings" && (
         <SettingsView
