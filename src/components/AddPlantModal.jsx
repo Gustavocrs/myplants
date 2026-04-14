@@ -14,6 +14,7 @@ import { useToast } from "@/components/Toast";
 import { useAuth } from "@/context/AuthContext";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { api } from "../services/api";
+import Image from "next/image";
 
 export default function AddPlantModal({
   onClose,
@@ -126,7 +127,7 @@ export default function AddPlantModal({
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = (event) => {
-      const img = new Image();
+      const img = new window.Image();
       img.src = event.target.result;
       img.onload = () => {
         const canvas = document.createElement("canvas");
@@ -240,10 +241,11 @@ export default function AddPlantModal({
             >
               {preview ? (
                 <>
-                  <img
+                  <Image
                     src={preview}
                     alt="Preview"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-primary-600/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <div className="bg-white text-primary-600 px-4 py-2 rounded-xl font-bold text-xs shadow-xl">

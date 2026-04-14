@@ -5,6 +5,7 @@ import { FiTrash2, FiZap } from "react-icons/fi";
 import { useToast } from "@/components/Toast";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/services/api";
+import Image from "next/image";
 
 export default function EditView({ plantId, onClose, onSave, onDelete }) {
   const { user } = useAuth();
@@ -106,10 +107,13 @@ export default function EditView({ plantId, onClose, onSave, onDelete }) {
   return (
     <div className="fixed inset-0 z-[100] bg-white dark:bg-neutral-900 flex flex-col md:flex-row overflow-hidden">
       <div className="w-full md:w-1/2 lg:w-2/5 h-[35vh] md:h-full relative shrink-0">
-        <img
+        <Image
           src={plant.imagemUrl}
           alt={plant.nome}
-          className="w-full h-full object-cover"
+          fill
+          priority
+          sizes="(max-width: 768px) 100vw, 40vw"
+          className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-neutral-900/30 to-transparent" />
         <div className="absolute bottom-6 left-6 right-6">

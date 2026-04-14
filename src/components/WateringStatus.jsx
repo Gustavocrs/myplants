@@ -2,6 +2,7 @@
 
 import React from "react";
 import { FiDroplet, FiCalendar, FiCheckCircle } from "react-icons/fi";
+import Image from "next/image";
 
 export default function WateringStatus({plants = [], onUpdateWatering}) {
   const getNextWateringDate = (ultimaRega, intervaloRega) => {
@@ -45,12 +46,14 @@ export default function WateringStatus({plants = [], onUpdateWatering}) {
             >
               <div className="flex items-center gap-3 flex-1 w-full">
                 {/* Plant image */}
-                <div className="w-12 h-12 rounded-lg overflow-hidden bg-neutral-100 shrink-0">
+                <div className="w-12 h-12 rounded-lg overflow-hidden bg-neutral-100 shrink-0 relative">
                   {plant.imagemUrl ? (
-                    <img
+                    <Image
                       src={plant.imagemUrl}
                       alt={plant.nome || "Planta"}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      fill
+                      sizes="48px"
+                      className="object-cover group-hover:scale-105 transition-transform"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-xl">

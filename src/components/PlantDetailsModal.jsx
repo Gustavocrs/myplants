@@ -10,6 +10,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
+import Image from "next/image";
 
 export default function PlantDetailsModal({
   plant,
@@ -119,10 +120,13 @@ export default function PlantDetailsModal({
 
         {/* Media Block (5 columns) */}
         <div className="relative md:col-span-5 h-[50vh] md:h-[67vh] min-h-[300px] overflow-hidden">
-          <img
+          <Image
             src={plant.imagemUrl}
             alt={plant.nome}
-            className="w-full h-full object-cover"
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-transparent to-transparent md:bg-gradient-to-r md:from-transparent md:to-white/10" />
 

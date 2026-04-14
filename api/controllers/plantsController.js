@@ -38,8 +38,8 @@ const checkStorageLimit = async (userId, newDocumentSize = 0) => {
   return currentSize + newDocumentSize <= MAX_STORAGE_BYTES;
 };
 
-// Função auxiliar para salvar Base64 como arquivo
-const saveBase64Image = (base64String) => {
+// Função auxiliar para salvar Base64 como arquivo com otimização
+const saveBase64Image = async (base64String) => {
   if (!base64String || !base64String.startsWith("data:image"))
     return base64String;
 
@@ -49,11 +49,19 @@ const saveBase64Image = (base64String) => {
     );
     if (!matches || matches.length !== 3) return base64String;
 
-    const ext = matches[1];
     const data = matches[2];
     const buffer = Buffer.from(data, "base64");
 
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
+    // Otimização com Sharp: Redimensionar e converter para WebP
+    const optimizedBuffer = await sharp(buffer)
+      .resize(1200, 1200, {
+        fit: "inside",
+        withoutEnlargement: true,
+      })
+      .webp({ quality: 80 })
+      .toBuffer();
+
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.webp`;
     const uploadPath = path.join(
       __dirname,
       "..",
@@ -62,20 +70,18 @@ const saveBase64Image = (base64String) => {
       fileName,
     );
 
-    // Garante que o diretório existe (redundância segura)
+    // Garante que o diretório existe
     fs.mkdirSync(path.dirname(uploadPath), { recursive: true });
-    console.log(`💾 [Controller] Salvando imagem em: ${uploadPath}`);
-    fs.writeFileSync(uploadPath, buffer);
+    console.log(`💾 [Controller] Salvando imagem otimizada em: ${uploadPath}`);
+    fs.writeFileSync(uploadPath, optimizedBuffer);
 
-    // Ajusta a URL para apontar para a raiz do servidor (onde ficam os estáticos),
-    // removendo o sufixo '/api' se ele existir na variável de ambiente.
     const baseUrl = process.env.API_URL
       ? process.env.API_URL.replace(/\/api\/?$/, "")
       : "";
     return `${baseUrl}/uploads/${fileName}`;
   } catch (error) {
     console.error("Erro ao salvar imagem:", error);
-    return base64String; // Fallback para base64 se der erro
+    return base64String;
   }
 };
 
@@ -132,13 +138,8 @@ exports.createPlant = async (req, res) => {
     // Otimização: Salva imagem em disco antes de verificar cota do banco
     if (req.body.imagemUrl) {
       req.body.imagemUrl = await convertHeicToJpeg(req.body.imagemUrl);
-      req.body.imagemUrl = saveBase64Image(req.body.imagemUrl);
+      req.body.imagemUrl = await saveBase64Image(req.body.imagemUrl);
     }
-
-    // Verifica cota (agora muito mais leve pois a imagem é apenas uma URL)
-    // Mantemos a verificação para evitar abuso de quantidade de plantas
-    // const hasSpace = await checkStorageLimit(userId, docSize);
-    // (Com imagens em disco, o limite de 300MB de BSON é difícil de atingir, mas mantemos a lógica se quiser)
 
     const newPlant = new Plant(req.body);
     const savedPlant = await newPlant.save();
@@ -150,8 +151,6 @@ exports.createPlant = async (req, res) => {
 
 exports.updatePlant = async (req, res) => {
   try {
-    // Na atualização, é difícil calcular o delta exato sem ler antes,
-    // mas podemos verificar se o usuário já está estourado.
     const plant = await Plant.findById(req.params.id);
     if (!plant) return res.status(404).json({ error: "Planta não encontrada" });
 
@@ -159,7 +158,7 @@ exports.updatePlant = async (req, res) => {
     if (req.body.imagemUrl && req.body.imagemUrl !== plant.imagemUrl) {
       // Converte nova imagem base64 para arquivo
       req.body.imagemUrl = await convertHeicToJpeg(req.body.imagemUrl);
-      req.body.imagemUrl = saveBase64Image(req.body.imagemUrl);
+      req.body.imagemUrl = await saveBase64Image(req.body.imagemUrl);
     }
 
     const updatedPlant = await Plant.findByIdAndUpdate(
@@ -235,10 +234,18 @@ exports.deletePlant = async (req, res) => {
 };
 
 exports.confirmWatering = async (req, res) => {
-  // Lógica de confirmação de rega (mantida igual, mas movida para cá)
-  // ... (Implementação simplificada para brevidade, veja o arquivo original routes/plants.js)
-  // Recomendo mover a lógica do router.get("/:id/water") para cá.
-  // Por hora, vou manter a lógica inline no router ou você pode copiar do original.
+  // Lógica simplificada de confirmação de rega
+  try {
+    const { id } = req.params;
+    const plant = await Plant.findById(id);
+    if (!plant) return res.status(404).json({ error: "Planta não encontrada" });
+    
+    plant.ultimaRega = new Date();
+    await plant.save();
+    res.json(plant);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 exports.getStorageUsage = async (req, res) => {

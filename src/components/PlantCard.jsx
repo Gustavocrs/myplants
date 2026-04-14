@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { FiImage } from "react-icons/fi";
+import Image from "next/image";
 
 export default function PlantCard({ plant, onClick, onEdit, onWater }) {
   const [imageError, setImageError] = useState(false);
@@ -50,16 +51,17 @@ export default function PlantCard({ plant, onClick, onEdit, onWater }) {
           </div>
         )}
         {!imageError ? (
-          <img
+          <Image
             src={plant.imagemUrl}
             alt={plant.nome}
-            className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out ${imageLoading ? "opacity-0" : "opacity-100"}`}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className={`object-cover group-hover:scale-110 transition-transform duration-1000 ease-out ${imageLoading ? "opacity-0" : "opacity-100"}`}
             onLoad={() => setImageLoading(false)}
             onError={() => {
               setImageError(true);
               setImageLoading(false);
             }}
-            loading="lazy"
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-neutral-400 bg-neutral-50 dark:bg-neutral-900/50">
