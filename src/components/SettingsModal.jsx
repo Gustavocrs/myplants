@@ -139,33 +139,40 @@ export default function SettingsModal({
   ];
 
   return (
-    <div className="fixed inset-0 bg-neutral-900 z-[100] animate-fade-in">
-      <div className="w-full h-screen bg-white dark:bg-neutral-900 flex flex-col md:flex-row">
+    <div className="fixed inset-0 bg-neutral-900 z-[100] animate-fade-in overflow-hidden">
+      <div className="w-full h-full bg-white dark:bg-neutral-900 flex flex-col md:flex-row overflow-hidden">
         {/* Sidebar Navigation */}
-        <aside className="w-full md:w-72 bg-neutral-50 dark:bg-neutral-900/20 border-b md:border-b-0 md:border-r border-neutral-100 dark:border-neutral-800/50 flex flex-col p-6 shrink-0">
-          <div className="mb-6 md:mb-10 flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-              <FiSettings size={22} />
+        <aside className="w-full md:w-72 bg-neutral-50 dark:bg-neutral-900/20 border-b md:border-b-0 md:border-r border-neutral-100 dark:border-neutral-800/50 flex flex-col p-4 md:p-6 shrink-0 z-10">
+          <div className="mb-4 md:mb-10 flex items-center justify-between md:justify-start gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <FiSettings size={18} className="md:w-[22px]" />
+              </div>
+              <h2 className="text-lg md:text-xl font-black font-heading tracking-tight dark:text-white">
+                Ajustes
+              </h2>
             </div>
-            <h2 className="text-xl font-black font-heading tracking-tight dark:text-white">
-              Ajustes
-            </h2>
+            <button
+              onClick={onClose}
+              className="md:hidden p-2 text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-all"
+            >
+              <FiX size={24} />
+            </button>
           </div>
 
-          <nav className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible no-scrollbar pb-2 md:pb-0 flex-1">
+          <nav className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto no-scrollbar pb-2 md:pb-0 flex-1 scroll-smooth">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 md:flex-none flex items-center justify-center md:justify-start gap-3 px-4 py-3 md:py-3.5 rounded-2xl text-sm font-bold transition-all ${
+                className={`flex-none md:flex-none flex items-center gap-3 px-4 py-2.5 md:py-3.5 rounded-2xl text-sm font-bold transition-all whitespace-nowrap ${
                   activeTab === tab.id
                     ? "bg-white dark:bg-neutral-800 text-primary-600 shadow-md scale-105"
                     : "text-neutral-400 hover:bg-white/50 dark:hover:bg-neutral-800/50"
                 }`}
-                title={tab.label}
               >
                 <span className="text-xl md:text-lg">{tab.icon}</span>
-                <span className="tracking-tight hidden md:block">{tab.label}</span>
+                <span className="tracking-tight">{tab.label}</span>
               </button>
             ))}
           </nav>
@@ -180,21 +187,21 @@ export default function SettingsModal({
         </aside>
 
         {/* Content Area */}
-        <main className="flex-1 flex flex-col min-w-0 bg-white dark:bg-neutral-900">
-          <header className="px-6 py-6 md:px-10 md:py-8 flex items-center justify-between border-b border-neutral-50 dark:border-neutral-800/40">
+        <main className="flex-1 flex flex-col min-w-0 bg-white dark:bg-neutral-900 relative h-full">
+          <header className="px-6 py-4 md:px-10 md:py-8 flex items-center justify-between border-b border-neutral-50 dark:border-neutral-800/40 shrink-0">
             <div>
-              <h3 className="text-2xl font-black font-heading tracking-tight dark:text-white capitalize">
-                {activeTab}
+              <h3 className="text-xl md:text-2xl font-black font-heading tracking-tight dark:text-white capitalize">
+                {tabs.find(t => t.id === activeTab)?.label || activeTab}
               </h3>
-              <p className="text-xs text-neutral-400 font-medium mt-1">
+              <p className="text-[10px] md:text-xs text-neutral-400 font-medium mt-0.5 md:mt-1">
                 Gerencie as preferências do seu sistema botânico.
               </p>
             </div>
           </header>
 
-          <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-8 no-scrollbar">
+          <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-8 scroll-smooth pb-32">
             {activeTab === "general" && (
-              <div className="animate-fade-in space-y-8">
+              <div className="animate-fade-in space-y-8 max-w-2xl">
                 <div className="space-y-4">
                   <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
                     Google Gemini API KEY
@@ -329,7 +336,7 @@ export default function SettingsModal({
                 <button
                   onClick={handleTestEmail}
                   disabled={testingEmail}
-                  className="py-4 px-8 border border-neutral-200 dark:border-neutral-700 rounded-2xl text-sm font-bold text-neutral-500 hover:bg-neutral-50 transition-all"
+                  className="w-full sm:w-auto py-4 px-8 border border-neutral-200 dark:border-neutral-700 rounded-2xl text-sm font-bold text-neutral-500 hover:bg-neutral-50 transition-all"
                 >
                   {testingEmail ? "Enviando..." : "📧 Testar Conexão de E-mail"}
                 </button>
@@ -376,8 +383,8 @@ export default function SettingsModal({
                         <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest ml-1">
                           Identidade do Jardim (URL)
                         </label>
-                        <div className="flex items-center gap-2">
-                          <span className="text-neutral-300 font-mono text-sm">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                          <span className="text-neutral-300 font-mono text-sm break-all">
                             {hostName}/
                           </span>
                           <input
@@ -402,7 +409,7 @@ export default function SettingsModal({
             )}
 
             {activeTab === "watering" && (
-              <div className="animate-fade-in">
+              <div className="animate-fade-in max-w-4xl">
                 <WateringStatus
                   plants={plants}
                   onUpdateWatering={async (id, data) => {
@@ -419,17 +426,17 @@ export default function SettingsModal({
             )}
           </div>
 
-          <footer className="p-6 md:p-10 border-t border-neutral-50 dark:border-neutral-800/40 bg-neutral-50 dark:bg-neutral-900/10 flex justify-end gap-4">
+          <footer className="absolute bottom-0 left-0 right-0 p-6 md:p-10 border-t border-neutral-50 dark:border-neutral-800/40 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md flex justify-end gap-3 md:gap-4 z-20">
             <button
               onClick={onClose}
-              className="px-6 md:px-8 py-3 md:py-4 text-sm font-bold text-neutral-400 uppercase tracking-widest hover:text-neutral-600 transition-colors"
+              className="px-4 md:px-8 py-3 md:py-4 text-xs md:text-sm font-bold text-neutral-400 uppercase tracking-widest hover:text-neutral-600 transition-colors"
             >
               Voltar
             </button>
             <button
               onClick={handleSave}
               disabled={loading}
-              className="px-8 md:px-12 py-3 md:py-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
+              className="px-6 md:px-12 py-3 md:py-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-105 transition-all flex-1 sm:flex-none"
             >
               {loading ? "Gravando..." : "Salvar Sistema"}
             </button>
