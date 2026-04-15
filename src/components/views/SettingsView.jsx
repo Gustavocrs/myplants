@@ -423,7 +423,4 @@ export default function SettingsView({ onClose, plants = [], onUpdatePlants }) {
       </div>
     </div>
   );
-      </div>
-    </div>
-  );
 }
