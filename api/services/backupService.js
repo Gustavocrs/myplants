@@ -13,18 +13,24 @@ if (!admin.apps.length) {
     let saRaw = process.env.FIREBASE_SERVICE_ACCOUNT;
     if (!saRaw) throw new Error("A variável FIREBASE_SERVICE_ACCOUNT não está definida.");
     
-    // Remove aspas extras que podem vir da VPS (shell quotes)
+    // Limpeza profunda da string para evitar erros de parse JSON na VPS
     saRaw = saRaw.trim();
-    if (saRaw.startsWith("'") && saRaw.endsWith("'")) saRaw = saRaw.slice(1, -1);
-    // Mas não removemos aspas duplas se for um JSON válido (que deve começar com {)
     
-    const serviceAccount = JSON.parse(saRaw);
+    // Se a string começar/terminar com aspas extras (comum em shell), remove
+    if (saRaw.startsWith("'") && saRaw.endsWith("'")) saRaw = saRaw.slice(1, -1);
+    if (saRaw.startsWith('"') && saRaw.endsWith('"')) saRaw = saRaw.slice(1, -1);
+
+    // Corrige quebras de linha literais que podem ter sido escapadas erroneamente
+    const cleanSa = saRaw.replace(/\\n/g, '\n');
+    
+    const serviceAccount = JSON.parse(cleanSa);
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
     console.log("✅ [BackupService] Firebase-Admin inicializado com sucesso.");
   } catch (error) {
-    console.error("❌ [BackupService] Erro ao inicializar Firebase:", error.message);
+    const preview = process.env.FIREBASE_SERVICE_ACCOUNT ? process.env.FIREBASE_SERVICE_ACCOUNT.substring(0, 20) + "..." : "null";
+    console.error(`❌ [BackupService] Erro ao inicializar Firebase. Início da string: "${preview}". Erro:`, error.message);
   }
 }
 
