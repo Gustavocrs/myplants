@@ -189,6 +189,7 @@ export default function FloatingMenu({
             {[
               { id: "luz", l: "Por Luz", i: "💡" },
               { id: "rega", l: "Por Rega", i: "💧" },
+              { id: "pendente", l: "Pendentes", i: "🚨" },
               { id: "pet", l: "Por Pets", i: "🐶" },
             ].map(({ id, l, i }) => (
               <FilterChip

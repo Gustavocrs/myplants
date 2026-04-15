@@ -420,7 +420,21 @@ export default function Home() {
           if (plant.intervaloRega <= 3) key = "Frequente (1-3 dias)";
           else if (plant.intervaloRega <= 7) key = "Moderada (4-7 dias)";
           else key = "Espaçada (7+ dias)";
+        } else if (viewMode === "pendente") {
+          if (!plant.ultimaRega || !plant.intervaloRega) return acc;
+          
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          
+          const nextDate = new Date(plant.ultimaRega);
+          nextDate.setDate(nextDate.getDate() + Number(plant.intervaloRega));
+          nextDate.setHours(0, 0, 0, 0);
+
+          if (today > nextDate) key = "🚨 Rega Atrasada";
+          else if (today.getTime() === nextDate.getTime()) key = "💧 Regar Hoje";
+          else return acc; // No modo pendente, ignora as que estão em dia
         }
+        
         if (!acc[key]) acc[key] = [];
         acc[key].push(plant);
         return acc;
