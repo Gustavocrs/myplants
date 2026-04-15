@@ -21,8 +21,14 @@ if (!admin.apps.length) {
     if (saRaw.startsWith('"') && saRaw.endsWith('"')) saRaw = saRaw.slice(1, -1);
 
     // Corrige quebras de linha literais que podem ter sido escapadas erroneamente
-    const cleanSa = saRaw.replace(/\\n/g, '\n');
+    let cleanSa = saRaw.replace(/\\n/g, '\n');
     
+    // Auto-fix: Se o JSON estiver sem aspas nas chaves (comum em erros de env)
+    // Ex: {type: "service_account"} -> {"type": "service_account"}
+    if (cleanSa.startsWith('{') && !cleanSa.includes('"{')) {
+      cleanSa = cleanSa.replace(/([{,])\s*([^"{,\s]+)\s*:/g, '$1"$2":');
+    }
+
     const serviceAccount = JSON.parse(cleanSa);
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
