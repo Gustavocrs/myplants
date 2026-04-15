@@ -23,10 +23,19 @@ if (!admin.apps.length) {
     // Corrige quebras de linha literais que podem ter sido escapadas erroneamente
     let cleanSa = saRaw.replace(/\\n/g, '\n');
     
-    // Auto-fix: Se o JSON estiver sem aspas nas chaves (comum em erros de env)
-    // Ex: {type: "service_account"} -> {"type": "service_account"}
-    if (cleanSa.startsWith('{') && !cleanSa.includes('"{')) {
+    // Auto-fix agressivo: Se o JSON estiver sem aspas (comum em erros de env/docker)
+    // Ex: {type: service_account} -> {"type": "service_account"}
+    if (cleanSa.startsWith('{') && (!cleanSa.includes('":') || !cleanSa.includes('": "'))) {
+      // 1. Garante aspas nas chaves
       cleanSa = cleanSa.replace(/([{,])\s*([^"{,\s]+)\s*:/g, '$1"$2":');
+      // 2. Garante aspas nos valores que não as têm (exceto números, booleans e nulos)
+      cleanSa = cleanSa.replace(/:\s*([^"{,\s][^,}]*)/g, (match, value) => {
+        const trimmed = value.trim();
+        if (trimmed === 'true' || trimmed === 'false' || trimmed === 'null' || !isNaN(trimmed)) return match;
+        // Se já tiver aspas, não mexe
+        if (trimmed.startsWith('"') || trimmed.startsWith("'")) return match;
+        return `: "${trimmed}"`;
+      });
     }
 
     const serviceAccount = JSON.parse(cleanSa);
