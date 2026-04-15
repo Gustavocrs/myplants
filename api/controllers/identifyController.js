@@ -51,20 +51,13 @@ exports.identifyPlant = async (req, res) => {
     let mimeType;
 
     if (req.file) {
-      // Caso 1: Upload de nova imagem
+      // Caso 1: Upload de nova imagem - Otimiza antes de enviar para a IA
       let imageBuffer = req.file.buffer;
-      const fileName = req.file.originalname;
-
-      if (isHeicFormat(req.file.mimetype, fileName)) {
-        imageBuffer = await convertHeicToJpeg(imageBuffer);
-        mimeType = "image/jpeg";
-      } else {
-        mimeType = req.file.mimetype;
-      }
-
+      imageBuffer = await optimizeImageForAI(imageBuffer);
+      mimeType = "image/jpeg";
       base64Image = imageBuffer.toString("base64");
     } else if (req.body.currentImageUrl) {
-      // Caso 2: Imagem já existente no servidor (Lê do disco local)
+      // Caso 2: Imagem já existente no servidor (Lê do disco local e otimiza)
       try {
         const fileName = req.body.currentImageUrl.split("/").pop();
         const filePath = path.join(
@@ -77,12 +70,11 @@ exports.identifyPlant = async (req, res) => {
 
         if (!fs.existsSync(filePath)) throw new Error("Arquivo não encontrado");
 
-        const buffer = fs.readFileSync(filePath);
+        let buffer = fs.readFileSync(filePath);
+        // Mesmo que já esteja no servidor, garantimos que o buffer enviado para a IA seja leve
+        buffer = await optimizeImageForAI(buffer);
         base64Image = buffer.toString("base64");
-        mimeType =
-          path.extname(fileName).toLowerCase() === ".png"
-            ? "image/png"
-            : "image/jpeg";
+        mimeType = "image/jpeg";
       } catch (err) {
         return res.status(400).json({
           success: false,

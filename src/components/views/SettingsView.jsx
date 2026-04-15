@@ -407,7 +407,7 @@ export default function SettingsView({ onClose, plants = [], onUpdatePlants }) {
             <button
               onClick={handleSave}
               disabled={loading}
-              className="px-12 py-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
+              className="px-8 md:px-12 py-3 md:py-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
             >
               {loading ? "Gravando..." : "Salvar"}
             </button>
