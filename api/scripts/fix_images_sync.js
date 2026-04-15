@@ -13,8 +13,10 @@ async function fixImages() {
   try {
     console.log("🚀 Iniciando otimização de imagens existentes...");
 
-    // Tenta usar MONGO_URI primeiro, depois MONGODB_URI, e por fim o padrão localhost
-    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || "mongodb://localhost:27017/myplants";
+    // Tenta usar MONGO_URI, depois MONGODB_URI. 
+    // Se falhar, tenta o host 'mongodb' (Docker) e por último 'localhost'
+    const defaultUri = "mongodb://admin:T2ykCgT6pk5C4feYkKlJU0FvBM80GkzD@mongodb:27017/myplants?authSource=admin";
+    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || defaultUri;
     console.log(`🔌 Conectando em: ${mongoUri.replace(/:([^:@]+)@/, ":****@")}`); // Log seguro omitindo senha
     await mongoose.connect(mongoUri);
     console.log("✅ Conectado ao MongoDB");
