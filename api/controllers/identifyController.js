@@ -13,6 +13,16 @@ async function convertHeicToJpeg(buffer) {
   return await sharp(buffer).jpeg({ quality: 85 }).toBuffer();
 }
 
+async function optimizeImageForAI(buffer) {
+  return await sharp(buffer)
+    .resize(1024, 1024, {
+      fit: "inside",
+      withoutEnlargement: true,
+    })
+    .jpeg({ quality: 80 })
+    .toBuffer();
+}
+
 function isHeicFormat(mimeType, filename) {
   const heicMimes = ["image/heic", "image/heif", "image/x-heic"];
   const ext = path.extname(filename || "").toLowerCase();
