@@ -25,7 +25,6 @@ export default function EditView({
   const [aiLoading, setAiLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [imagemUrl, setImagemUrl] = useState(initialPlant?.imagemUrl || "");
-  const [rotation, setRotation] = useState(0);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -67,8 +66,85 @@ export default function EditView({
     }
   };
 
-  const handleRotate = () => {
-    setRotation((prev) => (prev + 90) % 360);
+  const handleRotate = async () => {
+    try {
+      const currentImage = imagemUrl || plant.imagemUrl;
+      if (!currentImage) return;
+      
+      const arr = currentImage.split(",");
+      const mime = arr[0].match(/:(.*?);/)[1];
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) u8arr[n] = bstr.charCodeAt(n);
+      const blob = new Blob([u8arr], { type: mime });
+      const file = new File([blob], "plant.jpg", { type: mime });
+      
+      const rotatedFile = await applyRealRotation(file, 90);
+      const reader = new FileReader();
+      reader.readAsDataURL(rotatedFile);
+      reader.onload = (e) => {
+        setImagemUrl(e.target.result);
+        setRotation(0);
+      };
+    } catch (err) {
+      console.error("Erro ao rotacionar:", err);
+    }
+  };
+
+  const applyRealRotation = async (file, degrees) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const imageBlob = new Blob([arrayBuffer], { type: file.type });
+    const objectUrl = URL.createObjectURL(imageBlob);
+    
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        
+        let width = img.width;
+        let height = img.height;
+        
+        if (degrees === 90 || degrees === 270) {
+          canvas.width = height;
+          canvas.height = width;
+        } else {
+          canvas.width = width;
+          canvas.height = height;
+        }
+        
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        if (degrees === 90) {
+          ctx.translate(canvas.width, 0);
+          ctx.rotate(Math.PI / 2);
+        } else if (degrees === 180) {
+          ctx.translate(canvas.width, canvas.height);
+          ctx.rotate(Math.PI);
+        } else if (degrees === 270) {
+          ctx.translate(0, canvas.height);
+          ctx.rotate(-Math.PI / 2);
+        }
+        
+        ctx.drawImage(img, 0, 0);
+        
+        canvas.toBlob((blob) => {
+          URL.revokeObjectURL(objectUrl);
+          if (blob) {
+            resolve(new File([blob], file.name, { type: "image/jpeg" }));
+          } else {
+            resolve(file);
+          }
+        }, "image/jpeg", 0.9);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(file);
+      };
+      img.src = objectUrl;
+    });
   };
 
   const handleRemoveImage = () => {
@@ -168,25 +244,20 @@ export default function EditView({
       <div className="w-full md:w-1/2 lg:w-2/5 h-[35vh] md:h-full relative shrink-0 bg-neutral-900">
         {imagemUrl ? (
           <>
-            <div
-              className="absolute inset-0"
-              style={{ transform: `rotate(${rotation}deg)` }}
-            >
-              <Image
-                src={imagemUrl}
-                alt={plant.nome}
-                fill
-                priority
-                sizes="(max-width: 768px) 100vw, 40vw"
-                className="object-cover"
-              />
-            </div>
+            <Image
+              src={imagemUrl}
+              alt={plant.nome}
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 40vw"
+              className="object-cover"
+            />
             {/* Botões de controle da imagem */}
             <div className="absolute top-4 right-4 flex gap-2">
               <button
                 onClick={handleRotate}
                 className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/40 transition-all"
-                title="Girar"
+                title="Girar 90°"
               >
                 <FiRotateCw size={20} />
               </button>
