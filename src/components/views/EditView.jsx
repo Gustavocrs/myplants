@@ -188,6 +188,34 @@ export default function EditView({
       }
     };
   };
+  
+  const handleConfirmReavaliate = async () => {
+    setShowReavaliateConfirm(false);
+    setSaving(true);
+    try {
+      const dataToSave = { ...formData };
+      if (imagemUrl !== (initialPlant?.imagemUrl || "")) {
+        dataToSave.imagemUrl = imagemUrl;
+      }
+      await api.updatePlant(plant._id, dataToSave);
+      onSave();
+      showSuccess("Planta atualizada!");
+      setAiLoading(true);
+      await runAiAnalysis(imagemUrl);
+      onClose();
+    } catch (err) {
+      console.error("Erro ao salvar:", err);
+      showError(err);
+    } finally {
+      setSaving(false);
+      setPendingNewImage(null);
+    }
+  };
+  
+  const handleDeclineReavaliate = () => {
+    setShowReavaliateConfirm(false);
+    setPendingNewImage(null);
+  };
 
   const isPlantEvaluated = (p) => {
     if (!p) return false;
@@ -532,6 +560,38 @@ export default function EditView({
                 className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-bold"
               >
                 Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reavaliar Confirmation Modal */}
+      {showReavaliateConfirm && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 p-4">
+          <div className="bg-white dark:bg-neutral-900 p-8 rounded-[2rem] max-w-sm w-full shadow-2xl">
+            <h3 className="text-xl font-black mb-4 dark:text-white">
+              Reavaliar com IA?
+            </h3>
+            <p className="text-neutral-600 dark:text-neutral-400 mb-6">
+              Esta planta já foi avaliada. Deseja usar a nova imagem para uma nova avaliação?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowReavaliateConfirm(false);
+                  setPendingNewImage(null);
+                }}
+                className="flex-1 py-4 bg-neutral-200 dark:bg-neutral-700 rounded-2xl font-bold dark:text-white"
+              >
+                Não
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="flex-1 py-4 bg-purple-600 text-white rounded-2xl font-bold"
+              >
+                {saving ? "Salvando..." : "Sim, reavaliar"}
               </button>
             </div>
           </div>
