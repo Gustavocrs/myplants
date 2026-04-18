@@ -5,7 +5,7 @@ import { FiTrash2, FiZap, FiRotateCw, FiImage } from "react-icons/fi";
 import { useToast } from "@/components/Toast";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/services/api";
-import { fixImageOrientation } from "@/lib/imageOrientation";
+import { fixImageOrientation as fixOrientation } from "@/lib/imageOrientation";
 import Image from "next/image";
 
 export default function EditView({
@@ -35,10 +35,10 @@ export default function EditView({
         nomeCientifico: initialPlant.nomeCientifico || "",
         luz: initialPlant.luz || "Meia-sombra",
         intervaloRega: initialPlant.intervaloRega || 7,
-        petFriendly: initialPlant?.petFriendly || false,
+        petFriendly: initialPlant.petFriendly || false,
         observacoes: initialPlant.observacoes || "",
       });
-      setImagemUrl(initialPlant?.imagemUrl || "");
+      setImagemUrl(initialPlant.imagemUrl || "");
       setLoading(false);
     } else if (plantId) {
       loadPlant();
@@ -58,7 +58,7 @@ export default function EditView({
         petFriendly: data.petFriendly || false,
         observacoes: data.observacoes || "",
       });
-      setImagemUrl(data.imagemUrl || null);
+      setImagemUrl(data.imagemUrl || "");
     } catch (err) {
       console.error("Erro ao carregar planta:", err);
     } finally {
@@ -160,7 +160,7 @@ export default function EditView({
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const fixedFile = await fixImageOrientation(file);
+    const fixedFile = await fixOrientation(file);
     const reader = new FileReader();
     reader.readAsDataURL(fixedFile);
     reader.onload = (event) => {
