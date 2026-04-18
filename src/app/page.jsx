@@ -225,9 +225,36 @@ export default function Home() {
   const getGridClass = () => {
     if (gridMode === "1") return "grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4";
     if (gridMode === "2") return "grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4";
-    if (gridMode === "list") return "grid grid-cols-1 gap-2";
+    if (gridMode === "list") return "grid grid-cols-1 gap-3";
     return "grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4";
   };
+
+  const renderListItem = (plant) => (
+    <div
+      key={plant._id}
+      onClick={() => handleDetail(plant)}
+      className="flex items-center justify-between p-4 bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-100 dark:border-neutral-700 cursor-pointer hover:shadow-md transition-all"
+    >
+      <div className="flex-1 min-w-0">
+        <h3 className="text-base font-bold dark:text-white truncate">{plant.nome}</h3>
+        {plant.nomeCientifico && (
+          <p className="text-xs text-neutral-400 italic truncate">{plant.nomeCientifico}</p>
+        )}
+      </div>
+      <div className="flex items-center gap-3 text-sm">
+        <span className="text-lg" title={plant.luz}>
+          {plant.luz === "Sol Pleno" ? "☀️" : plant.luz === "Sombra" ? "☁️" : plant.luz === "Luz Difusa" ? "🌤️" : "⛅"}
+        </span>
+        <span className="text-xs font-bold text-neutral-500 dark:text-neutral-400">
+          {plant.intervaloRega <= 3 ? "Freq" : plant.intervaloRega <= 7 ? "Med" : "Esp"}
+        </span>
+        <span className={`text-sm ${plant.petFriendly ? "text-primary-500" : "text-red-500"}`}>
+          {plant.petFriendly ? "🐶" : "🚫"}
+        </span>
+        <span className={`w-2 h-2 rounded-full ${plant.nomeCientifico && plant.luz && plant.intervaloRega > 0 ? "bg-green-500" : "bg-red-500"}`} />
+      </div>
+    </div>
+  );
 
   const loadPlants = async () => {
     try {
@@ -647,32 +674,40 @@ export default function Home() {
                   </span>
                 </div>
 <div className={`grid ${getGridClass()}`}>
-                  {groupPlants.map((plant) => (
-                    <PlantCard
-                      key={plant._id}
-                      plant={plant}
-                      onClick={(p) => handleDetail(p)}
-                      onEdit={(p) =>
-                        openView("detail", { id: p._id, edit: true })
-                      }
-                      onWater={handleQuickWater}
-                    />
-                  ))}
+                  {gridMode === "list" ? (
+                    groupPlants.map(renderListItem)
+                  ) : (
+                    groupPlants.map((plant) => (
+                      <PlantCard
+                        key={plant._id}
+                        plant={plant}
+                        onClick={(p) => handleDetail(p)}
+                        onEdit={(p) =>
+                          openView("detail", { id: p._id, edit: true })
+                        }
+                        onWater={handleQuickWater}
+                      />
+                    ))
+                  )}
                 </div>
               </div>
             ))}
           </div>
         ) : (
           <div className={`grid ${getGridClass()} animate-fade-in`}>
-            {filteredPlants.map((plant) => (
-              <PlantCard
-                key={plant._id}
-                plant={plant}
-                onClick={(p) => handleDetail(p)}
-                onEdit={(p) => openView("detail", { id: p._id, edit: true })}
-                onWater={handleQuickWater}
-              />
-            ))}
+            {gridMode === "list" ? (
+              filteredPlants.map(renderListItem)
+            ) : (
+              filteredPlants.map((plant) => (
+                <PlantCard
+                  key={plant._id}
+                  plant={plant}
+                  onClick={(p) => handleDetail(p)}
+                  onEdit={(p) => openView("detail", { id: p._id, edit: true })}
+                  onWater={handleQuickWater}
+                />
+              ))
+            )}
           </div>
         )}
       </main>

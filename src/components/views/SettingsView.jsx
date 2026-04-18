@@ -8,6 +8,7 @@ import {
   FiEye,
   FiEyeOff,
   FiGlobe,
+  FiGrid,
   FiMail,
   FiSettings,
   FiX,
@@ -113,6 +114,7 @@ export default function SettingsView({ onClose, plants = [], onUpdatePlants }) {
 
   const tabs = [
     { id: "general", label: "Inteligência IA", icon: <FiCpu /> },
+    { id: "layout", label: "Layout", icon: <FiGrid /> },
     { id: "email", label: "Notificações", icon: <FiMail /> },
     { id: "profile", label: "Perfil Público", icon: <FiGlobe /> },
     { id: "watering", label: "Gestão Global", icon: <FiDroplet /> },
@@ -223,7 +225,11 @@ export default function SettingsView({ onClose, plants = [], onUpdatePlants }) {
                     </a>
                   </div>
                 </div>
+              </div>
+            )}
 
+            {activeTab === "layout" && (
+              <div className="animate-fade-in space-y-6 max-w-2xl">
                 <div className="p-6 bg-neutral-50 dark:bg-neutral-800/40 rounded-[2rem] border border-neutral-100 dark:border-neutral-800">
                   <h4 className="font-bold text-neutral-900 dark:text-white mb-4">
                     Layout do Jardim
