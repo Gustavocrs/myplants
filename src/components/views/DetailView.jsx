@@ -66,9 +66,9 @@ export default function DetailView({ plant, onClose, onEdit, onDelete }) {
         </div>
 
         <div className="p-8 md:p-16 space-y-12">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-6 rounded-[2rem] bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800 flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-2xl bg-accent-100 dark:bg-accent-900/30 text-accent-600 flex items-center justify-center text-xl mb-4">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800 flex flex-col items-center text-center">
+              <div className="w-10 h-10 rounded-xl bg-accent-100 dark:bg-accent-900/30 text-accent-600 flex items-center justify-center text-lg mb-2">
                 <FiSun />
               </div>
               <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">
@@ -79,8 +79,8 @@ export default function DetailView({ plant, onClose, onEdit, onDelete }) {
               </span>
             </div>
 
-            <div className="p-6 rounded-[2rem] bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800 flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-2xl bg-primary-100 dark:bg-primary-900/30 text-primary-600 flex items-center justify-center text-xl mb-4">
+            <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800 flex flex-col items-center text-center">
+              <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/30 text-primary-600 flex items-center justify-center text-lg mb-2">
                 <FiDroplet />
               </div>
               <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">
@@ -91,24 +91,9 @@ export default function DetailView({ plant, onClose, onEdit, onDelete }) {
               </span>
             </div>
 
-            <div className="p-6 rounded-[2rem] bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800 flex flex-col items-center text-center">
-              <div className="w-12 h-12 rounded-2xl bg-secondary-100 dark:bg-secondary-900/30 text-secondary-600 flex items-center justify-center text-xl mb-4">
-                <FiClock />
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">
-                Idade
-              </span>
-              <span className="text-sm font-bold dark:text-white">
-                {plant.dataAquisicao
-                  ? "Desde " +
-                    new Date(plant.dataAquisicao).toLocaleDateString("pt-BR")
-                  : "Nova"}
-              </span>
-            </div>
-
-            <div className="p-6 rounded-[2rem] bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800 flex flex-col items-center text-center">
+            <div className="p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-100 dark:border-neutral-800 flex flex-col items-center text-center">
               <div
-                className={`w-12 h-12 rounded-2xl ${plant.petFriendly ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600" : "bg-red-100 dark:bg-red-900/30 text-red-600"} flex items-center justify-center text-xl mb-4`}
+                className={`w-10 h-10 rounded-xl ${plant.petFriendly ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600" : "bg-red-100 dark:bg-red-900/30 text-red-600"} flex items-center justify-center text-lg mb-2`}
               >
                 {plant.petFriendly ? "🐶" : "🚫"}
               </div>

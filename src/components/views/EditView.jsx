@@ -211,17 +211,29 @@ export default function EditView({
       let payload = currentImage;
       if (currentImage.startsWith("data:")) {
         const arr = currentImage.split(",");
-        const mime = arr[0].match(/:(.*?);/)[1];
+        const mime = arr[0].match(/:(.*?);/)?.[1] || "image/jpeg";
         const bstr = atob(arr[1]);
         let n = bstr.length;
         const u8arr = new Uint8Array(n);
         while (n--) u8arr[n] = bstr.charCodeAt(n);
         payload = new File([u8arr], "plant.jpg", { type: mime });
+      } else if (currentImage.startsWith("http")) {
+        const response = await fetch(currentImage);
+        const blob = await response.blob();
+        payload = new File([blob], "plant.jpg", { type: "image/jpeg" });
       }
       const data = await api.identifyPlant(payload, user.uid, plant.nome);
       if (data) {
-        const updated = await api.updatePlant(plant._id, data);
-        setPlant(updated);
+        const updatedPlant = { ...plant, ...data };
+        setPlant(updatedPlant);
+        setFormData({
+          nome: data.nome || formData.nome,
+          nomeCientifico: data.nomeCientifico || formData.nomeCientifico,
+          luz: data.luz || formData.luz,
+          intervaloRega: data.intervaloRega || formData.intervaloRega,
+          petFriendly: data.petFriendly ?? formData.petFriendly,
+          observacoes: data.observacoes || formData.observacoes,
+        });
         onSave();
         showSuccess("Planta atualizada com sucesso!");
       }
