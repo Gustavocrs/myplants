@@ -230,40 +230,43 @@ export default function SettingsView({ onClose, plants = [], onUpdatePlants }) {
 
             {activeTab === "layout" && (
               <div className="animate-fade-in space-y-6 max-w-2xl">
-                <div className="p-6 bg-neutral-50 dark:bg-neutral-800/40 rounded-[2rem] border border-neutral-100 dark:border-neutral-800">
+                <div className="p-4 bg-neutral-50 dark:bg-neutral-800/40 rounded-2xl border border-neutral-100 dark:border-neutral-800">
                   <h4 className="font-bold text-neutral-900 dark:text-white mb-4">
                     Layout do Jardim
                   </h4>
                   <div className="flex gap-2">
                     <button
                       onClick={() => setFormData({ ...formData, gridMode: "1" })}
-                      className={`flex-1 py-3 rounded-xl font-bold text-sm ${
+                      className={`flex-1 py-2.5 rounded-xl text-xs font-bold flex flex-col items-center gap-1 ${
                         formData.gridMode === "1"
                           ? "bg-primary-500 text-white"
-                          : "bg-neutral-200 dark:bg-neutral-700"
+                          : "bg-neutral-200 dark:bg-neutral-700 dark:text-white"
                       }`}
                     >
-                      1 por linha
+                      <FiLayers size={16} />
+                      <span>1</span>
                     </button>
                     <button
                       onClick={() => setFormData({ ...formData, gridMode: "2" })}
-                      className={`flex-1 py-3 rounded-xl font-bold text-sm ${
+                      className={`flex-1 py-2.5 rounded-xl text-xs font-bold flex flex-col items-center gap-1 ${
                         formData.gridMode === "2"
                           ? "bg-primary-500 text-white"
-                          : "bg-neutral-200 dark:bg-neutral-700"
+                          : "bg-neutral-200 dark:bg-neutral-700 dark:text-white"
                       }`}
                     >
-                      2 por linha
+                      <FiGrid size={16} />
+                      <span>2</span>
                     </button>
                     <button
                       onClick={() => setFormData({ ...formData, gridMode: "list" })}
-                      className={`flex-1 py-3 rounded-xl font-bold text-sm ${
+                      className={`flex-1 py-2.5 rounded-xl text-xs font-bold flex flex-col items-center gap-1 ${
                         formData.gridMode === "list"
                           ? "bg-primary-500 text-white"
-                          : "bg-neutral-200 dark:bg-neutral-700"
+                          : "bg-neutral-200 dark:bg-neutral-700 dark:text-white"
                       }`}
                     >
-                      Lista
+                      <FiList size={16} />
+                      <span>Lista</span>
                     </button>
                   </div>
                 </div>
