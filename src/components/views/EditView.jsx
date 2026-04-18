@@ -20,7 +20,14 @@ export default function EditView({
 
   const [plant, setPlant] = useState(initialPlant || null);
   const [loading, setLoading] = useState(!initialPlant);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    nome: "",
+    nomeCientifico: "",
+    luz: "Meia-sombra",
+    intervaloRega: 7,
+    petFriendly: false,
+    observacoes: "",
+  });
   const [saving, setSaving] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -29,25 +36,27 @@ export default function EditView({
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    if (!hasLoaded) {
-      if (initialPlant) {
-        setPlant(initialPlant);
-        setFormData({
-          nome: initialPlant.nome || "",
-          nomeCientifico: initialPlant.nomeCientifico || "",
-          luz: initialPlant.luz || "Meia-sombra",
-          intervaloRega: initialPlant.intervaloRega || 7,
-          petFriendly: initialPlant.petFriendly || false,
-          observacoes: initialPlant.observacoes || "",
-        });
-        setImagemUrl(initialPlant.imagemUrl || "");
-        setLoading(false);
-        setHasLoaded(true);
-      } else if (plantId) {
-        loadPlant();
-      }
+    if (!hasLoaded && initialPlant) {
+      setPlant(initialPlant);
+      setFormData({
+        nome: initialPlant.nome || "",
+        nomeCientifico: initialPlant.nomeCientifico || "",
+        luz: initialPlant.luz || "Meia-sombra",
+        intervaloRega: initialPlant.intervaloRega || 7,
+        petFriendly: initialPlant.petFriendly || false,
+        observacoes: initialPlant.observacoes || "",
+      });
+      setImagemUrl(initialPlant.imagemUrl || "");
+      setLoading(false);
+      setHasLoaded(true);
     }
-  }, [initialPlant, plantId, hasLoaded]);
+  }, [initialPlant, hasLoaded]);
+
+  useEffect(() => {
+    if (!hasLoaded && plantId) {
+      loadPlant();
+    }
+  }, [plantId, hasLoaded]);
 
   const loadPlant = async () => {
     try {
