@@ -140,7 +140,7 @@ export default function SettingsView({ onClose, plants = [], onUpdatePlants }) {
             </button>
           </div>
 
-          <nav className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto no-scrollbar pb-2 md:pb-0 flex-1 scroll-smooth">
+          <nav className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto no-scrollbar pb-2 md:pb-0 flex-1 scroll-smooth justify-around md:justify-start items-center md:items-start">
             {tabs.map((tab) => (
               <button
                 key={tab.id}

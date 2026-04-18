@@ -5,6 +5,9 @@ import {
   FiDroplet,
   FiEdit3,
   FiEye,
+  FiGrid,
+  FiLayers,
+  FiList,
   FiLogOut,
   FiMenu,
   FiPlus,
@@ -29,6 +32,8 @@ export default function FloatingMenu({
   setFilterAtrasada,
   viewMode,
   setViewMode,
+  gridMode,
+  setGridMode,
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -182,6 +187,28 @@ export default function FloatingMenu({
                 colorClass="bg-blue-50 text-blue-800 border-blue-100 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800"
               />
             ))}
+          </div>
+
+          <SectionTitle icon={FiGrid} title="Layout" />
+          <div className="flex flex-wrap gap-2">
+            <FilterChip
+              label="1"
+              icon={<FiLayers size={14} />}
+              active={gridMode === "1"}
+              onClick={() => setGridMode("1")}
+            />
+            <FilterChip
+              label="2"
+              icon={<FiGrid size={14} />}
+              active={gridMode === "2"}
+              onClick={() => setGridMode("2")}
+            />
+            <FilterChip
+              label="Lista"
+              icon={<FiList size={14} />}
+              active={gridMode === "list"}
+              onClick={() => setGridMode("list")}
+            />
           </div>
 
           <SectionTitle icon={FiEye} title="Visualização" />

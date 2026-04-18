@@ -216,6 +216,12 @@ export default function Home() {
     }
   };
 
+  useEffect(() => {
+    if (user && gridMode) {
+      api.saveSettings(user.uid, { gridMode }).catch(console.error);
+    }
+  }, [gridMode, user]);
+
   const getGridClass = () => {
     if (gridMode === "1") return "grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4";
     if (gridMode === "2") return "grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4";
@@ -696,6 +702,8 @@ export default function Home() {
         setFilterAtrasada={setFilterAtrasada}
         viewMode={viewMode}
         setViewMode={setViewMode}
+        gridMode={gridMode}
+        setGridMode={setGridMode}
       />
 
       {/* Back to Top Button */}
