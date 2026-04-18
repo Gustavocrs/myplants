@@ -9,6 +9,8 @@ import {
   FiEyeOff,
   FiGlobe,
   FiGrid,
+  FiLayers,
+  FiList,
   FiMail,
   FiSettings,
   FiX,
