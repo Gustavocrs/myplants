@@ -24,26 +24,30 @@ export default function EditView({
   const [saving, setSaving] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [imagemUrl, setImagemUrl] = useState(initialPlant?.imagemUrl || "");
+  const [imagemUrl, setImagemUrl] = useState("");
+  const [hasLoaded, setHasLoaded] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    if (initialPlant) {
-      setPlant(initialPlant);
-      setFormData({
-        nome: initialPlant.nome || "",
-        nomeCientifico: initialPlant.nomeCientifico || "",
-        luz: initialPlant.luz || "Meia-sombra",
-        intervaloRega: initialPlant.intervaloRega || 7,
-        petFriendly: initialPlant.petFriendly || false,
-        observacoes: initialPlant.observacoes || "",
-      });
-      setImagemUrl(initialPlant.imagemUrl || "");
-      setLoading(false);
-    } else if (plantId) {
-      loadPlant();
+    if (!hasLoaded) {
+      if (initialPlant) {
+        setPlant(initialPlant);
+        setFormData({
+          nome: initialPlant.nome || "",
+          nomeCientifico: initialPlant.nomeCientifico || "",
+          luz: initialPlant.luz || "Meia-sombra",
+          intervaloRega: initialPlant.intervaloRega || 7,
+          petFriendly: initialPlant.petFriendly || false,
+          observacoes: initialPlant.observacoes || "",
+        });
+        setImagemUrl(initialPlant.imagemUrl || "");
+        setLoading(false);
+        setHasLoaded(true);
+      } else if (plantId) {
+        loadPlant();
+      }
     }
-  }, [initialPlant, plantId]);
+  }, [initialPlant, plantId, hasLoaded]);
 
   const loadPlant = async () => {
     try {
@@ -59,6 +63,7 @@ export default function EditView({
         observacoes: data.observacoes || "",
       });
       setImagemUrl(data.imagemUrl || "");
+      setHasLoaded(true);
     } catch (err) {
       console.error("Erro ao carregar planta:", err);
     } finally {
