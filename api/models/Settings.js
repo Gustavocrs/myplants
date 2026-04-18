@@ -7,6 +7,7 @@ const SettingsSchema = new mongoose.Schema({
   displayName: {type: String}, // Nome para exibição pública
   emailNotificationsEnabled: {type: Boolean, default: true}, // Controle global de notificações
   geminiApiKey: {type: String}, // Chave pessoal do usuário
+  gridMode: {type: String, default: "2", enum: ["1", "2", "list"]}, // Layout do jardim
   smtp: {
     host: String,
     port: Number,

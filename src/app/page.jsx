@@ -61,6 +61,7 @@ export default function Home() {
   const [activePlantId, setActivePlantId] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [gridMode, setGridMode] = useState("2");
   const scrollYRef = useRef(0);
   const isNavigatingRef = useRef(false);
 
@@ -200,8 +201,27 @@ export default function Home() {
   useEffect(() => {
     if (!authLoading && user) {
       loadPlants();
+      loadSettings();
     }
   }, [user, authLoading]);
+
+  const loadSettings = async () => {
+    try {
+      const settings = await api.getSettings(user.uid);
+      if (settings?.gridMode) {
+        setGridMode(settings.gridMode);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar settings:", error);
+    }
+  };
+
+  const getGridClass = () => {
+    if (gridMode === "1") return "grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4";
+    if (gridMode === "2") return "grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4";
+    if (gridMode === "list") return "grid grid-cols-1 gap-2";
+    return "grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4";
+  };
 
   const loadPlants = async () => {
     try {
@@ -580,7 +600,7 @@ export default function Home() {
 
         {/* Conteúdo Principal */}
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className={`grid ${getGridClass()}`}>
             {[...Array(4)].map((_, i) => (
               <div
                 key={i}
@@ -620,7 +640,7 @@ export default function Home() {
                     {groupPlants.length}
                   </span>
                 </div>
-<div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+<div className={`grid ${getGridClass()}`}>
                   {groupPlants.map((plant) => (
                     <PlantCard
                       key={plant._id}
@@ -637,7 +657,7 @@ export default function Home() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in">
+          <div className={`grid ${getGridClass()} animate-fade-in`}>
             {filteredPlants.map((plant) => (
               <PlantCard
                 key={plant._id}

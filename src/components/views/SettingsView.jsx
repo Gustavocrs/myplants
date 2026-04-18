@@ -33,6 +33,7 @@ export default function SettingsView({ onClose, plants = [], onUpdatePlants }) {
     displayName: "",
     emailNotificationsEnabled: true,
     geminiApiKey: "",
+    gridMode: "2",
     smtp: {
       host: "",
       port: 587,
@@ -63,6 +64,7 @@ export default function SettingsView({ onClose, plants = [], onUpdatePlants }) {
               ? data.emailNotificationsEnabled
               : true,
           geminiApiKey: data.geminiApiKey || "",
+          gridMode: data.gridMode || "2",
           smtp: {
             host: data.smtp?.host || "smtp.gmail.com",
             port: data.smtp?.port || 587,
@@ -219,6 +221,44 @@ export default function SettingsView({ onClose, plants = [], onUpdatePlants }) {
                     >
                       Obter chave gratuita <FiExternalLink />
                     </a>
+                  </div>
+                </div>
+
+                <div className="p-6 bg-neutral-50 dark:bg-neutral-800/40 rounded-[2rem] border border-neutral-100 dark:border-neutral-800">
+                  <h4 className="font-bold text-neutral-900 dark:text-white mb-4">
+                    Layout do Jardim
+                  </h4>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setFormData({ ...formData, gridMode: "1" })}
+                      className={`flex-1 py-3 rounded-xl font-bold text-sm ${
+                        formData.gridMode === "1"
+                          ? "bg-primary-500 text-white"
+                          : "bg-neutral-200 dark:bg-neutral-700"
+                      }`}
+                    >
+                      1 por linha
+                    </button>
+                    <button
+                      onClick={() => setFormData({ ...formData, gridMode: "2" })}
+                      className={`flex-1 py-3 rounded-xl font-bold text-sm ${
+                        formData.gridMode === "2"
+                          ? "bg-primary-500 text-white"
+                          : "bg-neutral-200 dark:bg-neutral-700"
+                      }`}
+                    >
+                      2 por linha
+                    </button>
+                    <button
+                      onClick={() => setFormData({ ...formData, gridMode: "list" })}
+                      className={`flex-1 py-3 rounded-xl font-bold text-sm ${
+                        formData.gridMode === "list"
+                          ? "bg-primary-500 text-white"
+                          : "bg-neutral-200 dark:bg-neutral-700"
+                      }`}
+                    >
+                      Lista
+                    </button>
                   </div>
                 </div>
               </div>
