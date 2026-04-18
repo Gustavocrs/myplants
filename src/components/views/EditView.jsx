@@ -36,7 +36,7 @@ export default function EditView({
         nomeCientifico: initialPlant.nomeCientifico || "",
         luz: initialPlant.luz || "Meia-sombra",
         intervaloRega: initialPlant.intervaloRega || 7,
-        petFriendly: initialPetFriendly || false,
+        petFriendly: initialPlant?.petFriendly || false,
         observacoes: initialPlant.observacoes || "",
       });
       setImagemUrl(initialPlant?.imagemUrl || null);
