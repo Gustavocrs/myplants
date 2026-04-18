@@ -23,6 +23,7 @@ import SettingsView from "../components/views/SettingsView";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { api } from "../services/api";
+import { fixImageOrientation } from "../lib/imageOrientation";
 
 export default function Home() {
   const { user, loading: authLoading, logout, loginGoogle } = useAuth();
@@ -77,6 +78,7 @@ export default function Home() {
       setActiveView("list");
       setActivePlantId(null);
       setIsEditing(false);
+      setSelectedPlant(null);
     }
   }, [searchParams]);
 
@@ -102,16 +104,21 @@ export default function Home() {
       const url = new URL(window.location.href);
       const v = url.searchParams.get("v");
       const id = url.searchParams.get("id");
+      const edit = url.searchParams.get("edit");
 
       if (!v || v === "list") {
         setActiveView("list");
         setActivePlantId(null);
         setIsEditing(false);
+        setSelectedPlant(null);
+        isNavigatingRef.current = true;
         window.scrollTo(0, scrollYRef.current);
       } else {
         setActiveView(v);
         setActivePlantId(id || null);
-        setIsEditing(url.searchParams.get("edit") === "true");
+        setIsEditing(edit === "true");
+        setSelectedPlant(null);
+        isNavigatingRef.current = true;
       }
     };
 
@@ -150,6 +157,7 @@ export default function Home() {
     setActivePlantId(id);
     setIsEditing(edit);
     if (aiData) setInitialAiData(aiData);
+    else setInitialAiData(null);
 
     if (pushState) {
       isNavigatingRef.current = true;
@@ -174,6 +182,7 @@ export default function Home() {
     setActiveView("list");
     setActivePlantId(null);
     setIsEditing(false);
+    setSelectedPlant(null);
     setInitialAiData(null);
 
     isNavigatingRef.current = true;
@@ -183,9 +192,9 @@ export default function Home() {
     url.searchParams.delete("edit");
     window.history.pushState({}, "", url);
 
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       window.scrollTo(0, scrollYRef.current);
-    }, 10);
+    });
   };
 
   useEffect(() => {
@@ -231,9 +240,8 @@ export default function Home() {
       }
       const data = await api.identifyPlant(payload, user.uid, plant.nome);
       if (data) {
-        const updated = await api.updatePlant(plant._id, data);
-        setSelectedPlant(updated);
         loadPlants();
+        setSelectedPlant(null);
       }
     } catch (error) {
       console.error("Erro IA:", error);
@@ -245,8 +253,8 @@ export default function Home() {
   const handleDelete = async (id) => {
     try {
       await api.deletePlant(id);
-      setSelectedPlant(null);
       loadPlants();
+      setSelectedPlant(null);
     } catch (error) {
       alert("Erro ao excluir planta");
     }
@@ -314,8 +322,9 @@ export default function Home() {
 
     setAiLoading(true);
     try {
+      const fixedFile = await fixImageOrientation(file);
       const reader = new FileReader();
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(fixedFile);
       reader.onload = async (event) => {
         const base64 = event.target.result;
         openView("add", { aiData: { imagemUrl: base64 } });
@@ -399,16 +408,17 @@ export default function Home() {
     }
   };
 
+  // Reset selectedPlant when filters or search changes to avoid mismatch
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (!selectedPlant) return;
-      if (e.key === "ArrowRight") handleNext();
-      if (e.key === "ArrowLeft") handlePrev();
-      if (e.key === "Escape") setSelectedPlant(null);
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [selectedPlant, filteredPlants]);
+    if (selectedPlant && !filteredPlants.find((p) => p._id === selectedPlant._id)) {
+      setSelectedPlant(null);
+    }
+  }, [filteredPlants, selectedPlant]);
+
+  // Reset selectedPlant when filters change
+  useEffect(() => {
+    setSelectedPlant(null);
+  }, [filterLuz, filterRega, filterPet, filterAtrasada, viewMode, searchTerm]);
 
   const groupedPlants = viewMode
     ? filteredPlants.reduce((acc, plant) => {

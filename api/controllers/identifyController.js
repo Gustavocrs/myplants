@@ -15,6 +15,7 @@ async function convertHeicToJpeg(buffer) {
 
 async function optimizeImageForAI(buffer) {
   return await sharp(buffer)
+    .rotate()
     .resize(1024, 1024, {
       fit: "inside",
       withoutEnlargement: true,

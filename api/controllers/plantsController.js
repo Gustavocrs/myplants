@@ -52,8 +52,9 @@ const saveBase64Image = async (base64String) => {
     const data = matches[2];
     const buffer = Buffer.from(data, "base64");
 
-    // Otimização com Sharp: Redimensionar e converter para WebP
+    // Otimização com Sharp: Corrige orientação + Redimensionar + converter para WebP
     const optimizedBuffer = await sharp(buffer)
+      .rotate()
       .resize(1200, 1200, {
         fit: "inside",
         withoutEnlargement: true,

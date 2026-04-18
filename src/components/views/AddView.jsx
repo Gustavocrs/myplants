@@ -6,6 +6,7 @@ import { FiCamera, FiDroplet, FiSun, FiX, FiZap } from "react-icons/fi";
 import { useToast } from "@/components/Toast";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/services/api";
+import { fixImageOrientation } from "@/lib/imageOrientation";
 
 export default function AddView({ initialData, onClose, onSave }) {
   const { user } = useAuth();
@@ -60,7 +61,8 @@ export default function AddView({ initialData, onClose, onSave }) {
         return;
       }
     }
-    compressImage(file);
+    const fixedFile = await fixImageOrientation(file);
+    compressImage(fixedFile);
   };
 
   const compressImage = (file) => {

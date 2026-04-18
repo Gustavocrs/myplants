@@ -14,6 +14,7 @@ import { useToast } from "@/components/Toast";
 import { useAuth } from "@/context/AuthContext";
 import { useEscapeKey } from "@/hooks/useEscapeKey";
 import { api } from "../services/api";
+import { fixImageOrientation } from "@/lib/imageOrientation";
 import Image from "next/image";
 
 export default function AddPlantModal({
@@ -120,7 +121,8 @@ export default function AddPlantModal({
         return;
       }
     }
-    compressImage(file);
+    const fixedFile = await fixImageOrientation(file);
+    compressImage(fixedFile);
   };
 
   const compressImage = (file) => {
