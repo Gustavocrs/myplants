@@ -24,7 +24,7 @@ export default function EditView({
   const [saving, setSaving] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [imagemUrl, setImagemUrl] = useState(initialPlant?.imagemUrl || null);
+  const [imagemUrl, setImagemUrl] = useState(initialPlant?.imagemUrl || "");
   const [rotation, setRotation] = useState(0);
   const fileInputRef = useRef(null);
 
@@ -39,7 +39,7 @@ export default function EditView({
         petFriendly: initialPlant?.petFriendly || false,
         observacoes: initialPlant.observacoes || "",
       });
-      setImagemUrl(initialPlant?.imagemUrl || null);
+      setImagemUrl(initialPlant?.imagemUrl || "");
       setLoading(false);
     } else if (plantId) {
       loadPlant();
@@ -72,7 +72,7 @@ export default function EditView({
   };
 
   const handleRemoveImage = () => {
-    setImagemUrl(null);
+    setImagemUrl("");
     setRotation(0);
   };
 
@@ -92,8 +92,8 @@ export default function EditView({
     try {
       setSaving(true);
       const dataToSave = { ...formData };
-      if (imagemUrl !== initialPlant?.imagemUrl) {
-        dataToSave.imagemUrl = imagemUrl || "";
+      if (imagemUrl !== (initialPlant?.imagemUrl || "")) {
+        dataToSave.imagemUrl = imagemUrl;
       }
       const updated = await api.updatePlant(plant._id, dataToSave);
       setPlant(updated);
@@ -168,15 +168,19 @@ export default function EditView({
       <div className="w-full md:w-1/2 lg:w-2/5 h-[35vh] md:h-full relative shrink-0 bg-neutral-900">
         {imagemUrl ? (
           <>
-            <Image
-              src={imagemUrl}
-              alt={plant.nome}
-              fill
-              priority
-              sizes="(max-width: 768px) 100vw, 40vw"
-              className="object-cover"
+            <div
+              className="absolute inset-0"
               style={{ transform: `rotate(${rotation}deg)` }}
-            />
+            >
+              <Image
+                src={imagemUrl}
+                alt={plant.nome}
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 40vw"
+                className="object-cover"
+              />
+            </div>
             {/* Botões de controle da imagem */}
             <div className="absolute top-4 right-4 flex gap-2">
               <button
