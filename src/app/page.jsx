@@ -236,7 +236,7 @@ export default function Home() {
       className="flex items-center justify-between p-4 bg-white dark:bg-neutral-800 rounded-2xl border border-neutral-100 dark:border-neutral-700 cursor-pointer hover:shadow-md transition-all"
     >
       <div className="flex-1 min-w-0">
-        <h3 className="text-base font-bold dark:text-white truncate">{plant.nome}</h3>
+        <h3 className="text-sm font-semibold dark:text-white truncate">{plant.nome}</h3>
         {plant.nomeCientifico && (
           <p className="text-xs text-neutral-400 italic truncate">{plant.nomeCientifico}</p>
         )}
