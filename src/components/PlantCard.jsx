@@ -106,13 +106,13 @@ export default function PlantCard({ plant, onClick, onEdit, onWater }) {
       </div>
 
       {/* Footer Info Area - Modern Specs */}
-      <div className="px-5 py-4 flex items-center justify-between bg-white dark:bg-neutral-900 border-t border-neutral-100 dark:border-neutral-800/50">
-        <div className="flex items-center gap-4">
-          <div className="flex flex-col">
-            <span className="text-[10px] uppercase tracking-tighter text-neutral-400 font-bold mb-0.5">
+      <div className="px-3 py-2 flex items-center justify-between bg-white dark:bg-neutral-900 border-t border-neutral-100 dark:border-neutral-800/50">
+        <div className="flex items-center gap-2">
+          <div className="flex flex-col items-center">
+            <span className="text-[8px] uppercase tracking-tighter text-neutral-400 font-bold">
               Luz
             </span>
-            <span className="text-lg leading-none" title={plant.luz}>
+            <span className="text-sm leading-none" title={plant.luz}>
               {plant.luz === "Sol Pleno"
                 ? "☀️"
                 : plant.luz === "Sombra"
@@ -122,23 +122,23 @@ export default function PlantCard({ plant, onClick, onEdit, onWater }) {
                     : "⛅"}
             </span>
           </div>
-          <div className="h-6 w-px bg-neutral-100 dark:bg-neutral-800 mx-1" />
-          <div className="flex flex-col">
-            <span className="text-[10px] uppercase tracking-tighter text-neutral-400 font-bold mb-0.5">
+          <div className="h-4 w-px bg-neutral-100 dark:bg-neutral-800" />
+          <div className="flex flex-col items-center">
+            <span className="text-[8px] uppercase tracking-tighter text-neutral-400 font-bold">
               Rega
             </span>
-            <span className="text-xs font-bold text-neutral-600 dark:text-neutral-300">
+            <span className="text-[10px] font-bold text-neutral-600 dark:text-neutral-300">
               {plant.intervaloRega <= 3
-                ? "Frequente"
+                ? "Freq"
                 : plant.intervaloRega <= 7
-                  ? "Moderada"
-                  : "Espaçada"}
+                  ? "Med"
+                  : "Esp"}
             </span>
           </div>
         </div>
 
         <div
-          className={`w-8 h-8 rounded-lg flex items-center justify-center ${plant.petFriendly ? "bg-primary-50 text-primary-600" : "bg-red-50 text-red-500"} dark:bg-opacity-10`}
+          className={`w-6 h-6 rounded-md flex items-center justify-center text-xs ${plant.petFriendly ? "bg-primary-50 text-primary-600" : "bg-red-50 text-red-500"}`}
           title={plant.petFriendly ? "Pet Friendly" : "Tóxica"}
         >
           {plant.petFriendly ? "🐶" : "🚫"}
