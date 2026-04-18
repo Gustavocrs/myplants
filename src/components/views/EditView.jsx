@@ -31,6 +31,8 @@ export default function EditView({
   const [saving, setSaving] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showReavaliateConfirm, setShowReavaliateConfirm] = useState(false);
+  const [pendingNewImage, setPendingNewImage] = useState(null);
   const [imagemUrl, setImagemUrl] = useState("");
   const [hasLoaded, setHasLoaded] = useState(false);
   const fileInputRef = useRef(null);
@@ -178,9 +180,18 @@ export default function EditView({
     const reader = new FileReader();
     reader.readAsDataURL(fixedFile);
     reader.onload = (event) => {
-      setImagemUrl(event.target.result);
-      setRotation(0);
+      const newImage = event.target.result;
+      setImagemUrl(newImage);
+      if (isPlantEvaluated(plant)) {
+        setPendingNewImage(newImage);
+        setShowReavaliateConfirm(true);
+      }
     };
+  };
+
+  const isPlantEvaluated = (p) => {
+    if (!p) return false;
+    return !!(p.nomeCientifico && p.luz && p.intervaloRega > 0 && p.petFriendly !== undefined);
   };
 
   const handleSave = async () => {
@@ -194,12 +205,58 @@ export default function EditView({
       setPlant(updated);
       onSave();
       showSuccess("Planta atualizada!");
+      
+      if (pendingNewImage) {
+        setShowReavaliateConfirm(false);
+        setAiLoading(true);
+        await runAiAnalysis(pendingNewImage);
+        setPendingNewImage(null);
+      }
+      
       onClose();
     } catch (err) {
       console.error("Erro ao salvar:", err);
       showError(err);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const runAiAnalysis = async (imageToAnalyze = null) => {
+    const currentImage = imageToAnalyze || imagemUrl || plant.imagemUrl;
+    if (!currentImage) return;
+    try {
+      let payload = currentImage;
+      if (currentImage.startsWith("data:")) {
+        const arr = currentImage.split(",");
+        const mime = arr[0].match(/:(.*?);/)?.[1] || "image/jpeg";
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) u8arr[n] = bstr.charCodeAt(n);
+        payload = new File([u8arr], "plant.jpg", { type: mime });
+      } else if (currentImage.startsWith("http")) {
+        const response = await fetch(currentImage);
+        const blob = await response.blob();
+        payload = new File([blob], "plant.jpg", { type: "image/jpeg" });
+      }
+      const data = await api.identifyPlant(payload, user.uid, plant.nome);
+      if (data) {
+        const updatedPlant = { ...plant, ...data };
+        setPlant(updatedPlant);
+        setFormData({
+          nome: data.nome || formData.nome,
+          nomeCientifico: data.nomeCientifico || formData.nomeCientifico,
+          luz: data.luz || formData.luz,
+          intervaloRega: data.intervaloRega || formData.intervaloRega,
+          petFriendly: data.petFriendly ?? formData.petFriendly,
+          observacoes: data.observacoes || formData.observacoes,
+        });
+        showSuccess("Planta reavaliada com sucesso!");
+      }
+    } catch (error) {
+      console.error("Erro IA:", error);
+      showError(error);
     }
   };
 

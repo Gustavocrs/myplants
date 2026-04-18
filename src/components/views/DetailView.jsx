@@ -91,6 +91,28 @@ export default function DetailView({ plant, onClose, onEdit, onDelete, plants = 
         )}
 
         <div className="absolute bottom-8 left-8 right-8 text-white">
+          {/* Indicador de avaliação */}
+          <div
+            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full mb-4 ${
+              plant.nomeCientifico && plant.luz && plant.intervaloRega > 0 && plant.petFriendly !== undefined
+                ? "bg-green-500/20 border border-green-500/30"
+                : "bg-red-500/20 border border-red-500/30"
+            }`}
+          >
+            <div
+              className={`w-2 h-2 rounded-full ${
+                plant.nomeCientifico && plant.luz && plant.intervaloRega > 0 && plant.petFriendly !== undefined
+                  ? "bg-green-500"
+                  : "bg-red-500"
+              }`}
+            />
+            <span className="text-[10px] font-black uppercase tracking-widest">
+              {plant.nomeCientifico && plant.luz && plant.intervaloRega > 0 && plant.petFriendly !== undefined
+                ? "Avaliada"
+                : "Não avaliada"}
+            </span>
+          </div>
+          
           <span className="inline-block px-3 py-1 bg-primary-500/20 backdrop-blur-md border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest mb-4">
             Detalhes da Planta
           </span>

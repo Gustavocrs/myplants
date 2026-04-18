@@ -77,6 +77,19 @@ export default function PlantCard({ plant, onClick, onEdit, onWater }) {
 
         {/* Top Actions - Glassmorphism */}
         <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
+          {/* Indicador de avaliação */}
+          <div
+            className={`w-3 h-3 rounded-full ${
+              plant.nomeCientifico && plant.luz && plant.intervaloRega > 0 && plant.petFriendly !== undefined
+                ? "bg-green-500"
+                : "bg-red-500"
+            }`}
+            title={
+              plant.nomeCientifico && plant.luz && plant.intervaloRega > 0 && plant.petFriendly !== undefined
+                ? "Avaliada"
+                : "Não avaliada"
+            }
+          />
           {isOverdue && (
             <button
               onClick={(e) => {
