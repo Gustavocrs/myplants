@@ -179,7 +179,7 @@ export default function AddPlantModal({
       if (data.intervaloRega) setIntervaloRega(data.intervaloRega);
       setPetFriendly(!!data.petFriendly);
       if (data.observacoes) setObservacoes(data.observacoes);
-      showSuccess("Planta identificada com sucesso!");
+      showSuccess("Dados extraídos da imagem!");
     } catch (error) {
       console.error("Erro IA:", error);
       showError(error);

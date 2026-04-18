@@ -44,12 +44,8 @@ const responseSchema = {
     observacoes: { type: Type.STRING },
   },
   required: [
-    "nome",
-    "nomeCientifico",
     "luz",
     "intervaloRega",
-    "petFriendly",
-    "observacoes",
   ],
 };
 
@@ -118,10 +114,10 @@ exports.identifyPlant = async (req, res) => {
     const ai = new GoogleGenAI({ apiKey });
 
     let promptStr =
-      "Analise a imagem desta planta e identifique sua espécie. Avalie também o seu estado de saúde visível. Preencha todos os campos do schema solicitado com precisão. Para o campo 'luz', use estritamente um destes valores: 'Sombra', 'Meia-sombra', 'Luz Difusa', 'Sol Pleno'.";
+      "Analise a imagem. Identifique luz necessária (Sombra/Meia-sombra/Luz Difusa/Sol Pleno), intervalo de rega em dias e se é segura para pets. Retorne JSON.";
 
     if (hint && hint.trim() !== "") {
-      promptStr += ` O usuário sugeriu que o nome popular da planta possa ser "${hint.trim()}". Considere fortemente essa informação como dica para a identificação, validando-a com o que você vê na imagem.`;
+      promptStr += ` Dica do usuário: "${hint.trim()}".`;
     }
 
     let response;
