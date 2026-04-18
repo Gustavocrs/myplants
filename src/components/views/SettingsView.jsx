@@ -145,14 +145,14 @@ export default function SettingsView({ onClose, plants = [], onUpdatePlants }) {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-none md:flex-none flex items-center gap-3 px-4 py-2.5 md:py-3.5 rounded-2xl text-sm font-bold transition-all whitespace-nowrap ${
+                className={`flex-none md:flex-none flex items-center gap-3 px-3 md:px-4 py-2.5 md:py-3.5 rounded-2xl text-sm font-bold transition-all whitespace-nowrap ${
                   activeTab === tab.id
                     ? "bg-white dark:bg-neutral-800 text-primary-600 shadow-md scale-105"
                     : "text-neutral-400 hover:bg-white/50 dark:hover:bg-neutral-800/50"
                 }`}
               >
                 <span className="text-xl md:text-lg">{tab.icon}</span>
-                <span className="tracking-tight">{tab.label}</span>
+                <span className="hidden md:inline tracking-tight">{tab.label}</span>
               </button>
             ))}
           </nav>
