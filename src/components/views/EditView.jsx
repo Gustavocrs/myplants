@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { FiTrash2, FiZap } from "react-icons/fi";
+import { useEffect, useRef, useState } from "react";
+import { FiTrash2, FiZap, FiRotateCw, FiImage } from "react-icons/fi";
 import { useToast } from "@/components/Toast";
 import { useAuth } from "@/context/AuthContext";
 import { api } from "@/services/api";
+import { fixImageOrientation } from "@/lib/imageOrientation";
 import Image from "next/image";
 
 export default function EditView({
@@ -23,6 +24,9 @@ export default function EditView({
   const [saving, setSaving] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [imagemUrl, setImagemUrl] = useState(initialPlant?.imagemUrl || null);
+  const [rotation, setRotation] = useState(0);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (initialPlant) {
@@ -32,9 +36,10 @@ export default function EditView({
         nomeCientifico: initialPlant.nomeCientifico || "",
         luz: initialPlant.luz || "Meia-sombra",
         intervaloRega: initialPlant.intervaloRega || 7,
-        petFriendly: initialPlant.petFriendly || false,
+        petFriendly: initialPetFriendly || false,
         observacoes: initialPlant.observacoes || "",
       });
+      setImagemUrl(initialPlant?.imagemUrl || null);
       setLoading(false);
     } else if (plantId) {
       loadPlant();
@@ -54,6 +59,7 @@ export default function EditView({
         petFriendly: data.petFriendly || false,
         observacoes: data.observacoes || "",
       });
+      setImagemUrl(data.imagemUrl || null);
     } catch (err) {
       console.error("Erro ao carregar planta:", err);
     } finally {
@@ -61,10 +67,35 @@ export default function EditView({
     }
   };
 
+  const handleRotate = () => {
+    setRotation((prev) => (prev + 90) % 360);
+  };
+
+  const handleRemoveImage = () => {
+    setImagemUrl(null);
+    setRotation(0);
+  };
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const fixedFile = await fixImageOrientation(file);
+    const reader = new FileReader();
+    reader.readAsDataURL(fixedFile);
+    reader.onload = (event) => {
+      setImagemUrl(event.target.result);
+      setRotation(0);
+    };
+  };
+
   const handleSave = async () => {
     try {
       setSaving(true);
-      const updated = await api.updatePlant(plant._id, formData);
+      const dataToSave = { ...formData };
+      if (imagemUrl !== initialPlant?.imagemUrl) {
+        dataToSave.imagemUrl = imagemUrl || "";
+      }
+      const updated = await api.updatePlant(plant._id, dataToSave);
       setPlant(updated);
       onSave();
       showSuccess("Planta atualizada!");
@@ -78,12 +109,13 @@ export default function EditView({
   };
 
   const handleAiAnalyze = async () => {
-    if (!plant.imagemUrl) return;
+    if (!imagemUrl && !plant.imagemUrl) return;
     setAiLoading(true);
     try {
-      let payload = plant.imagemUrl;
-      if (plant.imagemUrl.startsWith("data:")) {
-        const arr = plant.imagemUrl.split(",");
+      const currentImage = imagemUrl || plant.imagemUrl;
+      let payload = currentImage;
+      if (currentImage.startsWith("data:")) {
+        const arr = currentImage.split(",");
         const mime = arr[0].match(/:(.*?);/)[1];
         const bstr = atob(arr[1]);
         let n = bstr.length;
@@ -133,16 +165,53 @@ export default function EditView({
 
   return (
     <div className="fixed inset-0 z-[100] bg-white dark:bg-neutral-900 flex flex-col md:flex-row overflow-hidden">
-      <div className="w-full md:w-1/2 lg:w-2/5 h-[35vh] md:h-full relative shrink-0">
-        <Image
-          src={plant.imagemUrl}
-          alt={plant.nome}
-          fill
-          priority
-          sizes="(max-width: 768px) 100vw, 40vw"
-          className="object-cover"
+      <div className="w-full md:w-1/2 lg:w-2/5 h-[35vh] md:h-full relative shrink-0 bg-neutral-900">
+        {imagemUrl ? (
+          <>
+            <Image
+              src={imagemUrl}
+              alt={plant.nome}
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 40vw"
+              className="object-cover"
+              style={{ transform: `rotate(${rotation}deg)` }}
+            />
+            {/* Botões de controle da imagem */}
+            <div className="absolute top-4 right-4 flex gap-2">
+              <button
+                onClick={handleRotate}
+                className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/40 transition-all"
+                title="Girar"
+              >
+                <FiRotateCw size={20} />
+              </button>
+              <button
+                onClick={handleRemoveImage}
+                className="w-10 h-10 bg-red-500/80 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-all"
+                title="Remover foto"
+              >
+                <FiTrash2 size={18} />
+              </button>
+            </div>
+          </>
+        ) : (
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="absolute inset-0 flex flex-col items-center justify-center text-neutral-400 hover:text-neutral-300 transition-colors"
+          >
+            <FiImage size={48} />
+            <span className="mt-2 text-sm font-medium">Adicionar foto</span>
+          </button>
+        )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="hidden"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-neutral-900/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-neutral-900/30 to-transparent pointer-events-none" />
         <div className="absolute bottom-6 left-6 right-6">
           <h1 className="text-3xl md:text-4xl font-black text-white font-heading tracking-tight drop-shadow-lg">
             Editando
